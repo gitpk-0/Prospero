@@ -1,0 +1,18 @@
+{
+  "frontendFolder": "/home/pk/Prospero/prospero (1)/prospero/./frontend",
+  "themeFolder": "themes",
+  "themeResourceFolder": "/home/pk/Prospero/prospero (1)/prospero/./frontend/generated/jar-resources",
+  "staticOutput": "/home/pk/Prospero/prospero (1)/prospero/target/classes/META-INF/VAADIN/webapp/VAADIN/static",
+  "generatedFolder": "generated",
+  "statsOutput": "/home/pk/Prospero/prospero (1)/prospero/target/classes/META-INF/VAADIN/config",
+  "frontendBundleOutput": "/home/pk/Prospero/prospero (1)/prospero/target/classes/META-INF/VAADIN/webapp",
+  "devBundleOutput": "/home/pk/Prospero/prospero (1)/prospero/src/main/dev-bundle/webapp",
+  "devBundleStatsOutput": "/home/pk/Prospero/prospero (1)/prospero/src/main/dev-bundle/config",
+  "jarResourcesFolder": "/home/pk/Prospero/prospero (1)/prospero/./frontend/generated/jar-resources",
+  "generatedFlowImportsFolder": "target/frontend",
+  "themeName": "prospero",
+  "clientServiceWorkerSource": "/home/pk/Prospero/prospero (1)/prospero/target/sw.ts",
+  "pwaEnabled": false,
+  "offlineEnabled": false,
+  "offlinePath": "'offline.html'"
+}
