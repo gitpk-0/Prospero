@@ -22,6 +22,6 @@ public class ListView extends VerticalLayout {
         addClassName("list-view");
         setSizeFull(); // makes this view the same size as the entire browser window
 
-        
+
     }
 }
