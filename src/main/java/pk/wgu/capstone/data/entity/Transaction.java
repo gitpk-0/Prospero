@@ -1,6 +1,8 @@
 package pk.wgu.capstone.data.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
@@ -18,10 +20,12 @@ public class Transaction extends AbstractEntity{
     @NotEmpty
     private String description;
 
+    @ManyToOne
     @NotNull
     private Category category;
 
     @NotEmpty
+    @Enumerated
     private Type type;
 
     public LocalDate getDate() {

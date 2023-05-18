@@ -1,7 +1,9 @@
 package pk.wgu.capstone.data.entity;
 
+import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotBlank;
 
+@Entity
 public class Category extends AbstractEntity {
 
     @NotBlank
