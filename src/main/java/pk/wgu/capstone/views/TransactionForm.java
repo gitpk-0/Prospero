@@ -66,6 +66,15 @@ public class TransactionForm extends FormLayout {
     }
 
     /**
+     * Sets the provided Transaction object as the bean for the binder.
+     *
+     * @param transaction The Transaction object to be set.
+     */
+    public void setTransaction(Transaction transaction) {
+        binder.setBean(transaction);
+    }
+
+    /**
      * Creates the button layout for the form.
      *
      * @return The horizontal layout containing the buttons.
@@ -166,6 +175,7 @@ public class TransactionForm extends FormLayout {
 
     /**
      * Adds a Close event listener to the TransactionForm.
+     *
      * @param listener The listener to be added.
      * @return The registration object for the listener
      */

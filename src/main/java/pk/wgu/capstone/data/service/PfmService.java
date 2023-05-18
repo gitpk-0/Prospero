@@ -2,9 +2,11 @@ package pk.wgu.capstone.data.service;
 
 import pk.wgu.capstone.data.entity.Category;
 import pk.wgu.capstone.data.entity.Transaction;
+import pk.wgu.capstone.data.entity.Type;
 import pk.wgu.capstone.data.repository.CategoryRepository;
 import pk.wgu.capstone.data.repository.TransactionRepository;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class PfmService { // Personal Finance Management Service
@@ -43,5 +45,9 @@ public class PfmService { // Personal Finance Management Service
 
     public List<Category> findAllCategories() {
         return categoryRepository.findAll();
+    }
+
+    public List<Type> findAllTypes() {
+        return Arrays.asList(Type.values());
     }
 }
