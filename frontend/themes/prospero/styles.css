@@ -1,4 +1,12 @@
-@import url('./main-layout.css');
-    [theme~="dark"] {
-
+/*narrow screens*/
+@media all and (max-width: 900px) {
+    .list-view.editing .toolbar,
+    .list-view.editing .contact-grid {
+        display: none;
     }
+}
+
+a[highlight] {
+    font-weight: bold;
+    text-decoration: underline;
+}
