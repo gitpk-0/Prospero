@@ -6,6 +6,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -15,7 +16,7 @@ public class Transaction extends AbstractEntity {
     private LocalDate date;
 
     @NotNull
-    private Double amount;
+    private BigDecimal amount;
 
     @NotEmpty
     private String description;
@@ -36,11 +37,11 @@ public class Transaction extends AbstractEntity {
         this.date = date;
     }
 
-    public Double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

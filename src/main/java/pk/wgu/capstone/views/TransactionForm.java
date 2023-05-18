@@ -15,6 +15,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
+import pk.wgu.capstone.data.converter.BigDecimalToDoubleConverter;
 import pk.wgu.capstone.data.entity.Category;
 import pk.wgu.capstone.data.entity.Transaction;
 import pk.wgu.capstone.data.entity.Type;
@@ -25,6 +26,7 @@ public class TransactionForm extends FormLayout {
 
     // data binding
     Binder<Transaction> binder = new BeanValidationBinder<>(Transaction.class);
+    BigDecimalToDoubleConverter converter = new BigDecimalToDoubleConverter();
 
     // form fields
     DatePicker date = new DatePicker("Date");
@@ -46,6 +48,9 @@ public class TransactionForm extends FormLayout {
      */
     public TransactionForm(List<Category> categories, List<Type> types) {
         addClassName("transaction-form"); // for styling
+        binder.forField(amount)
+                        .withConverter(converter)
+                                .bind(Transaction::getAmount, Transaction::setAmount);
         binder.bindInstanceFields(this); // bind fields to the data model
 
         // set items and label generators for category and type fields

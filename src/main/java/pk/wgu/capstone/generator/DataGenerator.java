@@ -11,6 +11,7 @@ import pk.wgu.capstone.data.entity.Type;
 import pk.wgu.capstone.data.repository.CategoryRepository;
 import pk.wgu.capstone.data.repository.TransactionRepository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,7 +56,7 @@ public class DataGenerator {
             for (int i = 0; i < 40; i++) {
                 Transaction transaction = new Transaction();
                 transaction.setDate(generateRandomDate());
-                transaction.setAmount(r.nextDouble(1200));
+                transaction.setAmount(BigDecimal.valueOf(r.nextDouble(1200)));
                 transaction.setType(types.get(r.nextInt(types.size())));
                 if (transaction.getType().equals(Type.INCOME)) {
                     transaction.setDescription(randomIncomeDescription());
