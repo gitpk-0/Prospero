@@ -9,10 +9,14 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HighlightConditions;
 import com.vaadin.flow.router.RouterLink;
+import pk.wgu.capstone.security.SecurityService;
 
 public class MainLayout extends AppLayout {
 
-    public MainLayout() {
+    private SecurityService securityService;
+
+    public MainLayout(SecurityService securityService) {
+        this.securityService = securityService;
         createHeader();
         createDrawer();
     }
@@ -21,9 +25,8 @@ public class MainLayout extends AppLayout {
         H1 logo = new H1("Prospero");
         logo.addClassNames("text-l", "m-m");
 
-        // String username = securityService.getAuthenticatedUser().getUsername();
-        // Button logout = new Button("Log out", e -> securityService.logout())
-        Button logout = new Button("Log out");
+        String username = securityService.getAuthenticatedUser().getUsername();
+        Button logout = new Button("Log out", e -> securityService.logout());
 
         HorizontalLayout header = new HorizontalLayout(new DrawerToggle(), logo, logout);
         header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);

@@ -39,7 +39,7 @@ public class ListView extends VerticalLayout {
     }
 
     private void configureForm() {
-        form = new TransactionForm(service.)
+        // form = new TransactionForm(service.findAllCategories())
     }
 
     private void configureGrid() {
