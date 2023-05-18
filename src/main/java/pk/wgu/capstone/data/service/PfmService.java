@@ -1,5 +1,6 @@
 package pk.wgu.capstone.data.service;
 
+import org.springframework.stereotype.Service;
 import pk.wgu.capstone.data.entity.Category;
 import pk.wgu.capstone.data.entity.Transaction;
 import pk.wgu.capstone.data.entity.Type;
@@ -9,6 +10,7 @@ import pk.wgu.capstone.data.repository.TransactionRepository;
 import java.util.Arrays;
 import java.util.List;
 
+@Service
 public class PfmService { // Personal Finance Management Service
 
     private final TransactionRepository transactionRepository;

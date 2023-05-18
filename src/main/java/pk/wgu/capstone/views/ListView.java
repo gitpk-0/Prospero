@@ -10,6 +10,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
+import jakarta.annotation.security.PermitAll;
 import org.springframework.context.annotation.Scope;
 import pk.wgu.capstone.data.entity.Transaction;
 import pk.wgu.capstone.data.service.PfmService;
@@ -18,6 +19,7 @@ import pk.wgu.capstone.data.service.PfmService;
 @Scope("prototype")
 @PageTitle("Home | Prospero")
 @Route(value = "", layout = MainLayout.class)
+@PermitAll // all logged in users can access this page
 public class ListView extends VerticalLayout {
 
     Grid<Transaction> grid = new Grid<>(Transaction.class);
@@ -25,7 +27,8 @@ public class ListView extends VerticalLayout {
     TransactionForm form;
     private PfmService service;
 
-    public ListView() {
+    public ListView(PfmService service) {
+        this.service = service;
         addClassName("list-view");
         setSizeFull(); // makes this view the same size as the entire browser window
 
@@ -45,9 +48,12 @@ public class ListView extends VerticalLayout {
     private void configureGrid() {
         grid.addClassName("transaction-grid");
         grid.setSizeFull();
-        grid.setColumns("Date", "Amount", "Description");
+        grid.setColumns("date", "amount", "description");
         grid.addColumn(transaction -> transaction.getCategory().getName()).setHeader("Category");
         grid.addColumn(Transaction::getType).setHeader("Type");
+        grid.getColumns().forEach(col -> col.setAutoWidth(true));
+
+        grid.asSingleSelect().addValueChangeListener(e -> editTransaction(e.getValue()));
     }
 
     private void configureForm() {
