@@ -9,12 +9,12 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @Entity
-public class Transaction extends AbstractEntity{
+public class Transaction extends AbstractEntity {
 
-    @NotEmpty
+    @NotNull
     private LocalDate date;
 
-    @NotEmpty
+    @NotNull
     private Double amount;
 
     @NotEmpty
@@ -24,7 +24,7 @@ public class Transaction extends AbstractEntity{
     @NotNull
     private Category category;
 
-    @NotEmpty
+    @NotNull
     @Enumerated
     private Type type;
 
@@ -74,7 +74,7 @@ public class Transaction extends AbstractEntity{
                 "date=" + date +
                 ", amount=" + amount +
                 ", description='" + description + '\'' +
-                ", category=" + category +
+                ", category=" + category.getName() +
                 ", type=" + type +
                 '}';
     }

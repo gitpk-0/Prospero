@@ -35,6 +35,7 @@ public class DataGenerator {
             logger.info("Generating demo data:");
             logger.info("Generating categories...");
             List<Category> categories = new ArrayList<>();
+            categories.add(new Category("Income"));
             categories.add(new Category("Rent"));
             categories.add(new Category("Car"));
             categories.add(new Category("Food"));
@@ -54,14 +55,14 @@ public class DataGenerator {
             for (int i = 0; i < 40; i++) {
                 Transaction transaction = new Transaction();
                 transaction.setDate(generateRandomDate());
-                transaction.setAmount(r.nextDouble(1200.00));
+                transaction.setAmount(r.nextDouble(1200));
                 transaction.setType(types.get(r.nextInt(types.size())));
                 if (transaction.getType().equals(Type.INCOME)) {
                     transaction.setDescription(randomIncomeDescription());
-                    transaction.setCategory(categories.get(r.nextInt(categories.size())));
+                    transaction.setCategory(categories.get(0));
                 } else {
                     transaction.setDescription(randomExpenseDescription());
-                    transaction.setCategory(new Category("Income"));
+                    transaction.setCategory(categories.get(r.nextInt(categories.size() - 1) + 1)); // exclude index 0
                 }
 
                 logger.info(transaction.toString());
