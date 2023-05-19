@@ -1,9 +1,6 @@
 package pk.wgu.capstone.views;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ComponentEvent;
-import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -21,17 +18,23 @@ import pk.wgu.capstone.data.entity.Category;
 import pk.wgu.capstone.data.entity.Transaction;
 import pk.wgu.capstone.data.entity.Type;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class TransactionForm extends FormLayout {
 
     // data binding
     Binder<Transaction> binder = new BeanValidationBinder<>(Transaction.class);
+
+    // converters
     BigDecimalToDoubleConverter amountConverter = new BigDecimalToDoubleConverter();
     SqlDateToLocalDateConverter dateConverter = new SqlDateToLocalDateConverter();
+    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("E, MMM d, yyyy");
 
     // form fields
     DatePicker date = new DatePicker("Date");
+    Text formattedDate;
     NumberField amount = new NumberField("Amount");
     TextField description = new TextField("Description");
     ComboBox<Category> category = new ComboBox<>("Category");
@@ -64,8 +67,13 @@ public class TransactionForm extends FormLayout {
         type.setItems(types);
         type.setItemLabelGenerator(Type::name);
 
+        formattedDate = new Text(date.toString());
+        date.setPlaceholder(formattedDate.getText());
+
+
         add( // add form fields and button layout to the layout
                 date,
+                formattedDate,
                 amount,
                 description,
                 category,
@@ -82,9 +90,16 @@ public class TransactionForm extends FormLayout {
      * @param transaction The Transaction object to be set.
      */
     public void setTransaction(Transaction transaction) {
-        binder.setBean(transaction);
-        if (transaction != null) {
-            date.setValue(transaction.getDate().toLocalDate());
+        try {
+            if (transaction.getDate() != null) {
+                LocalDate transactionDate = transaction.getDate().toLocalDate();
+                // date.setValue(transaction.getDate().toLocalDate());
+                formattedDate.setText(transactionDate.format(dateFormatter));
+                System.out.println("Transaction date: " + formattedDate.getText());
+            }
+            binder.setBean(transaction);
+        } catch (Exception e) {
+            binder.setBean(transaction);
         }
     }
 

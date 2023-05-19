@@ -3,6 +3,7 @@ package pk.wgu.capstone.views;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -46,12 +47,23 @@ public class ListView extends VerticalLayout {
     }
 
     private void configureGrid() {
+        grid.removeAllColumns();
         grid.addClassName("transaction-grid");
         grid.setSizeFull();
-        grid.setColumns("date", "amount", "description");
-        grid.addColumn(transaction -> transaction.getCategory().getName()).setHeader("Category");
-        grid.addColumn(Transaction::getType).setHeader("Type");
+        // grid.setColumns("amount", "description");
+        Column<Transaction> date = grid.addColumn(Transaction::getDate).setHeader("Date");
+        Column<Transaction> amt = grid.addColumn(Transaction::getAmount).setHeader("Amount");
+        Column<Transaction> desc = grid.addColumn(Transaction::getDescription).setHeader("Description");
+        Column<Transaction> cat = grid.addColumn(transaction -> transaction.getCategory().getName()).setHeader("Category");
+        Column<Transaction> type = grid.addColumn(Transaction::getType).setHeader("Type");
+
+        // List<Column<Transaction>> order = Arrays.asList(date, amt, desc, cat, type);
+        // grid.setColumnOrder(order);
+
+
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
+
+        // grid.setColumnOrder();
 
         grid.asSingleSelect().addValueChangeListener(e -> editTransaction(e.getValue()));
     }
