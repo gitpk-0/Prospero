@@ -7,13 +7,13 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.sql.Date;
 
 @Entity
 public class Transaction extends AbstractEntity {
 
     @NotNull
-    private LocalDate date;
+    private Date date;
 
     @NotNull
     private BigDecimal amount;
@@ -29,11 +29,11 @@ public class Transaction extends AbstractEntity {
     @Enumerated
     private Type type;
 
-    public LocalDate getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 

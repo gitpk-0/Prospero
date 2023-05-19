@@ -13,6 +13,7 @@ import pk.wgu.capstone.data.repository.TransactionRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -78,11 +79,17 @@ public class DataGenerator {
     }
 
 
-    static LocalDate generateRandomDate() {
-        long minDay = LocalDate.MIN.toEpochDay();
-        long maxDay = LocalDate.MAX.toEpochDay();
-        long randomDay = ThreadLocalRandom.current().nextLong(minDay, maxDay);
-        return LocalDate.ofEpochDay(randomDay);
+    static Date generateRandomDate() {
+        LocalDate minDay = LocalDate.now().minusYears(1);
+        LocalDate maxDay = LocalDate.now().plusYears(1);
+
+        long minEpochDay = minDay.toEpochDay();
+        long maxEpochDay = maxDay.toEpochDay();
+        long randomDay = ThreadLocalRandom.current().nextLong(minEpochDay, maxEpochDay + 1);
+
+        // System.out.println("Date+++ " + Date.valueOf(LocalDate.ofEpochDay(randomDay)));
+
+        return Date.valueOf(LocalDate.ofEpochDay(randomDay));
     }
 
     static String randomExpenseDescription() {

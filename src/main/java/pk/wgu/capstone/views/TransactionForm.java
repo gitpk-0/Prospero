@@ -16,6 +16,7 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
 import pk.wgu.capstone.data.converter.BigDecimalToDoubleConverter;
+import pk.wgu.capstone.data.converter.SqlDateToLocalDateConverter;
 import pk.wgu.capstone.data.entity.Category;
 import pk.wgu.capstone.data.entity.Transaction;
 import pk.wgu.capstone.data.entity.Type;
@@ -26,7 +27,8 @@ public class TransactionForm extends FormLayout {
 
     // data binding
     Binder<Transaction> binder = new BeanValidationBinder<>(Transaction.class);
-    BigDecimalToDoubleConverter converter = new BigDecimalToDoubleConverter();
+    BigDecimalToDoubleConverter amountConverter = new BigDecimalToDoubleConverter();
+    SqlDateToLocalDateConverter dateConverter = new SqlDateToLocalDateConverter();
 
     // form fields
     DatePicker date = new DatePicker("Date");
@@ -49,8 +51,11 @@ public class TransactionForm extends FormLayout {
     public TransactionForm(List<Category> categories, List<Type> types) {
         addClassName("transaction-form"); // for styling
         binder.forField(amount)
-                        .withConverter(converter)
-                                .bind(Transaction::getAmount, Transaction::setAmount);
+                .withConverter(amountConverter)
+                .bind(Transaction::getAmount, Transaction::setAmount);
+        binder.forField(date)
+                        .withConverter(dateConverter)
+                                .bind(Transaction::getDate,Transaction::setDate);
         binder.bindInstanceFields(this); // bind fields to the data model
 
         // set items and label generators for category and type fields
@@ -64,6 +69,7 @@ public class TransactionForm extends FormLayout {
                 amount,
                 description,
                 category,
+                type,
                 createButtonLayout()
         );
 
@@ -77,6 +83,9 @@ public class TransactionForm extends FormLayout {
      */
     public void setTransaction(Transaction transaction) {
         binder.setBean(transaction);
+        if (transaction != null) {
+            date.setValue(transaction.getDate().toLocalDate());
+        }
     }
 
     /**

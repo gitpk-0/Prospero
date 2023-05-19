@@ -22,6 +22,7 @@ public class MainLayout extends AppLayout {
     }
 
     private void createDrawer() {
+        // Image p_logo = new Image("/images/icon.png");
         H1 logo = new H1("Prospero");
         logo.addClassNames("text-l", "m-m");
 
