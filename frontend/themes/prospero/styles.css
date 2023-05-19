@@ -1,7 +1,7 @@
 /*narrow screens*/
 @media all and (max-width: 900px) {
     .list-view.editing .toolbar,
-    .list-view.editing .contact-grid {
+    .list-view.editing .transaction-grid {
         display: none;
     }
 }
