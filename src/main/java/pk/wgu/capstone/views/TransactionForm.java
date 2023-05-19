@@ -18,7 +18,6 @@ import pk.wgu.capstone.data.entity.Category;
 import pk.wgu.capstone.data.entity.Transaction;
 import pk.wgu.capstone.data.entity.Type;
 
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -73,7 +72,7 @@ public class TransactionForm extends FormLayout {
 
         add( // add form fields and button layout to the layout
                 date,
-                formattedDate,
+                // formattedDate,
                 amount,
                 description,
                 category,
@@ -90,17 +89,17 @@ public class TransactionForm extends FormLayout {
      * @param transaction The Transaction object to be set.
      */
     public void setTransaction(Transaction transaction) {
-        try {
-            if (transaction.getDate() != null) {
-                LocalDate transactionDate = transaction.getDate().toLocalDate();
-                // date.setValue(transaction.getDate().toLocalDate());
-                formattedDate.setText(transactionDate.format(dateFormatter));
-                System.out.println("Transaction date: " + formattedDate.getText());
-            }
-            binder.setBean(transaction);
-        } catch (Exception e) {
-            binder.setBean(transaction);
-        }
+        // try {
+        //     if (transaction.getDate() != null) {
+        //         LocalDate transactionDate = transaction.getDate().toLocalDate();
+        //         // date.setValue(transaction.getDate().toLocalDate());
+        //         formattedDate.setText(transactionDate.format(dateFormatter));
+        //         System.out.println("Transaction date: " + formattedDate.getText());
+        //     }
+        //     binder.setBean(transaction);
+        // } catch (Exception e) {
+        // }
+        binder.setBean(transaction);
     }
 
     /**

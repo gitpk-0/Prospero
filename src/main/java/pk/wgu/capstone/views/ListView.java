@@ -16,6 +16,8 @@ import org.springframework.context.annotation.Scope;
 import pk.wgu.capstone.data.entity.Transaction;
 import pk.wgu.capstone.data.service.PfmService;
 
+import java.time.format.DateTimeFormatter;
+
 @SpringComponent
 @Scope("prototype")
 @PageTitle("Home | Prospero")
@@ -27,6 +29,7 @@ public class ListView extends VerticalLayout {
     TextField filterText = new TextField();
     TransactionForm form;
     private PfmService service;
+    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("E, MMM d, yyyy");
 
     public ListView(PfmService service) {
         this.service = service;
@@ -50,20 +53,13 @@ public class ListView extends VerticalLayout {
         grid.removeAllColumns();
         grid.addClassName("transaction-grid");
         grid.setSizeFull();
-        // grid.setColumns("amount", "description");
-        Column<Transaction> date = grid.addColumn(Transaction::getDate).setHeader("Date");
+
+        Column<Transaction> date = grid.addColumn(t -> t.getDate().toLocalDate().format(dateFormatter)).setHeader("Date");
         Column<Transaction> amt = grid.addColumn(Transaction::getAmount).setHeader("Amount");
         Column<Transaction> desc = grid.addColumn(Transaction::getDescription).setHeader("Description");
         Column<Transaction> cat = grid.addColumn(transaction -> transaction.getCategory().getName()).setHeader("Category");
         Column<Transaction> type = grid.addColumn(Transaction::getType).setHeader("Type");
-
-        // List<Column<Transaction>> order = Arrays.asList(date, amt, desc, cat, type);
-        // grid.setColumnOrder(order);
-
-
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
-
-        // grid.setColumnOrder();
 
         grid.asSingleSelect().addValueChangeListener(e -> editTransaction(e.getValue()));
     }
