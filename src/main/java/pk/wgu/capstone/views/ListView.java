@@ -30,6 +30,7 @@ public class ListView extends VerticalLayout {
     TransactionForm form;
     private PfmService service;
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("E, MMM d, yyyy");
+    private boolean isEditorOpen = false;
 
     public ListView(PfmService service) {
         this.service = service;
@@ -61,8 +62,12 @@ public class ListView extends VerticalLayout {
         grid.addColumn(transaction -> transaction.getCategory().getName()).setHeader("Category");
         grid.addColumn(Transaction::getType).setHeader("Type");
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
+        grid.asSingleSelect().addValueChangeListener(e -> {
+            if (!isEditorOpen) {
+                editTransaction(e.getValue());
+            }
+        });
 
-        grid.asSingleSelect().addValueChangeListener(e -> editTransaction(e.getValue()));
     }
 
     private void configureForm() {
@@ -90,6 +95,13 @@ public class ListView extends VerticalLayout {
         form.setTransaction(null);
         form.setVisible(false);
         removeClassName("editing");
+        isEditorOpen = false;
+        grid.deselectAll();
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            System.out.println("WAIT DIDN'T WORK");
+        }
     }
 
     private void updateList() {
@@ -108,6 +120,7 @@ public class ListView extends VerticalLayout {
             form.setTransaction(transaction);
             form.setVisible(true);
             addClassName("editing");
+            isEditorOpen = true;
         }
     }
 

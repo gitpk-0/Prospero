@@ -91,6 +91,20 @@ public class TransactionForm extends FormLayout {
         type.setItemLabelGenerator(Type::name);
 
 
+        category.addValueChangeListener(e -> {
+            String cat = e.getValue().getName();
+            if (cat != null && cat.equals("Income")) {
+                type.setValue(Type.INCOME);
+            }
+        });
+
+        type.addValueChangeListener(e -> {
+            if (e.getValue() != null && e.getValue() == Type.INCOME) {
+                category.setValue(categories.get(0));
+            }
+        });
+
+
         add( // add form fields and button layout to the layout
                 date,
                 amount,
@@ -139,13 +153,8 @@ public class TransactionForm extends FormLayout {
      * Validates and saves the form data when the save button is clicked.
      */
     private void validateAndSave() {
-        binder.validate();
-
         if (binder.isValid()) {
             fireEvent(new SaveEvent(this, binder.getBean()));
-        } else {
-
-            System.out.println("Made it HEREEEE");
         }
     }
 
