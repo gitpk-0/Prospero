@@ -92,8 +92,8 @@ public class TransactionForm extends FormLayout {
 
 
         category.addValueChangeListener(e -> {
-            String cat = e.getValue().getName();
-            if (cat != null && cat.equals("Income")) {
+            Category c = e.getValue();
+            if (c != null && c.equals("Income")) {
                 type.setValue(Type.INCOME);
             }
         });

@@ -92,13 +92,14 @@ public class ListView extends VerticalLayout {
     }
 
     private void closeEditor() {
+        grid.deselectAll();
         form.setTransaction(null);
-        form.setVisible(false);
         removeClassName("editing");
         isEditorOpen = false;
-        grid.deselectAll();
+        form.setVisible(false);
         try {
-            Thread.sleep(5000);
+            Thread.sleep(5);
+            System.out.println("WAIT worked!!!");
         } catch (InterruptedException e) {
             System.out.println("WAIT DIDN'T WORK");
         }
