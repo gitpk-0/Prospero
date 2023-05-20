@@ -22,6 +22,7 @@ import pk.wgu.capstone.data.entity.Category;
 import pk.wgu.capstone.data.entity.Transaction;
 import pk.wgu.capstone.data.entity.Type;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 
@@ -66,6 +67,7 @@ public class TransactionForm extends FormLayout {
         binder.forField(amount)
                 .withConverter(amountConverter)
                 .withValidator(Objects::nonNull, "Amount is required")
+                .withValidator(amount -> amount.compareTo(BigDecimal.valueOf(0.009)) > 0, "Amount must be at least $0.01")
                 .bind(Transaction::getAmount, Transaction::setAmount);
 
         binder.forField(category)
