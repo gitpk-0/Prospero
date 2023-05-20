@@ -3,6 +3,7 @@ package pk.wgu.capstone.views;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H6;
@@ -12,6 +13,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HighlightConditions;
 import com.vaadin.flow.router.RouterLink;
+import com.vaadin.flow.theme.lumo.Lumo;
 import pk.wgu.capstone.security.SecurityService;
 
 public class MainLayout extends AppLayout {
@@ -22,6 +24,8 @@ public class MainLayout extends AppLayout {
         this.securityService = securityService;
         createHeader();
         createDrawer();
+
+
     }
 
     private void createDrawer() {
@@ -46,10 +50,15 @@ public class MainLayout extends AppLayout {
         Button logout = new Button("Log out", e -> securityService.logout());
         logout.addClassName("btn-large");
 
+        var themeToggle = new Checkbox("Dark theme");
+        themeToggle.addValueChangeListener(e -> {
+            setTheme(e.getValue());
+        });
+
 
         DrawerToggle drawerToggle = new DrawerToggle();
         drawerToggle.addClassName("drawer-toggle");
-        HorizontalLayout header = new HorizontalLayout(drawerToggle, listViewLink, logout);
+        HorizontalLayout header = new HorizontalLayout(drawerToggle, listViewLink, themeToggle, logout);
         header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         header.expand(listViewLink);
         header.setWidthFull();
@@ -62,8 +71,15 @@ public class MainLayout extends AppLayout {
         RouterLink listViewLink = new RouterLink("List", ListView.class);
         listViewLink.setHighlightCondition(HighlightConditions.sameLocation());
 
+
         addToDrawer(new VerticalLayout(
                 listViewLink
         ));
+    }
+
+    private void setTheme(boolean dark) {
+        var js = "document.documentElement.setAttribute('theme', $0)";
+
+        getElement().executeJs(js, dark ? Lumo.DARK : Lumo.LIGHT);
     }
 }
