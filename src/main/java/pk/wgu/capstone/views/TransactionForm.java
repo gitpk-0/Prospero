@@ -55,12 +55,11 @@ public class TransactionForm extends FormLayout {
      */
     public TransactionForm(List<Category> categories, List<Type> types) {
         addClassName("transaction-form"); // for styling
+
+
         dollarPrefix.setText("$");
         amount.setPrefixComponent(dollarPrefix);
 
-        // binder.forField(amount)
-        //         .withConverter(amountConverter)
-        //         .bind(Transaction::getAmount, Transaction::setAmount);
         binder.forField(date)
                 .withConverter(dateConverter)
                 .withValidator(Objects::nonNull, "Date is required")
@@ -93,7 +92,7 @@ public class TransactionForm extends FormLayout {
 
         category.addValueChangeListener(e -> {
             Category c = e.getValue();
-            if (c != null && c.equals("Income")) {
+            if (c != null && c.getName().equals("Income")) {
                 type.setValue(Type.INCOME);
             }
         });
