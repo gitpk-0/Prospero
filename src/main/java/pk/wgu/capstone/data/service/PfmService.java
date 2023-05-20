@@ -25,7 +25,7 @@ public class PfmService { // Personal Finance Management Service
         if (filterText == null || filterText.isEmpty()) {
             return transactionRepository.findAll();
         } else {
-            return transactionRepository.search(filterText);
+            return transactionRepository.searchByDescription(filterText);
         }
     }
 
@@ -47,6 +47,10 @@ public class PfmService { // Personal Finance Management Service
 
     public List<Category> findAllCategories() {
         return categoryRepository.findAll();
+    }
+
+    public long countTransactionsByType(Type type) {
+        return transactionRepository.countByTransactionType(type);
     }
 
     public List<Type> findAllTypes() {
