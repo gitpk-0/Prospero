@@ -60,7 +60,6 @@ public class ListView extends VerticalLayout {
 
     private void sortGrid() {
         GridSortOrder<Transaction> sortOrder = new GridSortOrder<>(grid.getColumnByKey("date"), SortDirection.ASCENDING);
-
         grid.sort(List.of(sortOrder));
     }
 
@@ -69,18 +68,20 @@ public class ListView extends VerticalLayout {
         grid.addClassName("transaction-grid");
         grid.setSizeFull();
 
-        NumberRenderer<Transaction> amountRenderer = new NumberRenderer<>(Transaction::getAmount, "$ %.2f");
-
         grid.addColumn(t -> t.getDate().toLocalDate().format(dateFormatter)).setKey("date").setHeader("Date")
                 .setSortable(true).setComparator(Comparator.comparing(Transaction::getDate).reversed());
+
+        NumberRenderer<Transaction> amountRenderer = new NumberRenderer<>(Transaction::getAmount, "$ %.2f");
         grid.addColumn(amountRenderer).setHeader("Amount")
                 .setSortable(true).setComparator(Comparator.comparing(Transaction::getAmount));
+
         grid.addColumn(Transaction::getDescription).setHeader("Description")
                 .setSortable(true).setComparator(Comparator.comparing(Transaction::getDescription));
+
         grid.addColumn(transaction -> transaction.getCategory().getName()).setHeader("Category")
                 .setSortable(true)
                 .setComparator(Comparator.comparing(transaction -> transaction.getCategory().getName()));
-        // grid.addColumn(Transaction::getType).setHeader("Type");
+
         grid.addColumn(transaction -> {
                     String label = String.valueOf(transaction.getType());
                     return label.charAt(0) + label.substring(1).toLowerCase();
