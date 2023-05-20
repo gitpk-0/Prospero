@@ -55,8 +55,6 @@ public class TransactionForm extends FormLayout {
      */
     public TransactionForm(List<Category> categories, List<Type> types) {
         addClassName("transaction-form"); // for styling
-
-
         dollarPrefix.setText("$");
         amount.setPrefixComponent(dollarPrefix);
 

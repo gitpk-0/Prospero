@@ -3,7 +3,10 @@ package pk.wgu.capstone.views;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H6;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -22,16 +25,33 @@ public class MainLayout extends AppLayout {
     }
 
     private void createDrawer() {
-        // Image p_logo = new Image("/images/icon.png");
-        H1 logo = new H1("Prospero");
-        logo.addClassNames("text-l", "m-m");
+        // /home/pk/Prospero/src/main/resources/META-INF/resources/icons/icon.png
+        Image logo = new Image("icons/icon.png", "Icon");
+        logo.addClassName("logo-image");
+        // logo.getElement().setAttribute("src", logo.getSrc());
+        H1 appname = new H1("Prospero");
+        appname.addClassName("app");
+        H6 slogan = new H6("Your Path to Prosperity");
+        VerticalLayout appAndSlogan = new VerticalLayout(appname, slogan);
+        appAndSlogan.setPadding(false);
+        // appAndSlogan.addClassName("app-and-slogan");
+        HorizontalLayout logoAppSlogan = new HorizontalLayout(logo, appAndSlogan);
+        logoAppSlogan.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        Anchor listViewLink = new Anchor("localhost:8080");
+        listViewLink.add(logoAppSlogan);
+        listViewLink.setTarget("_blank"); // open in new window
+        listViewLink.addClassNames("text-l", "m-m");
 
         String username = securityService.getAuthenticatedUser().getUsername();
         Button logout = new Button("Log out", e -> securityService.logout());
+        logout.addClassName("btn-large");
 
-        HorizontalLayout header = new HorizontalLayout(new DrawerToggle(), logo, logout);
+
+        DrawerToggle drawerToggle = new DrawerToggle();
+        drawerToggle.addClassName("drawer-toggle");
+        HorizontalLayout header = new HorizontalLayout(drawerToggle, listViewLink, logout);
         header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
-        header.expand(logo);
+        header.expand(listViewLink);
         header.setWidthFull();
         header.addClassNames("py-0", "px-m");
 
