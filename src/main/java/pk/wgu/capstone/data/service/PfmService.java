@@ -4,8 +4,10 @@ import org.springframework.stereotype.Service;
 import pk.wgu.capstone.data.entity.Category;
 import pk.wgu.capstone.data.entity.Transaction;
 import pk.wgu.capstone.data.entity.Type;
+import pk.wgu.capstone.data.entity.User;
 import pk.wgu.capstone.data.repository.CategoryRepository;
 import pk.wgu.capstone.data.repository.TransactionRepository;
+import pk.wgu.capstone.data.repository.UserRepository;
 
 import java.util.Arrays;
 import java.util.List;
@@ -15,10 +17,13 @@ public class PfmService { // Personal Finance Management Service
 
     private final TransactionRepository transactionRepository;
     private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
 
-    public PfmService(TransactionRepository transactionRepository, CategoryRepository categoryRepository) {
+    public PfmService(TransactionRepository transactionRepository,
+                      CategoryRepository categoryRepository, UserRepository userRepository) {
         this.transactionRepository = transactionRepository;
         this.categoryRepository = categoryRepository;
+        this.userRepository = userRepository;
     }
 
     public List<Transaction> findAllTransactions(String filterText) {
@@ -55,5 +60,9 @@ public class PfmService { // Personal Finance Management Service
 
     public List<Type> findAllTypes() {
         return Arrays.asList(Type.values());
+    }
+
+    public void addNewUser(User user) {
+        userRepository.save(user);
     }
 }

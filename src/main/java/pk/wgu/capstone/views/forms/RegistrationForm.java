@@ -2,6 +2,7 @@ package pk.wgu.capstone.views.forms;
 
 import com.vaadin.flow.component.HasValueAndElement;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H3;
@@ -33,6 +34,9 @@ public class RegistrationForm extends FormLayout {
         allowMarketing.getStyle().set("margin-top", "12px");
         password = new PasswordField("Password");
         passwordConfirmation = new PasswordField("Confirm password");
+        errorMessage = new Span();
+        submit = new Button("Start your journey!");
+        submit.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
         setRequiredIndicatorVisible(firstName, lastName, email, password, passwordConfirmation);
 

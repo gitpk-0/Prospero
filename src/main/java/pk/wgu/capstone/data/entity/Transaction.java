@@ -29,6 +29,8 @@ public class Transaction extends AbstractEntity {
     @Enumerated
     private Type type;
 
+    private Long userId;
+
     public Date getDate() {
         return date;
     }
@@ -69,6 +71,14 @@ public class Transaction extends AbstractEntity {
         this.type = type;
     }
 
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
     @Override
     public String toString() {
         return "Transaction{" +
@@ -77,6 +87,7 @@ public class Transaction extends AbstractEntity {
                 ", description='" + description + '\'' +
                 ", category=" + category.getName() +
                 ", type=" + type +
+                ", userId=" + userId +
                 '}';
     }
 }

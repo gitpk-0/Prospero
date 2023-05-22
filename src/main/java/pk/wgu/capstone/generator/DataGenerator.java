@@ -8,12 +8,14 @@ import org.springframework.context.annotation.Bean;
 import pk.wgu.capstone.data.entity.Category;
 import pk.wgu.capstone.data.entity.Transaction;
 import pk.wgu.capstone.data.entity.Type;
+import pk.wgu.capstone.data.entity.User;
 import pk.wgu.capstone.data.repository.CategoryRepository;
 import pk.wgu.capstone.data.repository.TransactionRepository;
+import pk.wgu.capstone.data.repository.UserRepository;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +27,7 @@ public class DataGenerator {
 
     @Bean
     public CommandLineRunner loadData(TransactionRepository transactionRepository,
-                                      CategoryRepository categoryRepository) {
+                                      CategoryRepository categoryRepository, UserRepository userRepository) {
         return args -> {
             Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -50,6 +52,18 @@ public class DataGenerator {
             logger.info("Types: ");
             types.forEach(type -> logger.info(type.toString()));
 
+            List<User> users = new ArrayList<>();
+            User newUser = new User();
+            newUser.setFirstName("Patrick");
+            newUser.setLastName("Kell");
+            newUser.setEmail("patrick.kell1@pm.me");
+            newUser.setPassword("easypass");
+            newUser.setAllowsMarketingEmails(true);
+            newUser.setId(1101L);
+            users.add(newUser);
+
+
+
             Random r = new Random();
 
             logger.info("Generating transactions...");
@@ -59,6 +73,7 @@ public class DataGenerator {
                 transaction.setDate(generateRandomDate());
                 transaction.setAmount(BigDecimal.valueOf(r.nextDouble(1200)));
                 transaction.setType(types.get(r.nextInt(types.size())));
+                transaction.setUserId(users.get(0).getId());
                 if (transaction.getType().equals(Type.INCOME)) {
                     transaction.setDescription(randomIncomeDescription());
                     transaction.setCategory(categories.get(0));
@@ -73,6 +88,8 @@ public class DataGenerator {
 
             categoryRepository.saveAll(categories);
             transactionRepository.saveAll(transactions);
+            userRepository.saveAll(users);
+
 
             logger.info("Generated demo data");
         };

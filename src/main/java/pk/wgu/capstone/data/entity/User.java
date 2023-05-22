@@ -1,11 +1,13 @@
 package pk.wgu.capstone.data.entity;
 
 
+import jakarta.persistence.Entity;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public class User {
+@Entity
+public class User extends AbstractEntity {
 
     @NotBlank
     private String firstName;

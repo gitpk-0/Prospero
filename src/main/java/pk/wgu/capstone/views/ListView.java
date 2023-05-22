@@ -28,7 +28,7 @@ import java.util.List;
 @Scope("prototype")
 @PageTitle("Home | Prospero")
 @Route(value = "", layout = MainLayout.class)
-@PermitAll // all logged in users can access this page
+@PermitAll // all logged-in users can access this page
 public class ListView extends VerticalLayout {
 
     Grid<Transaction> grid = new Grid<>(Transaction.class);
