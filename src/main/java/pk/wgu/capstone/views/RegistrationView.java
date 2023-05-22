@@ -9,7 +9,7 @@ import pk.wgu.capstone.views.forms.RegistrationForm;
 
 @Route("register")
 @PageTitle("Register | Prospero")
-public class RegistrationView  extends VerticalLayout {
+public class RegistrationView extends VerticalLayout {
 
     private PfmService service;
 
@@ -22,7 +22,7 @@ public class RegistrationView  extends VerticalLayout {
         setAlignItems(Alignment.CENTER);
 
         setHorizontalComponentAlignment(Alignment.CENTER, registrationForm);
-        
+
         add(registrationForm);
 
         RegistrationFormBinder registrationFormBinder = new RegistrationFormBinder(registrationForm, service);

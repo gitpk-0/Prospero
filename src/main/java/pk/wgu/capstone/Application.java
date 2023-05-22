@@ -13,6 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication
 @Theme(value = "prospero", variant = Lumo.DARK)
+// @Theme(value = "prospero", variant = Lumo.LIGHT)
 @PWA(
         name = "Prospero",
         shortName = "Prospero",

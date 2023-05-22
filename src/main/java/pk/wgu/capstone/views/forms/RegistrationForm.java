@@ -40,6 +40,9 @@ public class RegistrationForm extends FormLayout {
 
         setRequiredIndicatorVisible(firstName, lastName, email, password, passwordConfirmation);
 
+        add(title, firstName, lastName, email, password, passwordConfirmation,
+                allowMarketing, errorMessage, submit);
+
         setMaxWidth("520px");
 
         setResponsiveSteps(
@@ -50,6 +53,7 @@ public class RegistrationForm extends FormLayout {
         // components below will use the full width of the form
         setColspan(title, 2);
         setColspan(email, 2);
+        setColspan(allowMarketing, 2);
         setColspan(errorMessage, 2);
         setColspan(submit, 2);
 
