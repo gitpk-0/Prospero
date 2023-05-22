@@ -50,7 +50,8 @@ public class MainLayout extends AppLayout {
         Button logout = new Button("Log out", e -> securityService.logout());
         logout.addClassName("btn-large");
 
-        var themeToggle = new Checkbox("Dark Mode");
+        Checkbox themeToggle = new Checkbox("Dark Mode");
+        themeToggle.setValue(true); // selected on start
         themeToggle.addValueChangeListener(e -> {
             setTheme(e.getValue());
         });
