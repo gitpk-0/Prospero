@@ -1,4 +1,4 @@
-package pk.wgu.capstone.views;
+package pk.wgu.capstone.views.forms;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
