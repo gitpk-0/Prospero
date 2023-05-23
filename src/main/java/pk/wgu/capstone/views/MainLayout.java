@@ -14,14 +14,18 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HighlightConditions;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.theme.lumo.Lumo;
+import pk.wgu.capstone.data.entity.User;
+import pk.wgu.capstone.data.service.PfmService;
 import pk.wgu.capstone.security.SecurityService;
 
 public class MainLayout extends AppLayout {
 
     private SecurityService securityService;
+    private PfmService service;
 
-    public MainLayout(SecurityService securityService) {
+    public MainLayout(SecurityService securityService, PfmService service) {
         this.securityService = securityService;
+        this.service = service;
         createHeader();
         createDrawer();
     }
@@ -46,8 +50,11 @@ public class MainLayout extends AppLayout {
         listViewLink.setTarget("_blank"); // open in new window
         listViewLink.addClassNames("text-l", "m-m");
 
-        String username = securityService.getAuthenticatedUser().getUsername();
-        Button logout = new Button("Log out", e -> securityService.logout());
+        String usernameEmail = securityService.getAuthenticatedUser().getUsername();
+        User user = service.findUserByEmail(usernameEmail);
+        String firstName = user.getFirstName();
+
+        Button logout = new Button("Log out, " + firstName, e -> securityService.logout());
         logout.addClassName("btn-large");
 
         Checkbox themeToggle = new Checkbox("Dark Mode");

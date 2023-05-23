@@ -12,7 +12,6 @@ import pk.wgu.capstone.data.repository.UserRepository;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PfmService { // Personal Finance Management Service
@@ -73,7 +72,7 @@ public class PfmService { // Personal Finance Management Service
         return userRepository.findUserCountByEmail(email) > 0;
     }
 
-    public Optional<User> findUserByEmail(String email) {
-        return Optional.ofNullable(userRepository.findUserByEmail(email));
+    public User findUserByEmail(String email) {
+        return userRepository.findUserByEmail(email);
     }
 }
