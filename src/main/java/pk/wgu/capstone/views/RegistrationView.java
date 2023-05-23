@@ -3,12 +3,14 @@ package pk.wgu.capstone.views;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import pk.wgu.capstone.data.binder.RegistrationFormBinder;
 import pk.wgu.capstone.data.service.PfmService;
 import pk.wgu.capstone.views.forms.RegistrationForm;
 
 @Route("register")
 @PageTitle("Register | Prospero")
+@AnonymousAllowed
 public class RegistrationView extends VerticalLayout {
 
     private PfmService service;

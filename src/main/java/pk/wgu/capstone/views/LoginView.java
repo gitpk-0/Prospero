@@ -23,7 +23,8 @@ public class LoginView extends VerticalLayout implements BeforeEnterListener {
         add(
                 new H1("Prospero"),
                 new H3("Your Path to Prosperity"),
-                login
+                login,
+                new RouterLink("Create an account", RegistrationView.class)
         );
     }
 
