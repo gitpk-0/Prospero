@@ -65,4 +65,8 @@ public class PfmService { // Personal Finance Management Service
     public void addNewUser(User user) {
         userRepository.save(user);
     }
+
+    public boolean userExists(String email) {
+        return userRepository.findUserByEmail(email) > 0;
+    }
 }

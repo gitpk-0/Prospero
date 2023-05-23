@@ -35,6 +35,9 @@ public class RegistrationFormBinder {
         binder.forField(registrationForm.getPassword())
                 .withValidator(this::passwordValidator).bind("password");
 
+        binder.forField(registrationForm.getEmail())
+                .withValidator(this::emailValidator).bind("email");
+
         registrationForm.getPasswordConfirmation().addValueChangeListener(e -> {
             // user has changed the second password field, validate and show errors
             enablePasswordValidation = true;
@@ -49,6 +52,8 @@ public class RegistrationFormBinder {
 
                 binder.writeBean(userBean); // run validation and write the values to the bean
 
+                // run db checks to make sure email doesn't already have an account
+
                 service.addNewUser(userBean);// add the new user to the database
 
                 showSuccess(userBean); // success message
@@ -57,6 +62,13 @@ public class RegistrationFormBinder {
                 exception.getValidationErrors().forEach(System.out::println);
             }
         });
+    }
+
+    private ValidationResult emailValidator(String email, ValueContext valueContext) {
+        if (service.userExists(email)) {
+            return ValidationResult.error("An account with this email already exists");
+        }
+        return ValidationResult.ok();
     }
 
     /**

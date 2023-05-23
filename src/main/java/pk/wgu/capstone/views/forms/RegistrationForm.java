@@ -71,6 +71,10 @@ public class RegistrationForm extends FormLayout {
         return errorMessage;
     }
 
+    public EmailField getEmail() {
+        return email;
+    }
+
     public Button getSubmit() {
         return submit;
     }
