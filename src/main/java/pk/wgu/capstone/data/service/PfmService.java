@@ -1,5 +1,6 @@
 package pk.wgu.capstone.data.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pk.wgu.capstone.data.entity.Category;
 import pk.wgu.capstone.data.entity.Transaction;
@@ -11,6 +12,7 @@ import pk.wgu.capstone.data.repository.UserRepository;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PfmService { // Personal Finance Management Service
@@ -19,6 +21,7 @@ public class PfmService { // Personal Finance Management Service
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
 
+    @Autowired
     public PfmService(TransactionRepository transactionRepository,
                       CategoryRepository categoryRepository, UserRepository userRepository) {
         this.transactionRepository = transactionRepository;
@@ -67,6 +70,10 @@ public class PfmService { // Personal Finance Management Service
     }
 
     public boolean userExists(String email) {
-        return userRepository.findUserByEmail(email) > 0;
+        return userRepository.findUserCountByEmail(email) > 0;
+    }
+
+    public Optional<User> findUserByEmail(String email) {
+        return Optional.ofNullable(userRepository.findUserByEmail(email));
     }
 }

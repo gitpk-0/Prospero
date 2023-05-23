@@ -3,12 +3,11 @@ package pk.wgu.capstone.generator;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
-import pk.wgu.capstone.data.entity.Category;
-import pk.wgu.capstone.data.entity.Transaction;
-import pk.wgu.capstone.data.entity.Type;
-import pk.wgu.capstone.data.entity.User;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import pk.wgu.capstone.data.entity.*;
 import pk.wgu.capstone.data.repository.CategoryRepository;
 import pk.wgu.capstone.data.repository.TransactionRepository;
 import pk.wgu.capstone.data.repository.UserRepository;
@@ -25,9 +24,17 @@ import java.util.concurrent.ThreadLocalRandom;
 @SpringComponent
 public class DataGenerator {
 
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public DataGenerator(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
+
     @Bean
     public CommandLineRunner loadData(TransactionRepository transactionRepository,
-                                      CategoryRepository categoryRepository, UserRepository userRepository) {
+                                      CategoryRepository categoryRepository,
+                                      UserRepository userRepository) {
         return args -> {
             Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -57,11 +64,11 @@ public class DataGenerator {
             newUser.setFirstName("Patrick");
             newUser.setLastName("Kell");
             newUser.setEmail("patrick.kell1@pm.me");
-            newUser.setPassword("easypass");
+            newUser.setPassword(passwordEncoder.encode("easypass"));
             newUser.setAllowsMarketingEmails(true);
             newUser.setId(1101L);
+            newUser.setRole(Role.USER);
             users.add(newUser);
-
 
 
             Random r = new Random();

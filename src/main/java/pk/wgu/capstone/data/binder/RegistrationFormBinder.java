@@ -7,6 +7,8 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.ValueContext;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import pk.wgu.capstone.data.entity.Role;
 import pk.wgu.capstone.data.entity.User;
 import pk.wgu.capstone.data.service.PfmService;
 import pk.wgu.capstone.views.LoginView;
@@ -16,12 +18,16 @@ public class RegistrationFormBinder {
 
     private RegistrationForm registrationForm;
     private PfmService service;
+    private PasswordEncoder passwordEncoder;
 
     private boolean enablePasswordValidation;
 
-    public RegistrationFormBinder(RegistrationForm registrationForm, PfmService service) {
+    public RegistrationFormBinder(RegistrationForm registrationForm,
+                                  PfmService service,
+                                  PasswordEncoder passwordEncoder) {
         this.registrationForm = registrationForm;
         this.service = service;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -49,10 +55,10 @@ public class RegistrationFormBinder {
         registrationForm.getSubmit().addClickListener(e -> {
             try {
                 User userBean = new User(); // new bean to store user info into
+                userBean.setRole(Role.USER);
 
                 binder.writeBean(userBean); // run validation and write the values to the bean
-
-                // run db checks to make sure email doesn't already have an account
+                userBean.setPassword(passwordEncoder.encode(userBean.getPassword()));
 
                 service.addNewUser(userBean);// add the new user to the database
 

@@ -1,12 +1,15 @@
 package pk.wgu.capstone.data.entity;
 
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-@Entity
+@Entity(name = "users")
 public class User extends AbstractEntity {
 
     @NotBlank
@@ -17,9 +20,16 @@ public class User extends AbstractEntity {
 
     @NotBlank
     @Email
+    @Column(name = "username")
     private String email;
 
     private boolean allowsMarketingEmails;
+
+    private boolean enabled = true;
+
+    @NotNull
+    @Enumerated
+    private Role role;
 
     // Need to encrypt in production
     @Size(min = 8, max = 128, message = "Password must be at least 8 characters, no more than 128 characters")
@@ -63,5 +73,17 @@ public class User extends AbstractEntity {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 }

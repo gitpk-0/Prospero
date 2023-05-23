@@ -10,10 +10,10 @@ import java.util.List;
 
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
-    @Query("select t from Transaction t " +
+    @Query("select t from transactions t " +
             "where lower(t.description) like lower(concat('%', :searchTerm, '%'))")
     List<Transaction> searchByDescription(@Param("searchTerm") String searchTerm);
 
-    @Query("select count(t.id) from Transaction t where t.type = :type")
+    @Query("select count(t.id) from transactions t where t.type = :type")
     Long countByTransactionType(@Param("type") Type type);
 }
