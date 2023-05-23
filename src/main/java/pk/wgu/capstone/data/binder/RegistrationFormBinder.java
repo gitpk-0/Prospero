@@ -28,7 +28,6 @@ public class RegistrationFormBinder {
      * Add the data binding and validation logic to the registration form
      */
     public void addBindingAndValidation() {
-        System.out.println("BINDING AND VALIDATION ADDED -- 1");
         BeanValidationBinder<User> binder = new BeanValidationBinder<>(User.class);
         binder.bindInstanceFields(registrationForm);
 
@@ -46,7 +45,6 @@ public class RegistrationFormBinder {
 
         registrationForm.getSubmit().addClickListener(e -> {
             try {
-                System.out.println("BINDING AND VALIDATION CLICK LISTENER FIRED");
                 User userBean = new User(); // new bean to store user info into
 
                 binder.writeBean(userBean); // run validation and write the values to the bean
@@ -56,10 +54,9 @@ public class RegistrationFormBinder {
                 showSuccess(userBean); // success message
             } catch (ValidationException exception) {
                 System.out.println("Validation exception: " + exception.getMessage());
+                exception.getValidationErrors().forEach(System.out::println);
             }
         });
-
-        System.out.println("BINDING AND VALIDATION ADDED -- 2");
     }
 
     /**
