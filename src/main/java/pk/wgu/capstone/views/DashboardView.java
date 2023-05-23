@@ -18,19 +18,19 @@ import pk.wgu.capstone.data.service.PfmService;
 @PermitAll
 public class DashboardView extends VerticalLayout {
 
-    private PfmService pfmService;
+    private PfmService service;
 
     public DashboardView(PfmService pfmService) {
-        this.pfmService = pfmService;
+        this.service = pfmService;
         addClassName("dashboard-view");
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
         add(getTransactionStats(), getTransactionsChart());
     }
 
     private Component getTransactionStats() {
-        Span totalTransactions = new Span(pfmService.countTransactions() + " transactions");
-        Span incomes = new Span(pfmService.countTransactionsByType(Type.INCOME) + " income transactions");
-        Span expenses = new Span(pfmService.countTransactionsByType(Type.EXPENSE) + " expenses transactions");
+        Span totalTransactions = new Span(service.countTransactions() + " transactions");
+        Span incomes = new Span(service.countTransactionsByType(Type.INCOME) + " income transactions");
+        Span expenses = new Span(service.countTransactionsByType(Type.EXPENSE) + " expenses transactions");
         totalTransactions.addClassNames("text-xl", "mt-m");
         incomes.addClassNames("text-xl", "mt-m");
         expenses.addClassNames("text-xl", "mt-m");
@@ -42,8 +42,8 @@ public class DashboardView extends VerticalLayout {
         Chart chart = new Chart(ChartType.PIE);
 
         DataSeries dataSeries = new DataSeries();
-        pfmService.findAllTypes().forEach(type -> {
-            dataSeries.add(new DataSeriesItem(type.name(), pfmService.countTransactionsByType(type)));
+        service.findAllTypes().forEach(type -> {
+            dataSeries.add(new DataSeriesItem(type.name(), service.countTransactionsByType(type)));
         });
 
         chart.getConfiguration().setSeries(dataSeries);

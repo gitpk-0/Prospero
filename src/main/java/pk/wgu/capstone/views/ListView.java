@@ -16,7 +16,6 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.context.annotation.Scope;
 import pk.wgu.capstone.data.entity.Transaction;
-import pk.wgu.capstone.data.repository.TransactionRepository;
 import pk.wgu.capstone.data.service.PfmService;
 import pk.wgu.capstone.views.forms.TransactionForm;
 
@@ -31,14 +30,15 @@ import java.util.List;
 @PermitAll // all logged-in users can access this page
 public class ListView extends VerticalLayout {
 
-    Grid<Transaction> grid = new Grid<>(Transaction.class);
-    TextField filterText = new TextField();
-    TransactionForm form;
     private PfmService service;
+    TransactionForm form;
+
+    Grid<Transaction> grid = new Grid<>(Transaction.class);
+
+    TextField filterText = new TextField();
+
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("E, MMM d, yyyy");
     private boolean isEditorOpen = false;
-
-    TransactionRepository transactionRepository;
 
     public ListView(PfmService service) {
         this.service = service;
