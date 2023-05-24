@@ -34,9 +34,10 @@ public class DashboardView extends VerticalLayout {
     private Component getTransactionStats() {
         Long userId = securityService.getCurrentUserId(service);
 
-        Span totalTransactions = new Span(service.countTransactions() + " transactions");
+        Span totalTransactions = new Span(service.countTransactionsByUser(userId) + " transactions");
         Span incomes = new Span(service.countTransactionsByType(userId, Type.INCOME) + " income transactions");
         Span expenses = new Span(service.countTransactionsByType(userId, Type.EXPENSE) + " expenses transactions");
+
         totalTransactions.addClassNames("text-xl", "mt-m");
         incomes.addClassNames("text-xl", "mt-m");
         expenses.addClassNames("text-xl", "mt-m");

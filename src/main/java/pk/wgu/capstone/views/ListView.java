@@ -106,7 +106,11 @@ public class ListView extends VerticalLayout {
     }
 
     private void configureForm() {
-        form = new TransactionForm(service.findAllCategories(), service.findAllTypes());
+        form = new TransactionForm(
+                securityService,
+                service,
+                service.findAllCategories(),
+                service.findAllTypes());
         form.setWidth("25em");
 
         form.addSaveListener(this::saveTransaction);

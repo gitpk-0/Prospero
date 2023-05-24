@@ -21,12 +21,17 @@ import pk.wgu.capstone.data.converter.SqlDateToLocalDateConverter;
 import pk.wgu.capstone.data.entity.Category;
 import pk.wgu.capstone.data.entity.Transaction;
 import pk.wgu.capstone.data.entity.Type;
+import pk.wgu.capstone.data.service.PfmService;
+import pk.wgu.capstone.security.SecurityService;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 
 public class TransactionForm extends FormLayout {
+
+    private SecurityService securityService;
+    private PfmService service;
 
     // data binding
     Binder<Transaction> binder = new BeanValidationBinder<>(Transaction.class);
@@ -48,13 +53,11 @@ public class TransactionForm extends FormLayout {
     Button delete = new Button("Delete");
     Button cancel = new Button("Cancel");
 
-    /**
-     * Creates a new TransactionForm with the provided categories and types.
-     *
-     * @param categories The list of available categories.
-     * @param types      The list of available transaction types.
-     */
-    public TransactionForm(List<Category> categories, List<Type> types) {
+    public TransactionForm(SecurityService securityService,
+                           PfmService service, List<Category> categories, List<Type> types) {
+        this.securityService = securityService;
+        this.service = service;
+
         addClassName("transaction-form"); // for styling
         dollarPrefix.setText("$");
         amount.setPrefixComponent(dollarPrefix);
@@ -116,20 +119,11 @@ public class TransactionForm extends FormLayout {
 
     }
 
-    /**
-     * Sets the provided Transaction object as the bean for the binder.
-     *
-     * @param transaction The Transaction object to be set.
-     */
+
     public void setTransaction(Transaction transaction) {
         binder.setBean(transaction);
     }
 
-    /**
-     * Creates the button layout for the form.
-     *
-     * @return The horizontal layout containing the buttons.
-     */
     private Component createButtonLayout() {
         // set theme variants for buttons
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -148,20 +142,17 @@ public class TransactionForm extends FormLayout {
         return new HorizontalLayout(save, delete, cancel);
     }
 
-    /**
-     * Validates and saves the form data when the save button is clicked.
-     */
     private void validateAndSave() {
         if (binder.isValid()) {
-            fireEvent(new SaveEvent(this, binder.getBean()));
+            Transaction transaction = binder.getBean();
+            transaction.setUserId(securityService.getCurrentUserId(service));
+            fireEvent(new SaveEvent(this, transaction));
         }
     }
 
     // Events
 
-    /**
-     * Represents an abstract event in the TransactionForm.
-     */
+
     public static abstract class TransactionFormEvent extends ComponentEvent<TransactionForm> {
 
         private Transaction transaction;
@@ -176,27 +167,21 @@ public class TransactionForm extends FormLayout {
         }
     }
 
-    /**
-     * Represents a Save event in the TransactionForm.
-     */
+
     public static class SaveEvent extends TransactionFormEvent {
         SaveEvent(TransactionForm source, Transaction transaction) {
             super(source, transaction);
         }
     }
 
-    /**
-     * Represents a Delete event in the TransactionForm.
-     */
+
     public static class DeleteEvent extends TransactionFormEvent {
         DeleteEvent(TransactionForm source, Transaction transaction) {
             super(source, transaction);
         }
     }
 
-    /**
-     * Represents a Close event in the TransactionForm.
-     */
+
     public static class CloseEvent extends TransactionFormEvent {
         CloseEvent(TransactionForm source) {
             super(source, null);
@@ -204,32 +189,17 @@ public class TransactionForm extends FormLayout {
 
     }
 
-    /**
-     * Adds a Save event listener to the TransactionForm.
-     *
-     * @param listener The listener to be added.
-     * @return The registration object for the listener
-     */
+
     public Registration addSaveListener(ComponentEventListener<SaveEvent> listener) {
         return addListener(SaveEvent.class, listener);
     }
 
-    /**
-     * Adds a Delete event listener to the TransactionForm.
-     *
-     * @param listener The listener to be added.
-     * @return The registration object for the listener
-     */
+
     public Registration addDeleteListener(ComponentEventListener<DeleteEvent> listener) {
         return addListener(DeleteEvent.class, listener);
     }
 
-    /**
-     * Adds a Close event listener to the TransactionForm.
-     *
-     * @param listener The listener to be added.
-     * @return The registration object for the listener
-     */
+
     public Registration addCloseListener(ComponentEventListener<CloseEvent> listener) {
         return addListener(CloseEvent.class, listener);
     }

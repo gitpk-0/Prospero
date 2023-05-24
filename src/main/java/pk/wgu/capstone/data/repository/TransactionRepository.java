@@ -17,7 +17,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     @Query("select count(t.id) from transactions t where t.type = :type and t.userId = :user_id")
     Long countByTransactionType(@Param("user_id") Long userId, @Param("type") Type type);
 
-    @Query("select t from transactions t " +
-            "where t.userId = :user_id")
+    @Query("select t from transactions t where t.userId = :user_id")
     List<Transaction> findAllByUserId(@Param("user_id") Long userId);
+
+    @Query("select count(t.id) from transactions t where t.userId = :user_id")
+    long countByUserId(@Param("user_id")Long user_id);
 }

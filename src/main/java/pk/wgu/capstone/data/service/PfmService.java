@@ -36,8 +36,8 @@ public class PfmService { // Personal Finance Management Service
         }
     }
 
-    public long countTransactions() {
-        return transactionRepository.count();
+    public long countTransactionsByUser(Long userId) {
+        return transactionRepository.countByUserId(userId);
     }
 
     public void deleteTransaction(Transaction transaction) {
