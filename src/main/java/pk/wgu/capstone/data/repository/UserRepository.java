@@ -12,4 +12,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("select DISTINCT u from users u where u.email = :email")
     User findUserByEmail(@Param("email")String email);
+
+    @Query("select DISTINCT u from users u where u.id = :userId")
+    User findUserById(Long userId);
 }

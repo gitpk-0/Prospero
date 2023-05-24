@@ -75,4 +75,8 @@ public class PfmService { // Personal Finance Management Service
     public User findUserByEmail(String email) {
         return userRepository.findUserByEmail(email);
     }
+
+    public User findUserById(Long userId) {
+        return userRepository.findUserById(userId);
+    }
 }

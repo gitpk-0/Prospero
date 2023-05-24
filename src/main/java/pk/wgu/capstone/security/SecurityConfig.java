@@ -14,7 +14,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
-import pk.wgu.capstone.data.service.PfmService;
 import pk.wgu.capstone.views.LoginView;
 
 import javax.sql.DataSource;
@@ -24,8 +23,6 @@ import java.util.List;
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig extends VaadinWebSecurity {
-
-    private PfmService service;
 
     @Value("${DB_URL}")
     private String dbUrl;

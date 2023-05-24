@@ -135,8 +135,7 @@ public class ListView extends VerticalLayout {
     }
 
     private void updateList() {
-        String usernameEmail = securityService.getAuthenticatedUser().getUsername();
-        Long userId = service.findUserByEmail(usernameEmail).getId();
+        Long userId = SecurityService.getCurrentUserId();
         grid.setItems(service.findAllTransactions(userId, filterText.getValue()));
     }
 

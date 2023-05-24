@@ -14,7 +14,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HighlightConditions;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.theme.lumo.Lumo;
-import pk.wgu.capstone.data.entity.User;
 import pk.wgu.capstone.data.service.PfmService;
 import pk.wgu.capstone.security.SecurityService;
 
@@ -50,9 +49,8 @@ public class MainLayout extends AppLayout {
         listViewLink.setTarget("_blank"); // open in new window
         listViewLink.addClassNames("text-l", "m-m");
 
-        String usernameEmail = securityService.getAuthenticatedUser().getUsername();
-        User user = service.findUserByEmail(usernameEmail);
-        String firstName = user.getFirstName();
+        Long userId = SecurityService.getCurrentUserId();
+        String firstName = service.findUserById(userId).getFirstName();
 
         Button logout = new Button("Log out, " + firstName, e -> securityService.logout());
         logout.addClassName("btn-large");
