@@ -12,6 +12,7 @@ import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
 import pk.wgu.capstone.data.entity.Type;
 import pk.wgu.capstone.data.service.PfmService;
+import pk.wgu.capstone.security.SecurityService;
 
 @Route(value = "dashboard", layout = MainLayout.class)
 @PageTitle("Dashboard | Prospero")
@@ -19,18 +20,24 @@ import pk.wgu.capstone.data.service.PfmService;
 public class DashboardView extends VerticalLayout {
 
     private PfmService service;
+    private SecurityService securityService;
 
-    public DashboardView(PfmService pfmService) {
+    public DashboardView(PfmService pfmService, SecurityService securityService) {
         this.service = pfmService;
+        this.securityService = securityService;
         addClassName("dashboard-view");
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
         add(getTransactionStats(), getTransactionsChart());
+
+
     }
 
     private Component getTransactionStats() {
+        Long userId = service.findUserByEmail(securityService.getAuthenticatedUser().getUsername()).getId();
+
         Span totalTransactions = new Span(service.countTransactions() + " transactions");
-        Span incomes = new Span(service.countTransactionsByType(Type.INCOME) + " income transactions");
-        Span expenses = new Span(service.countTransactionsByType(Type.EXPENSE) + " expenses transactions");
+        Span incomes = new Span(service.countTransactionsByType(userId, Type.INCOME) + " income transactions");
+        Span expenses = new Span(service.countTransactionsByType(userId, Type.EXPENSE) + " expenses transactions");
         totalTransactions.addClassNames("text-xl", "mt-m");
         incomes.addClassNames("text-xl", "mt-m");
         expenses.addClassNames("text-xl", "mt-m");
@@ -39,11 +46,14 @@ public class DashboardView extends VerticalLayout {
     }
 
     private Component getTransactionsChart() {
+        Long userId = service.findUserByEmail(securityService.getAuthenticatedUser().getUsername()).getId();
+
+
         Chart chart = new Chart(ChartType.PIE);
 
         DataSeries dataSeries = new DataSeries();
         service.findAllTypes().forEach(type -> {
-            dataSeries.add(new DataSeriesItem(type.name(), service.countTransactionsByType(type)));
+            dataSeries.add(new DataSeriesItem(type.name(), service.countTransactionsByType(userId, type)));
         });
 
         chart.getConfiguration().setSeries(dataSeries);

@@ -17,6 +17,7 @@ import jakarta.annotation.security.PermitAll;
 import org.springframework.context.annotation.Scope;
 import pk.wgu.capstone.data.entity.Transaction;
 import pk.wgu.capstone.data.service.PfmService;
+import pk.wgu.capstone.security.SecurityService;
 import pk.wgu.capstone.views.forms.TransactionForm;
 
 import java.time.format.DateTimeFormatter;
@@ -31,6 +32,7 @@ import java.util.List;
 public class ListView extends VerticalLayout {
 
     private PfmService service;
+    private SecurityService securityService;
     TransactionForm form;
 
     Grid<Transaction> grid = new Grid<>(Transaction.class);
@@ -40,8 +42,10 @@ public class ListView extends VerticalLayout {
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("E, MMM d, yyyy");
     private boolean isEditorOpen = false;
 
-    public ListView(PfmService service) {
+    public ListView(PfmService service, SecurityService securityService) {
         this.service = service;
+        this.securityService = securityService;
+
         addClassName("list-view");
         setSizeFull(); // makes this view the same size as the entire browser window
 
@@ -131,7 +135,9 @@ public class ListView extends VerticalLayout {
     }
 
     private void updateList() {
-        grid.setItems(service.findAllTransactions(filterText.getValue()));
+        String usernameEmail = securityService.getAuthenticatedUser().getUsername();
+        Long userId = service.findUserByEmail(usernameEmail).getId();
+        grid.setItems(service.findAllTransactions(userId, filterText.getValue()));
     }
 
     private void addTransaction() {

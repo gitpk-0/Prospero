@@ -28,11 +28,11 @@ public class PfmService { // Personal Finance Management Service
         this.userRepository = userRepository;
     }
 
-    public List<Transaction> findAllTransactions(String filterText) {
+    public List<Transaction> findAllTransactions(Long userId, String filterText) {
         if (filterText == null || filterText.isEmpty()) {
-            return transactionRepository.findAll();
+            return transactionRepository.findAllByUserId(userId);
         } else {
-            return transactionRepository.searchByDescription(filterText);
+            return transactionRepository.searchByUserIdAndDescription(userId, filterText);
         }
     }
 
@@ -56,8 +56,8 @@ public class PfmService { // Personal Finance Management Service
         return categoryRepository.findAll();
     }
 
-    public long countTransactionsByType(Type type) {
-        return transactionRepository.countByTransactionType(type);
+    public long countTransactionsByType(Long userId, Type type) {
+        return transactionRepository.countByTransactionType(userId, type);
     }
 
     public List<Type> findAllTypes() {
