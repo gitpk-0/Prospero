@@ -16,6 +16,11 @@ a[highlight] {
     height: 50px;
 }
 
+.logo-image-login {
+    width: 90px;
+    height: 90px;
+}
+
 .app {
     margin-bottom: -15px;
 }
