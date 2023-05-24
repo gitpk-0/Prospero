@@ -31,8 +31,8 @@ import java.util.List;
 @PermitAll // all logged-in users can access this page
 public class ListView extends VerticalLayout {
 
-    private PfmService service;
     private SecurityService securityService;
+    private PfmService service;
     TransactionForm form;
 
     Grid<Transaction> grid = new Grid<>(Transaction.class);
@@ -42,9 +42,9 @@ public class ListView extends VerticalLayout {
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("E, MMM d, yyyy");
     private boolean isEditorOpen = false;
 
-    public ListView(PfmService service, SecurityService securityService) {
-        this.service = service;
+    public ListView(SecurityService securityService, PfmService service) {
         this.securityService = securityService;
+        this.service = service;
 
         addClassName("list-view");
         setSizeFull(); // makes this view the same size as the entire browser window
@@ -135,7 +135,7 @@ public class ListView extends VerticalLayout {
     }
 
     private void updateList() {
-        Long userId = SecurityService.getCurrentUserId();
+        Long userId = securityService.getCurrentUserId(service);
         grid.setItems(service.findAllTransactions(userId, filterText.getValue()));
     }
 

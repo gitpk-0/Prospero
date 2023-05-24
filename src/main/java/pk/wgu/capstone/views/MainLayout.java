@@ -25,6 +25,7 @@ public class MainLayout extends AppLayout {
     public MainLayout(SecurityService securityService, PfmService service) {
         this.securityService = securityService;
         this.service = service;
+
         createHeader();
         createDrawer();
     }
@@ -49,8 +50,7 @@ public class MainLayout extends AppLayout {
         listViewLink.setTarget("_blank"); // open in new window
         listViewLink.addClassNames("text-l", "m-m");
 
-        Long userId = SecurityService.getCurrentUserId();
-        String firstName = service.findUserById(userId).getFirstName();
+        String firstName = service.findUserById(securityService.getCurrentUserId(service)).getFirstName();
 
         Button logout = new Button("Log out, " + firstName, e -> securityService.logout());
         logout.addClassName("btn-large");

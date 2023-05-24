@@ -19,21 +19,20 @@ import pk.wgu.capstone.security.SecurityService;
 @PermitAll
 public class DashboardView extends VerticalLayout {
 
-    private PfmService service;
     private SecurityService securityService;
+    private PfmService service;
 
-    public DashboardView(PfmService pfmService, SecurityService securityService) {
-        this.service = pfmService;
+    public DashboardView(SecurityService securityService, PfmService service) {
         this.securityService = securityService;
+        this.service = service;
+
         addClassName("dashboard-view");
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
         add(getTransactionStats(), getTransactionsChart());
-
-
     }
 
     private Component getTransactionStats() {
-        Long userId = service.findUserByEmail(securityService.getAuthenticatedUser().getUsername()).getId();
+        Long userId = securityService.getCurrentUserId(service);
 
         Span totalTransactions = new Span(service.countTransactions() + " transactions");
         Span incomes = new Span(service.countTransactionsByType(userId, Type.INCOME) + " income transactions");
