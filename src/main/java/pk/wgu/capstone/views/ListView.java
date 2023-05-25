@@ -26,9 +26,9 @@ import java.util.List;
 
 @SpringComponent
 @Scope("prototype")
-@PageTitle("Home | Prospero")
-@Route(value = "", layout = MainLayout.class)
 @PermitAll // all logged-in users can access this page
+@Route(value = "home", layout = MainLayout.class)
+@PageTitle("Home | Prospero")
 public class ListView extends VerticalLayout {
 
     private SecurityService securityService;

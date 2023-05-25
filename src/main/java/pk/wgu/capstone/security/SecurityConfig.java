@@ -24,6 +24,11 @@ import java.util.List;
 @Configuration
 public class SecurityConfig extends VaadinWebSecurity {
 
+    private static final String LOGIN_PROCESSING_URL = "/login";
+    private static final String LOGIN_FAILURE_URL = "/login?error";
+    // private static final String LOGIN_URL = "/login";
+    // private static final String LOGOUT_SUCCESS_URL = "/login";
+
     @Value("${DB_URL}")
     private String dbUrl;
 
@@ -36,19 +41,61 @@ public class SecurityConfig extends VaadinWebSecurity {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests().requestMatchers("/h2-console/**").permitAll();
+        // http.authorizeHttpRequests()
+        //         .requestMatchers("/images/*.png").permitAll();  // <3>
+        // super.configure(http);
+        // setLoginView(http, LoginView.class);
+
 
         super.configure(http);
 
         setLoginView(http, LoginView.class); // Set the custom login view for the application
 
         http.csrf().disable();
+
+        http
+                .formLogin()
+                .loginPage("/login")
+                .loginProcessingUrl(LOGIN_PROCESSING_URL)
+                .failureUrl(LOGIN_FAILURE_URL)
+                .defaultSuccessUrl("/home", true)
+                .permitAll()
+                .and()
+                .logout()
+                .logoutSuccessUrl("/login")
+                .permitAll()
+                .and()
+                .exceptionHandling()
+                .accessDeniedPage("/access-denied");
+
         http.headers().frameOptions().disable();
     }
 
     @Override
     protected void configure(WebSecurity web) throws Exception {
-        web.ignoring().requestMatchers("/images/**"); // ignore these requests
+        web.ignoring().requestMatchers(
+                // Client-side JS
+                "/VAADIN/**",
+
+                // the standard favicon URI
+                "/favicon.ico",
+
+                // the robots exclusion standard
+                "/robots.txt",
+
+                // web application manifest
+                "/manifest.webmanifest",
+                "/sw.js",
+                "/offline.html",
+
+                // icons and images
+                "/icons/**",
+                "/images/**",
+                "/styles/**",
+
+                // (development mode) H2 debugging console
+                "/h2-console/**"
+        ); // ignore these requests
         super.configure(web);
     }
 
@@ -66,5 +113,21 @@ public class SecurityConfig extends VaadinWebSecurity {
             }
         };
     }
+
+    // @Bean
+    // public UserDetailsService users() {
+    //     UserDetails user = User.builder()
+    //             .username("user")
+    //             // password = password with this hash, don't tell anybody :-)
+    //             .password("{bcrypt}$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW")
+    //             .roles("USER")
+    //             .build();
+    //     UserDetails admin = User.builder()
+    //             .username("admin")
+    //             .password("{bcrypt}$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW")
+    //             .roles("USER", "ADMIN")
+    //             .build();
+    //     return new InMemoryUserDetailsManager(user, admin); // <5>
+    // }
 }
 
