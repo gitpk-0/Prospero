@@ -40,7 +40,6 @@ public class ListView extends VerticalLayout {
     TextField filterText = new TextField();
 
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("E, MMM d, yyyy");
-    private boolean isEditorOpen = false;
 
     public ListView(SecurityService securityService, PfmService service) {
         this.securityService = securityService;
@@ -73,8 +72,8 @@ public class ListView extends VerticalLayout {
         grid.addClassName("transaction-grid");
         grid.setSizeFull();
 
-        grid.addColumn(t -> t.getDate().toLocalDate().format(dateFormatter)).setKey("date").setHeader("Date")
-                .setSortable(true).setComparator(Comparator.comparing(Transaction::getDate).reversed());
+        grid.addColumn(transaction -> transaction.getDate().toLocalDate().format(dateFormatter)).setKey("date")
+                .setHeader("Date").setSortable(true).setComparator(Comparator.comparing(Transaction::getDate).reversed());
 
         NumberRenderer<Transaction> amountRenderer = new NumberRenderer<>(Transaction::getAmount, "$ %.2f");
         grid.addColumn(amountRenderer).setHeader("Amount")
@@ -97,11 +96,7 @@ public class ListView extends VerticalLayout {
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
 
 
-        grid.asSingleSelect().addValueChangeListener(e -> {
-            if (!isEditorOpen) {
-                editTransaction(e.getValue());
-            }
-        });
+        grid.asSingleSelect().addValueChangeListener(e -> editTransaction(e.getValue()));
 
     }
 
@@ -134,7 +129,6 @@ public class ListView extends VerticalLayout {
         grid.deselectAll();
         form.setTransaction(null);
         removeClassName("editing");
-        isEditorOpen = false;
         form.setVisible(false);
     }
 
@@ -155,7 +149,6 @@ public class ListView extends VerticalLayout {
             form.setTransaction(transaction);
             form.setVisible(true);
             addClassName("editing");
-            isEditorOpen = true;
         }
     }
 

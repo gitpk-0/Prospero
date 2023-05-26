@@ -86,11 +86,16 @@ public class TransactionForm extends FormLayout {
 
         binder.bindInstanceFields(this); // bind fields to the data model
 
+
+        description.setPlaceholder("Enter a description");
         // set items and label generators for category and type fields
         category.setItems(categories);
+        category.setAllowCustomValue(true);
         category.setItemLabelGenerator(Category::getName);
+        category.setPlaceholder("Select or create a category");
         type.setItems(types);
         type.setItemLabelGenerator(Type::name);
+        type.setPlaceholder("Select a transaction type");
 
 
         category.addValueChangeListener(e -> {
@@ -122,6 +127,10 @@ public class TransactionForm extends FormLayout {
 
     public void setTransaction(Transaction transaction) {
         binder.setBean(transaction);
+    }
+
+    public Transaction getTransaction() {
+        return binder.getBean();
     }
 
     private Component createButtonLayout() {

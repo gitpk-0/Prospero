@@ -71,6 +71,7 @@
   "@vaadin/virtual-list": "24.0.3",
   "construct-style-sheets-polyfill": "3.1.0",
   "date-fns": "2.29.3",
+  "express": "^4.18.2",
   "line-awesome": "1.3.0",
   "lit": "2.6.1",
   "proj4": "2.8.1"
@@ -283,5 +284,5 @@
   "VAADIN/build/indexhtml-0685197c.js"
  ],
  "webComponents": [],
- "packageJsonHash": "05ac22ba7b9a948add51f501e7eeeee68cafd54b8940b1c1706e2e8be75906f2"
+ "packageJsonHash": "2da41f702a046f07535c7e4ba995d6eefdd47e990912829104b70e70928b8eda"
 }
