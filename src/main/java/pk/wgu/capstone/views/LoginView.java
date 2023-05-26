@@ -29,7 +29,6 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
                 "logging into your account, please contact prospero.support@pm.me");
 
         loginForm.setI18n(i18n);
-        // loginForm.getStyle().set("text-align", "center");
 
 
 
@@ -54,8 +53,6 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        System.out.println("BEFORE-EVENT-METHOD-CALLED!");
-
         // inform the user about an authentication error
         if(beforeEnterEvent.getLocation()
                 .getQueryParameters()

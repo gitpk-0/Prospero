@@ -79,6 +79,10 @@ public class RegistrationForm extends FormLayout {
         return submit;
     }
 
+    public Checkbox getAllowMarketing() {
+        return allowMarketing;
+    }
+
     private void setRequiredIndicatorVisible(HasValueAndElement<?, ?>... components) {
         Stream.of(components)
                 .forEach(component -> component.setRequiredIndicatorVisible(true));

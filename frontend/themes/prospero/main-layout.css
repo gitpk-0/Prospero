@@ -1,16 +1,38 @@
-/*vaadin-scroller[slot="drawer"] {*/
-/*  padding: var(--lumo-space-s);*/
-/*}*/
+/*!*narrow screens*!*/
+@media all and (max-width: 900px) {
+    .list-view.editing .toolbar,
+    .list-view.editing .transaction-grid {
+        display: none;
+    }
+}
 
-/*[slot="drawer"]:is(header, footer) {*/
-/*  display: flex;*/
-/*  align-items: center;*/
-/*  gap: var(--lumo-space-s);*/
-/*  padding: var(--lumo-space-s) var(--lumo-space-m);*/
-/*  min-height: var(--lumo-size-xl);*/
-/*  box-sizing: border-box;*/
-/*}*/
+a[highlight] {
+    font-weight: bold;
+    text-decoration: none;
+}
 
-/*[slot="drawer"]:is(header, footer):is(:empty) {*/
-/*  display: none;*/
-/*}*/
+.logo-image {
+    width: 50px;
+    height: 50px;
+}
+
+.logo-image-login {
+    width: 90px;
+    height: 90px;
+}
+
+.app {
+    margin-bottom: -15px;
+}
+
+.btn-large {
+    font-weight: bold;
+    padding: 8px 16px;
+    font-size: 18px;
+}
+
+.drawer-toggle {
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+}

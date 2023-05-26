@@ -59,6 +59,7 @@ public class RegistrationFormBinder {
 
                 binder.writeBean(userBean); // run validation and write the values to the bean
                 userBean.setPassword(passwordEncoder.encode(userBean.getPassword()));
+                userBean.setAllowsMarketingEmails(registrationForm.getAllowMarketing().getValue());
 
                 service.addNewUser(userBean);// add the new user to the database
 

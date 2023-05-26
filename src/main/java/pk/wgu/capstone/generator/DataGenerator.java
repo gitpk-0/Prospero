@@ -3,9 +3,9 @@ package pk.wgu.capstone.generator;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import pk.wgu.capstone.data.entity.*;
 import pk.wgu.capstone.data.repository.CategoryRepository;
@@ -23,13 +23,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @SpringComponent
 public class DataGenerator {
-
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    public DataGenerator(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
-    }
 
     @Bean
     public CommandLineRunner loadData(TransactionRepository transactionRepository,
@@ -64,7 +57,7 @@ public class DataGenerator {
             newUser.setFirstName("Patrick");
             newUser.setLastName("Kell");
             newUser.setEmail("patrick.kell1@pm.me");
-            newUser.setPassword(passwordEncoder.encode("easypass"));
+            newUser.setPassword(passwordEncoder().encode("easypass"));
             newUser.setAllowsMarketingEmails(true);
             newUser.setId(1101L);
             newUser.setRole(Role.USER);
@@ -142,5 +135,9 @@ public class DataGenerator {
         Random random = new Random();
         int randomIndex = random.nextInt(incomeDescriptions.length);
         return incomeDescriptions[randomIndex];
+    }
+
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
