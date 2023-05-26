@@ -10,6 +10,7 @@ import pk.wgu.capstone.data.repository.CategoryRepository;
 import pk.wgu.capstone.data.repository.TransactionRepository;
 import pk.wgu.capstone.data.repository.UserRepository;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -78,5 +79,9 @@ public class PfmService { // Personal Finance Management Service
 
     public User findUserById(Long userId) {
         return userRepository.findUserById(userId);
+    }
+
+    public BigDecimal sumAllTransactionsByType(Long userId, Type type) {
+        return transactionRepository.sumAllTransactionsByType(userId, type);
     }
 }

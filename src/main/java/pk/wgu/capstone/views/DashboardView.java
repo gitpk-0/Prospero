@@ -2,9 +2,7 @@ package pk.wgu.capstone.views;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.charts.Chart;
-import com.vaadin.flow.component.charts.model.ChartType;
-import com.vaadin.flow.component.charts.model.DataSeries;
-import com.vaadin.flow.component.charts.model.DataSeriesItem;
+import com.vaadin.flow.component.charts.model.*;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
@@ -35,8 +33,8 @@ public class DashboardView extends VerticalLayout {
         Long userId = securityService.getCurrentUserId(service);
 
         Span totalTransactions = new Span(service.countTransactionsByUser(userId) + " transactions");
-        Span incomes = new Span(service.countTransactionsByType(userId, Type.INCOME) + " income transactions");
-        Span expenses = new Span(service.countTransactionsByType(userId, Type.EXPENSE) + " expenses transactions");
+        Span incomes = new Span("$" + service.sumAllTransactionsByType(userId, Type.INCOME) + " in income");
+        Span expenses = new Span("$" + service.sumAllTransactionsByType(userId, Type.EXPENSE) + " in expenses");
 
         totalTransactions.addClassNames("text-xl", "mt-m");
         incomes.addClassNames("text-xl", "mt-m");
@@ -49,14 +47,35 @@ public class DashboardView extends VerticalLayout {
         Long userId = service.findUserByEmail(securityService.getAuthenticatedUser().getUsername()).getId();
 
 
-        Chart chart = new Chart(ChartType.PIE);
-
+        Chart columnChart = new Chart(ChartType.COLUMN);
         DataSeries dataSeries = new DataSeries();
         service.findAllTypes().forEach(type -> {
-            dataSeries.add(new DataSeriesItem(type.name(), service.countTransactionsByType(userId, type)));
+            dataSeries.add(new DataSeriesItem(type.name(), service.sumAllTransactionsByType(userId, type)));
         });
 
-        chart.getConfiguration().setSeries(dataSeries);
-        return chart;
+        Configuration config = columnChart.getConfiguration();
+        config.getChart().setStyledMode(true);
+
+
+
+        config.setSeries(dataSeries);
+
+        XAxis xAxis = config.getxAxis();
+        xAxis.setTitle("Transaction Type");
+
+        xAxis.setType(AxisType.CATEGORY);
+
+        YAxis yAxis = config.getyAxis();
+        yAxis.setTitle("Amount");
+
+        // Chart chart = new Chart(ChartType.PIE);
+        //
+        // DataSeries dataSeries = new DataSeries();
+        // service.findAllTypes().forEach(type -> {
+        //     dataSeries.add(new DataSeriesItem(type.name(), service.sumAllTransactionsByType(userId, type)));
+        // });
+        //
+        // chart.getConfiguration().setSeries(dataSeries);
+        return columnChart;
     }
 }
