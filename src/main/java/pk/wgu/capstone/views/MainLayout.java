@@ -74,13 +74,15 @@ public class MainLayout extends AppLayout {
     }
 
     private void createHeader() {
-        RouterLink listViewLink = new RouterLink("Transactions", ListView.class);
-        listViewLink.setHighlightCondition(HighlightConditions.sameLocation());
-        RouterLink dashboardViewLink = new RouterLink("Dashboard", DashboardView.class);
+        RouterLink listView = new RouterLink("Transactions", ListView.class);
+        listView.setHighlightCondition(HighlightConditions.sameLocation());
+        RouterLink incomeVsExpenseView = new RouterLink("Income vs. Expense", IncomeVsExpenseView.class);
+        RouterLink dashboardView = new RouterLink("Dashboard", DashboardView.class);
 
         addToDrawer(new VerticalLayout(
-                listViewLink,
-                dashboardViewLink
+                listView,
+                incomeVsExpenseView
+                // dashboardView
         ));
     }
 

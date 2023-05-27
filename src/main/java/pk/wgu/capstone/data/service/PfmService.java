@@ -84,4 +84,8 @@ public class PfmService { // Personal Finance Management Service
     public BigDecimal sumAllTransactionsByType(Long userId, Type type) {
         return transactionRepository.sumAllTransactionsByType(userId, type);
     }
+
+    public List<Object[]> sumTransactionByCategory(Long userId) {
+        return transactionRepository.sumTransactionsByCategory(userId);
+    }
 }
