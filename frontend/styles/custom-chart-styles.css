@@ -1,8 +1,8 @@
-:host(.totals-chart) .highcharts-axis-title {
+:host(.totals-chart) .highcharts-axis-title, text {
     font-size: large;
 }
 
-:host(.totals-chart) .highcharts-data-label text {
+:host(.totals-chart) .highcharts-data-label {
     font-size: x-large;
     --lumo-font-family: -apple-system, BlinkMacSystemFont, "Roboto", "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     font-weight: bolder;
@@ -22,7 +22,6 @@
 }
 
 .huge-axis {
-    /*fill: #1676F3;*/
-    font-size: x-large;
-    margin-top: 1rem;
+    font-size: larger;
+    font-weight: bolder;
 }

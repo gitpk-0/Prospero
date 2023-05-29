@@ -20,6 +20,7 @@ import pk.wgu.capstone.data.service.PfmService;
 import pk.wgu.capstone.security.SecurityService;
 import pk.wgu.capstone.views.forms.TransactionForm;
 
+import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
@@ -75,7 +76,8 @@ public class ListView extends VerticalLayout {
         grid.addColumn(transaction -> transaction.getDate().toLocalDate().format(dateFormatter)).setKey("date")
                 .setHeader("Date").setSortable(true).setComparator(Comparator.comparing(Transaction::getDate).reversed());
 
-        NumberRenderer<Transaction> amountRenderer = new NumberRenderer<>(Transaction::getAmount, "$ %.2f");
+        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
+        NumberRenderer<Transaction> amountRenderer = new NumberRenderer<>(Transaction::getAmount, currencyFormat);
         grid.addColumn(amountRenderer).setHeader("Amount")
                 .setSortable(true).setComparator(Comparator.comparing(Transaction::getAmount));
 

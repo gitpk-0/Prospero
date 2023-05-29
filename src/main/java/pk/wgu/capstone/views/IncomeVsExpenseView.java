@@ -9,6 +9,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
@@ -18,6 +19,7 @@ import pk.wgu.capstone.data.service.PfmService;
 import pk.wgu.capstone.security.SecurityService;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.Comparator;
 import java.util.List;
 
@@ -66,7 +68,10 @@ public class IncomeVsExpenseView extends VerticalLayout {
                 .setSortable(true)
                 .setComparator(Comparator.comparing(CategoryTotal::getCategoryName));
 
-        incomeGrid.addColumn(CategoryTotal::getTotalAmount).setHeader(
+        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
+        NumberRenderer<CategoryTotal> amountRenderer = new NumberRenderer<>(CategoryTotal::getTotalAmount, currencyFormat);
+
+        incomeGrid.addColumn(amountRenderer).setHeader(
                         new Html("<div style='font-size: 1.2rem; font-weight:900'>Amount</div>"))
                 .setSortable(true)
                 .setComparator(Comparator.comparing(CategoryTotal::getTotalAmount));
@@ -83,7 +88,7 @@ public class IncomeVsExpenseView extends VerticalLayout {
                 .setSortable(true)
                 .setComparator(Comparator.comparing(CategoryTotal::getCategoryName));
 
-        expenseGrid.addColumn(CategoryTotal::getTotalAmount).setHeader(
+        expenseGrid.addColumn(amountRenderer).setHeader(
                 new Html("<div style='font-size: 1.2rem; font-weight:900'>Amount</div>"))
                 .setSortable(true)
                 .setComparator(Comparator.comparing(CategoryTotal::getTotalAmount));
@@ -146,11 +151,9 @@ public class IncomeVsExpenseView extends VerticalLayout {
 
 
         DataSeriesItem incomeItem = new DataSeriesItem("Income", service.sumAllTransactionsByType(userId, Type.INCOME));
-        incomeItem.setColorIndex(245);
         incomeItem.setClassName("income-column-bar");
 
         DataSeriesItem expenseItem = new DataSeriesItem("Expenses", service.sumAllTransactionsByType(userId, Type.EXPENSE));
-        expenseItem.setColorIndex(999);
         expenseItem.setClassName("expense-column-bar");
 
 
