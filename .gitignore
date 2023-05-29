@@ -3,7 +3,7 @@
 .settings
 .project
 .classpath
-.env
+Todo.txt
 
 *.iml
 .DS_Store

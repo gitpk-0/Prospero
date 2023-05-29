@@ -1,0 +1,28 @@
+:host(.totals-chart) .highcharts-axis-title {
+    font-size: large;
+}
+
+:host(.totals-chart) .highcharts-data-label text {
+    font-size: x-large;
+    --lumo-font-family: -apple-system, BlinkMacSystemFont, "Roboto", "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+:host(.totals-chart)  .highcharts-yaxis-labels { /*.highcharts-axis-labels*/
+    font-size: large;
+}
+
+:host(.totals-chart) .income-column-bar {
+    fill: #038024;
+}
+
+:host(.totals-chart) .expense-column-bar {
+    fill: #b03406;
+}
+
+.huge-axis {
+    /*fill: #1676F3;*/
+    font-size: x-large;
+    margin-top: 1rem;
+}

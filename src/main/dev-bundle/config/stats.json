@@ -159,6 +159,8 @@
   "wkt-parser": "1.3.3"
  },
  "bundleImports": [
+  "@vaadin/vaadin-themable-mixin",
+  "Frontend/styles/custom-chart-styles.css",
   "@vaadin/grid/theme/lumo/vaadin-grid.js",
   "@vaadin/tooltip/theme/lumo/vaadin-tooltip.js",
   "@vaadin/grid/theme/lumo/vaadin-grid-column.js",
@@ -256,6 +258,7 @@
   "Frontend/generated/jar-resources/virtualListConnector.js"
  ],
  "frontendHashes": {
+  "styles/custom-chart-styles.css": "fd80ff4ba0e0f228dbd8ee9574e3c762a02af4a51f89595e4e5a817185eb49b3",
   "comboBoxConnector.js": "1d004c3dae9c76f8bcc68678abe1b8f7bdc8b456f5c9c4c7f190df8ed25d66cd",
   "contextMenuConnector.js": "25a200f8086461635ddd92316ebeb5a868294c8650a190efbae120edb1088f4f",
   "contextMenuTargetConnector.js": "870f67643988dd5618c247bd3c28d843f70aa026ee89f44c3c7556b5e70856af",
@@ -281,8 +284,8 @@
   "prospero": "{\n  \"lumoImports\" : [ \"typography\", \"color\", \"spacing\", \"badge\", \"utility\" ],\n  \"include\": [\"styles.css\"]\n}"
  },
  "entryScripts": [
-  "VAADIN/build/indexhtml-0685197c.js"
+  "VAADIN/build/indexhtml-a4fd303a.js"
  ],
  "webComponents": [],
- "packageJsonHash": "2da41f702a046f07535c7e4ba995d6eefdd47e990912829104b70e70928b8eda"
+ "packageJsonHash": "b8388d83fbed399c0a168af333606c4c74767b2a33a8ada84efccae4395830c5"
 }

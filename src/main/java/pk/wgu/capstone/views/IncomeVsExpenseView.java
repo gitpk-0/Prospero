@@ -1,10 +1,11 @@
 package pk.wgu.capstone.views;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.charts.Chart;
 import com.vaadin.flow.component.charts.model.*;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -23,6 +24,7 @@ import java.util.List;
 @Route(value = "income-vs-expense", layout = MainLayout.class)
 @PageTitle("I&E | Prospero")
 @PermitAll
+@CssImport(value = "./styles/custom-chart-styles.css", themeFor = "vaadin-chart")
 public class IncomeVsExpenseView extends VerticalLayout {
 
     private SecurityService securityService;
@@ -41,11 +43,13 @@ public class IncomeVsExpenseView extends VerticalLayout {
         setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.CENTER);
 
         setSizeFull();
+        setAlignItems(Alignment.CENTER);
+        setJustifyContentMode(JustifyContentMode.CENTER);
 
         configureGrids();
 
         add(
-                getTransactionStats(),
+                // getTransactionStats(),
                 getTransactionsChart(),
                 getIncomeAndExpenseGridContent()
         );
@@ -56,33 +60,37 @@ public class IncomeVsExpenseView extends VerticalLayout {
     private void configureGrids() {
         // INCOME GRID
         incomeGrid.removeAllColumns();
-        incomeGrid.addClassName("income-grid");
 
-        incomeGrid.addColumn(CategoryTotal::getCategoryName).setHeader("Category")
+        incomeGrid.addColumn(CategoryTotal::getCategoryName).setHeader(
+                        new Html("<div style='font-size: 1.2rem; font-weight:900'>Category</div>"))
                 .setSortable(true)
                 .setComparator(Comparator.comparing(CategoryTotal::getCategoryName));
 
-        incomeGrid.addColumn(CategoryTotal::getTotalAmount).setHeader("Amount")
+        incomeGrid.addColumn(CategoryTotal::getTotalAmount).setHeader(
+                        new Html("<div style='font-size: 1.2rem; font-weight:900'>Amount</div>"))
                 .setSortable(true)
                 .setComparator(Comparator.comparing(CategoryTotal::getTotalAmount));
 
         incomeGrid.getColumns().forEach(col -> col.setAutoWidth(true));
         incomeGrid.asSingleSelect();
+        incomeGrid.getStyle().set("margin-left", "8rem");
 
         // EXPENSE GRID
         expenseGrid.removeAllColumns();
-        expenseGrid.addClassName("expense-grid");
 
-        expenseGrid.addColumn(CategoryTotal::getCategoryName).setHeader("Category")
+        expenseGrid.addColumn(CategoryTotal::getCategoryName).setHeader(
+                new Html("<div style='font-size: 1.2rem; font-weight:900'>Category</div>"))
                 .setSortable(true)
                 .setComparator(Comparator.comparing(CategoryTotal::getCategoryName));
 
-        expenseGrid.addColumn(CategoryTotal::getTotalAmount).setHeader("Amount")
+        expenseGrid.addColumn(CategoryTotal::getTotalAmount).setHeader(
+                new Html("<div style='font-size: 1.2rem; font-weight:900'>Amount</div>"))
                 .setSortable(true)
                 .setComparator(Comparator.comparing(CategoryTotal::getTotalAmount));
 
         expenseGrid.getColumns().forEach(col -> col.setAutoWidth(true));
         expenseGrid.asSingleSelect();
+        expenseGrid.getStyle().set("margin-right", "2rem");
     }
 
 
@@ -90,9 +98,7 @@ public class IncomeVsExpenseView extends VerticalLayout {
         List<Object[]> result = service.sumTransactionByCategory(userId);
         List<CategoryTotal> categoryTotals = result
                 .stream()
-                .map(row -> {
-                    return new CategoryTotal((String) row[0], (BigDecimal) row[1]);
-                }).toList();
+                .map(row -> new CategoryTotal((String) row[0], (BigDecimal) row[1])).toList();
 
         List<CategoryTotal> incomeData = categoryTotals.stream()
                 .filter(row -> row.getCategoryName().equals("Income")).toList();
@@ -105,55 +111,88 @@ public class IncomeVsExpenseView extends VerticalLayout {
 
     private Component getIncomeAndExpenseGridContent() {
         HorizontalLayout content = new HorizontalLayout(incomeGrid, expenseGrid);
+        content.setClassName("grids-layout");
+        content.getStyle().set("margin-top", "-1.5rem");
+        content.getStyle().set("grid-gap", "3rem");
         content.setWidthFull();
         return content;
     }
 
-    private Component getTransactionStats() {
-        Long userId = securityService.getCurrentUserId(service);
-
-        Span totalTransactions = new Span(service.countTransactionsByUser(userId) + " transactions");
-        Span incomes = new Span("$" + service.sumAllTransactionsByType(userId, Type.INCOME) + " in income");
-        Span expenses = new Span("$" + service.sumAllTransactionsByType(userId, Type.EXPENSE) + " in expenses");
-
-        totalTransactions.addClassNames("text-xl", "mt-m");
-        incomes.addClassNames("text-xl", "mt-m");
-        expenses.addClassNames("text-xl", "mt-m");
-
-        return new VerticalLayout(totalTransactions, incomes, expenses);
-    }
+    // private Component getTransactionStats() {
+    //     Long userId = securityService.getCurrentUserId(service);
+    //
+    //     Span totalTransactions = new Span(service.countTransactionsByUser(userId) + " transactions");
+    //     Span incomes = new Span("$" + service.sumAllTransactionsByType(userId, Type.INCOME) + " in income");
+    //     Span expenses = new Span("$" + service.sumAllTransactionsByType(userId, Type.EXPENSE) + " in expenses");
+    //
+    //     totalTransactions.addClassNames("text-xl", "mt-m");
+    //     incomes.addClassNames("text-xl", "mt-m");
+    //     expenses.addClassNames("text-xl", "mt-m");
+    //
+    //     HorizontalLayout stats = new HorizontalLayout(incomes, expenses);
+    //
+    //     stats.setAlignItems(Alignment.CENTER);
+    //
+    //     return stats;
+    // }
 
     private Component getTransactionsChart() {
         Long userId = service.findUserByEmail(securityService.getAuthenticatedUser().getUsername()).getId();
 
         Chart columnChart = new Chart(ChartType.COLUMN);
-        DataSeries dataSeries = new DataSeries();
-        service.findAllTypes().forEach(type -> {
-            dataSeries.add(new DataSeriesItem(type.name(), service.sumAllTransactionsByType(userId, type)));
-        });
-
         Configuration config = columnChart.getConfiguration();
+        DataSeries dataSeries = new DataSeries();
+        dataSeries.setName("Transactions");
+
+
+        DataSeriesItem incomeItem = new DataSeriesItem("Income", service.sumAllTransactionsByType(userId, Type.INCOME));
+        incomeItem.setColorIndex(245);
+        incomeItem.setClassName("income-column-bar");
+
+        DataSeriesItem expenseItem = new DataSeriesItem("Expenses", service.sumAllTransactionsByType(userId, Type.EXPENSE));
+        expenseItem.setColorIndex(999);
+        expenseItem.setClassName("expense-column-bar");
+
+
+        dataSeries.add(incomeItem);
+        dataSeries.add(expenseItem);
+
+        DataLabels totalLabel = new DataLabels(true);
+        totalLabel.setShape(Shape.CALLOUT);
+        totalLabel.setY(-10);
+        totalLabel.setFormatter("function() { return '$' + Highcharts.numberFormat(this.point.y, 2, '.', ',') }");
+        totalLabel.setInside(true);
+        incomeItem.setDataLabels(totalLabel);
+        expenseItem.setDataLabels(totalLabel);
+
+
+        Tooltip tooltip = new Tooltip();
+        tooltip.setFormatter("function() {" +
+                "    return '<br/><b>' + this.point.name + '</b><br/>' +" +
+                "        'Total: $' + Highcharts.numberFormat(this.point.y, 2, '.', ',') + '<br/><br/>'}");
+
+        // tooltip.setFormatter("function() {\n" +
+        //         "      return '<b>' + this.point.name + '</b><br/>' +\n" +
+        //         "        this.point.series.name + ': ' + this.point.y + '<br/>' +\n" +
+        //         "        'Color: ' + this.point.color;\n" +
+        //         "    }");
+        tooltip.setEnabled(true);
+        config.setTooltip(tooltip);
+
         config.getChart().setStyledMode(true);
-
-
+        config.getLegend().setEnabled(false);
         config.setSeries(dataSeries);
+        config.getxAxis().setClassName("huge-axis");
 
         XAxis xAxis = config.getxAxis();
-        xAxis.setTitle("Transaction Type");
-
         xAxis.setType(AxisType.CATEGORY);
 
         YAxis yAxis = config.getyAxis();
         yAxis.setTitle("Amount");
 
-        // Chart chart = new Chart(ChartType.PIE);
-        //
-        // DataSeries dataSeries = new DataSeries();
-        // service.findAllTypes().forEach(type -> {
-        //     dataSeries.add(new DataSeriesItem(type.name(), service.sumAllTransactionsByType(userId, type)));
-        // });
-        //
-        // chart.getConfiguration().setSeries(dataSeries);
+        columnChart.addClassName("totals-chart");
+        columnChart.setHeight("800px");
+
         return columnChart;
     }
 }
