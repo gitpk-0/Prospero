@@ -10,6 +10,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -33,6 +34,7 @@ public class TransactionForm extends FormLayout {
 
     private SecurityService securityService;
     private PfmService service;
+    CustomCategoryForm newCategoryForm;
 
     // data binding
     Binder<Transaction> binder = new BeanValidationBinder<>(Transaction.class);
@@ -48,6 +50,7 @@ public class TransactionForm extends FormLayout {
     ComboBox<Type> typeSelect = new ComboBox<>("Type");
     ComboBox<Category> categorySelect = new ComboBox<>("Category");
     TextField description = new TextField("Description");
+    public Button createNewCategoryBtn = new Button("Create new");
 
     // buttons
     Button save = new Button("Save");
@@ -64,6 +67,9 @@ public class TransactionForm extends FormLayout {
         addClassName("transaction-form"); // for styling
         dollarPrefix.setText("$");
         amount.setPrefixComponent(dollarPrefix);
+        createNewCategoryBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        createNewCategoryBtn.getStyle().set("--lumo-primary-color", "green");
+
 
         binder.forField(datePick)
                 .withConverter(dateConverter)
@@ -76,24 +82,23 @@ public class TransactionForm extends FormLayout {
                 .withValidator(amount -> amount.compareTo(BigDecimal.valueOf(0.009)) > 0, "Amount must be at least $0.01")
                 .bind(Transaction::getAmount, Transaction::setAmount);
 
-        binder.forField(categorySelect)
-                .withValidator(Objects::nonNull, "Category is required")
-                .bind(Transaction::getCategory, Transaction::setCategory);
-
         binder.forField(typeSelect)
                 .withValidator(Objects::nonNull, "Type is required")
                 .bind(Transaction::getType, Transaction::setType);
 
 
-        binder.bindInstanceFields(this); // bind fields to the data model
+        binder.forField(categorySelect)
+                .withValidator(Objects::nonNull, "Category is required")
+                .bind(Transaction::getCategory, Transaction::setCategory);
 
+        binder.bindInstanceFields(this); // bind fields to the data model
 
         description.setPlaceholder("Enter a description");
         // set items and label generators for category and type fields
         categorySelect.setItems(categories);
         categorySelect.setAllowCustomValue(true);
         categorySelect.setItemLabelGenerator(Category::getName);
-        categorySelect.setPlaceholder("Select or create a category");
+        categorySelect.setPlaceholder("Select a category");
         typeSelect.setItems(types);
         typeSelect.setItemLabelGenerator(Type::name);
         typeSelect.setPlaceholder("Select a transaction type");
@@ -103,7 +108,6 @@ public class TransactionForm extends FormLayout {
         categorySelect.setEnabled(false);
         typeSelect.addValueChangeListener(e -> {
             Type selectedType = e.getValue();
-            System.out.println("Selected type: " + selectedType.toString());
             if (selectedType != null) {
                 if (selectedType.equals(Type.INCOME)) {
                     categorySelect.setItems(categories
@@ -119,20 +123,23 @@ public class TransactionForm extends FormLayout {
             }
         });
 
+        createNewCategoryBtn.addClickListener(e -> {
+            configureCategoryForm();
+            newCategoryForm.setVisible(true);
+        });
+
 
         add( // add form fields and button layout to the layout
                 datePick,
                 amount,
                 typeSelect,
-                categorySelect,
+                categoryFieldsLayout(),
                 description,
                 createButtonLayout()
         );
-
-
     }
 
-
+    // Transaction
     public void setTransaction(Transaction transaction) {
         binder.setBean(transaction);
     }
@@ -167,9 +174,36 @@ public class TransactionForm extends FormLayout {
         }
     }
 
+    // New Category Form
+    private Component categoryFieldsLayout() {
+        HorizontalLayout layout = new HorizontalLayout(categorySelect, createNewCategoryBtn);
+        layout.setAlignItems(FlexComponent.Alignment.BASELINE);
+        return layout;
+    }
+
+    private void configureCategoryForm() {
+        newCategoryForm = new CustomCategoryForm(
+                securityService,
+                service,
+                service.findAllTypes());
+
+        newCategoryForm.setWidth("30em");
+        newCategoryForm.setVisible(false);
+
+        newCategoryForm.addSaveListener(this::saveCategory);
+        newCategoryForm.addCloseListener(e -> closeCategoryEditor());
+    }
+
+    private void saveCategory(CustomCategoryForm.SaveEvent saveEvent) {
+        service.addNewCategory(saveEvent.getCategory());
+        closeCategoryEditor();
+    }
+
+    private void closeCategoryEditor() {
+        newCategoryForm.setVisible(false);
+    }
+
     // Events
-
-
     public static abstract class TransactionFormEvent extends ComponentEvent<TransactionForm> {
 
         private Transaction transaction;
@@ -220,4 +254,5 @@ public class TransactionForm extends FormLayout {
     public Registration addCloseListener(ComponentEventListener<CloseEvent> listener) {
         return addListener(CloseEvent.class, listener);
     }
+
 }

@@ -88,4 +88,8 @@ public class PfmService { // Personal Finance Management Service
     public List<Object[]> sumTransactionByCategory(Long userId, Type type) {
         return transactionRepository.sumTransactionsByCategory(userId, type);
     }
+
+    public void addNewCategory(Category category) {
+        categoryRepository.save(category);
+    }
 }

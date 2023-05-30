@@ -37,4 +37,12 @@ public class Category extends AbstractEntity {
     public void setType(Type type) {
         this.type = type;
     }
+
+    @Override
+    public String toString() {
+        return "Category{" +
+                "name='" + name + '\'' +
+                ", type=" + type +
+                '}';
+    }
 }
