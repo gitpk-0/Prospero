@@ -24,9 +24,9 @@ import java.util.Comparator;
 import java.util.List;
 
 @Route(value = "income-vs-expense", layout = MainLayout.class)
-@PageTitle("I&E | Prospero")
+@PageTitle("I & E | Prospero")
 @PermitAll
-@CssImport(value = "./styles/custom-chart-styles.css", themeFor = "vaadin-chart")
+@CssImport(value = "./styles/income-vs-expense-view-styles.css", themeFor = "vaadin-chart")
 public class IncomeVsExpenseView extends VerticalLayout {
 
     private SecurityService securityService;

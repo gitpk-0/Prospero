@@ -160,7 +160,7 @@
  },
  "bundleImports": [
   "@vaadin/vaadin-themable-mixin",
-  "Frontend/styles/custom-chart-styles.css",
+  "Frontend/styles/income-vs-expense-view-styles.css",
   "@vaadin/grid/theme/lumo/vaadin-grid.js",
   "@vaadin/tooltip/theme/lumo/vaadin-tooltip.js",
   "@vaadin/grid/theme/lumo/vaadin-grid-column.js",
@@ -258,7 +258,7 @@
   "Frontend/generated/jar-resources/virtualListConnector.js"
  ],
  "frontendHashes": {
-  "styles/custom-chart-styles.css": "457f4e8632e65ade55a9c48c6e52b42c2e51d8272cbecbeefe01397fed84405f",
+  "styles/income-vs-expense-view-styles.css": "5642fef248f0107b1d6bf32d082aed468f667701173adff6d84bea5e997be86c",
   "comboBoxConnector.js": "1d004c3dae9c76f8bcc68678abe1b8f7bdc8b456f5c9c4c7f190df8ed25d66cd",
   "contextMenuConnector.js": "25a200f8086461635ddd92316ebeb5a868294c8650a190efbae120edb1088f4f",
   "contextMenuTargetConnector.js": "870f67643988dd5618c247bd3c28d843f70aa026ee89f44c3c7556b5e70856af",
@@ -284,7 +284,7 @@
   "prospero": "{\n  \"lumoImports\" : [ \"typography\", \"color\", \"spacing\", \"badge\", \"utility\" ],\n  \"include\": [\"styles.css\"]\n}"
  },
  "entryScripts": [
-  "VAADIN/build/indexhtml-17c2e895.js"
+  "VAADIN/build/indexhtml-dfe3de94.js"
  ],
  "webComponents": [],
  "packageJsonHash": "b8388d83fbed399c0a168af333606c4c74767b2a33a8ada84efccae4395830c5"
