@@ -8,11 +8,14 @@ import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.ValueContext;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import pk.wgu.capstone.data.entity.Category;
 import pk.wgu.capstone.data.entity.Role;
 import pk.wgu.capstone.data.entity.User;
 import pk.wgu.capstone.data.service.PfmService;
 import pk.wgu.capstone.views.LoginView;
 import pk.wgu.capstone.views.forms.RegistrationForm;
+
+import java.util.List;
 
 public class RegistrationFormBinder {
 
@@ -56,6 +59,14 @@ public class RegistrationFormBinder {
             try {
                 User userBean = new User(); // new bean to store user info into
                 userBean.setRole(Role.USER);
+                List<Category> categoryList = service.findAllCategories();
+                categoryList.stream()
+                        .filter(category -> category.getDefault().equals(true)) // for all default categories
+                                .forEach(category -> {
+                                    List<Long> userIds = category.getUserIds();
+                                    userIds.add(userBean.getId());
+                                    category.setUserIds(userIds); // add new usersId to the userIds list
+                                });
 
                 binder.writeBean(userBean); // run validation and write the values to the bean
                 userBean.setPassword(passwordEncoder.encode(userBean.getPassword()));

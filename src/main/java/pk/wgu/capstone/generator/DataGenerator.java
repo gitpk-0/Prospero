@@ -61,6 +61,8 @@ public class DataGenerator {
             categories.add(new Category("Transportation", Type.EXPENSE));
             categories.add(new Category("Entertainment", Type.EXPENSE));
             categories.add(new Category("Other", Type.EXPENSE)); //19
+            categories.forEach(category -> category.setDefault(true));
+
 
 
             List<Type> types = Arrays.asList(Type.values());
@@ -78,6 +80,10 @@ public class DataGenerator {
             newUser.setRole(Role.USER);
             users.add(newUser);
 
+            List<Long> userIds = new ArrayList<>();
+            userIds.add(newUser.getId());
+            userIds.add(999L);
+            categories.forEach(cat -> cat.setUserIds(userIds));
 
             Random r = new Random();
 
@@ -101,6 +107,7 @@ public class DataGenerator {
                 transactions.add(transaction);
             }
 
+
             categoryRepository.saveAll(categories);
             transactionRepository.saveAll(transactions);
             userRepository.saveAll(users);
@@ -112,14 +119,12 @@ public class DataGenerator {
 
 
     static Date generateRandomDate() {
-        LocalDate minDay = LocalDate.now().minusYears(1);
-        LocalDate maxDay = LocalDate.now().plusYears(1);
+        LocalDate minDay = LocalDate.now().minusYears(2);
+        LocalDate maxDay = LocalDate.now();
 
         long minEpochDay = minDay.toEpochDay();
         long maxEpochDay = maxDay.toEpochDay();
         long randomDay = ThreadLocalRandom.current().nextLong(minEpochDay, maxEpochDay + 1);
-
-        // System.out.println("Date+++ " + Date.valueOf(LocalDate.ofEpochDay(randomDay)));
 
         return Date.valueOf(LocalDate.ofEpochDay(randomDay));
     }

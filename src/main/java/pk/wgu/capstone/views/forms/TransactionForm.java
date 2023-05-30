@@ -195,7 +195,9 @@ public class TransactionForm extends FormLayout {
     }
 
     private void saveCategory(CustomCategoryForm.SaveEvent saveEvent) {
-        service.addNewCategory(saveEvent.getCategory());
+        Category newCategory = saveEvent.getCategory();
+
+        service.addNewCategory(newCategory);
         closeCategoryEditor();
     }
 
