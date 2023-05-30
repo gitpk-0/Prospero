@@ -39,13 +39,28 @@ public class DataGenerator {
             logger.info("Generating demo data:");
             logger.info("Generating categories...");
             List<Category> categories = new ArrayList<>();
-            categories.add(new Category("Income"));
-            categories.add(new Category("Rent"));
-            categories.add(new Category("Car"));
-            categories.add(new Category("Food"));
-            categories.add(new Category("Gas"));
-            categories.add(new Category("Entertainment"));
-            categories.add(new Category("Other"));
+            // default income categories
+            categories.add(new Category("Paycheck", Type.INCOME)); //0
+            categories.add(new Category("Bonus", Type.INCOME));
+            categories.add(new Category("Savings", Type.INCOME));
+            categories.add(new Category("Investment", Type.INCOME));
+            categories.add(new Category("Commission", Type.INCOME));
+            categories.add(new Category("Retirement", Type.INCOME));
+            categories.add(new Category("Social Security", Type.INCOME));
+            categories.add(new Category("Rental Property", Type.INCOME));
+            categories.add(new Category("Gift", Type.INCOME));
+            categories.add(new Category("Other", Type.INCOME)); //9
+            // default expense categories
+            categories.add(new Category("Rent", Type.EXPENSE)); //10
+            categories.add(new Category("Car", Type.EXPENSE));
+            categories.add(new Category("Food", Type.EXPENSE));
+            categories.add(new Category("Medical", Type.EXPENSE));
+            categories.add(new Category("Gift", Type.EXPENSE));
+            categories.add(new Category("Utilities", Type.EXPENSE));
+            categories.add(new Category("Travel", Type.EXPENSE));
+            categories.add(new Category("Transportation", Type.EXPENSE));
+            categories.add(new Category("Entertainment", Type.EXPENSE));
+            categories.add(new Category("Other", Type.EXPENSE)); //19
 
 
             List<Type> types = Arrays.asList(Type.values());
@@ -76,10 +91,10 @@ public class DataGenerator {
                 transaction.setUserId(users.get(0).getId());
                 if (transaction.getType().equals(Type.INCOME)) {
                     transaction.setDescription(randomIncomeDescription());
-                    transaction.setCategory(categories.get(0));
+                    transaction.setCategory(categories.get(r.nextInt(10)));
                 } else {
                     transaction.setDescription(randomExpenseDescription());
-                    transaction.setCategory(categories.get(r.nextInt(categories.size() - 1) + 1)); // exclude index 0
+                    transaction.setCategory(categories.get(r.nextInt(categories.size() - 10) + 10));
                 }
 
                 logger.info(transaction.toString());

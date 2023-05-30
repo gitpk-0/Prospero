@@ -11,6 +11,7 @@ Notes.txt
 # The following files are generated/updated by vaadin-maven-plugin
 node_modules/
 frontend/generated/
+/src/main/dev-bundle/
 pnpmfile.js
 vite.generated.ts
 

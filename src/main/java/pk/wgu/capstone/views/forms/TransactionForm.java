@@ -27,6 +27,7 @@ import pk.wgu.capstone.security.SecurityService;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class TransactionForm extends FormLayout {
 
@@ -41,12 +42,12 @@ public class TransactionForm extends FormLayout {
     SqlDateToLocalDateConverter dateConverter = new SqlDateToLocalDateConverter();
 
     // form fields
-    DatePicker date = new DatePicker("Date");
+    DatePicker datePick = new DatePicker("Date");
     NumberField amount = new NumberField("Amount");
     Div dollarPrefix = new Div();
+    ComboBox<Type> typeSelect = new ComboBox<>("Type");
+    ComboBox<Category> categorySelect = new ComboBox<>("Category");
     TextField description = new TextField("Description");
-    ComboBox<Category> category = new ComboBox<>("Category");
-    ComboBox<Type> type = new ComboBox<>("Type");
 
     // buttons
     Button save = new Button("Save");
@@ -54,7 +55,9 @@ public class TransactionForm extends FormLayout {
     Button cancel = new Button("Cancel");
 
     public TransactionForm(SecurityService securityService,
-                           PfmService service, List<Category> categories, List<Type> types) {
+                           PfmService service,
+                           List<Category> categories,
+                           List<Type> types) {
         this.securityService = securityService;
         this.service = service;
 
@@ -62,7 +65,7 @@ public class TransactionForm extends FormLayout {
         dollarPrefix.setText("$");
         amount.setPrefixComponent(dollarPrefix);
 
-        binder.forField(date)
+        binder.forField(datePick)
                 .withConverter(dateConverter)
                 .withValidator(Objects::nonNull, "Date is required")
                 .bind(Transaction::getDate, Transaction::setDate);
@@ -73,14 +76,12 @@ public class TransactionForm extends FormLayout {
                 .withValidator(amount -> amount.compareTo(BigDecimal.valueOf(0.009)) > 0, "Amount must be at least $0.01")
                 .bind(Transaction::getAmount, Transaction::setAmount);
 
-        binder.forField(category)
+        binder.forField(categorySelect)
                 .withValidator(Objects::nonNull, "Category is required")
                 .bind(Transaction::getCategory, Transaction::setCategory);
 
-        binder.forField(type)
+        binder.forField(typeSelect)
                 .withValidator(Objects::nonNull, "Type is required")
-                .withValidator(value -> !(category.getValue().getName().equals("Income") && value == Type.EXPENSE),
-                        "Type cannot be EXPENSE if category is Income")
                 .bind(Transaction::getType, Transaction::setType);
 
 
@@ -89,35 +90,42 @@ public class TransactionForm extends FormLayout {
 
         description.setPlaceholder("Enter a description");
         // set items and label generators for category and type fields
-        category.setItems(categories);
-        category.setAllowCustomValue(true);
-        category.setItemLabelGenerator(Category::getName);
-        category.setPlaceholder("Select or create a category");
-        type.setItems(types);
-        type.setItemLabelGenerator(Type::name);
-        type.setPlaceholder("Select a transaction type");
+        categorySelect.setItems(categories);
+        categorySelect.setAllowCustomValue(true);
+        categorySelect.setItemLabelGenerator(Category::getName);
+        categorySelect.setPlaceholder("Select or create a category");
+        typeSelect.setItems(types);
+        typeSelect.setItemLabelGenerator(Type::name);
+        typeSelect.setPlaceholder("Select a transaction type");
 
 
-        category.addValueChangeListener(e -> {
-            Category c = e.getValue();
-            if (c != null && c.getName().equals("Income")) {
-                type.setValue(Type.INCOME);
-            }
-        });
-
-        type.addValueChangeListener(e -> {
-            if (e.getValue() != null && e.getValue() == Type.INCOME) {
-                category.setValue(categories.get(0));
+        // Only allow category selection after transaction type has been selected
+        categorySelect.setEnabled(false);
+        typeSelect.addValueChangeListener(e -> {
+            Type selectedType = e.getValue();
+            System.out.println("Selected type: " + selectedType.toString());
+            if (selectedType != null) {
+                if (selectedType.equals(Type.INCOME)) {
+                    categorySelect.setItems(categories
+                            .stream().filter(c -> c.getType() == Type.INCOME).collect(Collectors.toList()));
+                    categorySelect.setEnabled(true);
+                } else if (selectedType.equals(Type.EXPENSE)) {
+                    categorySelect.setItems(categories
+                            .stream().filter(c -> c.getType() == Type.EXPENSE).collect(Collectors.toList()));
+                    categorySelect.setEnabled(true);
+                } else {
+                    categorySelect.setEnabled(false);
+                }
             }
         });
 
 
         add( // add form fields and button layout to the layout
-                date,
+                datePick,
                 amount,
+                typeSelect,
+                categorySelect,
                 description,
-                category,
-                type,
                 createButtonLayout()
         );
 

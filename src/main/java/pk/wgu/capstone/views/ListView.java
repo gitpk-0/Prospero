@@ -66,6 +66,7 @@ public class ListView extends VerticalLayout {
     private void sortGrid() {
         GridSortOrder<Transaction> sortOrder = new GridSortOrder<>(grid.getColumnByKey("date"), SortDirection.ASCENDING);
         grid.sort(List.of(sortOrder));
+        //etst
     }
 
     private void configureGrid() {
