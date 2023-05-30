@@ -62,6 +62,8 @@ public class IncomeVsExpenseView extends VerticalLayout {
     private void configureGrids() {
         // INCOME GRID
         incomeGrid.removeAllColumns();
+        // incomeGrid.addColumn(CategoryTotal::getType).setHeader(
+        //         new Html("<div style='font-size: 1.2rem; font-weight:900'>Type</div>"));
 
         incomeGrid.addColumn(CategoryTotal::getCategoryName).setHeader(
                         new Html("<div style='font-size: 1.2rem; font-weight:900'>Category</div>"))
@@ -82,14 +84,16 @@ public class IncomeVsExpenseView extends VerticalLayout {
 
         // EXPENSE GRID
         expenseGrid.removeAllColumns();
+        // expenseGrid.addColumn(CategoryTotal::getType).setHeader(
+        //         new Html("<div style='font-size: 1.2rem; font-weight:900'>Type</div>"));
 
         expenseGrid.addColumn(CategoryTotal::getCategoryName).setHeader(
-                new Html("<div style='font-size: 1.2rem; font-weight:900'>Category</div>"))
+                        new Html("<div style='font-size: 1.2rem; font-weight:900'>Category</div>"))
                 .setSortable(true)
                 .setComparator(Comparator.comparing(CategoryTotal::getCategoryName));
 
         expenseGrid.addColumn(amountRenderer).setHeader(
-                new Html("<div style='font-size: 1.2rem; font-weight:900'>Amount</div>"))
+                        new Html("<div style='font-size: 1.2rem; font-weight:900'>Amount</div>"))
                 .setSortable(true)
                 .setComparator(Comparator.comparing(CategoryTotal::getTotalAmount));
 
@@ -100,17 +104,24 @@ public class IncomeVsExpenseView extends VerticalLayout {
 
 
     private void updateGrids() {
-        List<Object[]> result = service.sumTransactionByCategory(userId);
-        List<CategoryTotal> categoryTotals = result
+        List<Object[]> incomeResults = service.sumTransactionByCategory(userId, Type.INCOME);
+        List<Object[]> expenseResults = service.sumTransactionByCategory(userId, Type.EXPENSE);
+
+        // convert the result sets into a lists of CategoryTotal objects
+        List<CategoryTotal> incomeData = incomeResults
                 .stream()
                 .map(row -> new CategoryTotal((String) row[0], (BigDecimal) row[1])).toList();
 
-        List<CategoryTotal> incomeData = categoryTotals.stream()
-                .filter(row -> row.getCategoryName().equals("Income")).toList();
+        List<CategoryTotal> expenseData = expenseResults
+                .stream()
+                .map(row -> new CategoryTotal((String) row[0], (BigDecimal) row[1])).toList();
+
+        // List<CategoryTotal> incomeData = incomeCt.stream()
+        //         .filter(row -> row.getType() == Type.INCOME).toList();
         incomeGrid.setItems(incomeData);
 
-        List<CategoryTotal> expenseData = categoryTotals.stream()
-                .filter(row -> !row.getCategoryName().equals("Income")).toList();
+        // List<CategoryTotal> expenseData = expenseCt.stream()
+        //         .filter(row -> row.getType() == Type.EXPENSE).toList();
         expenseGrid.setItems(expenseData);
     }
 

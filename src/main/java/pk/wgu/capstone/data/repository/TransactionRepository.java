@@ -28,6 +28,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     BigDecimal sumAllTransactionsByType(@Param("user_id") Long userId, @Param("type") Type type);
 
     @Query("SELECT c.name, SUM(t.amount) AS total_amount FROM transactions t " +
-            "JOIN categories c ON t.category.id = c.id where t.userId = :user_id GROUP BY c.name")
-    List<Object[]> sumTransactionsByCategory(@Param("user_id") Long userId);
+            "JOIN categories c ON t.category.id = c.id " +
+            "where t.userId = :user_id and c.type = :type " +
+            "GROUP BY c.name")
+    List<Object[]> sumTransactionsByCategory(@Param("user_id") Long userId, @Param("type") Type type);
 }

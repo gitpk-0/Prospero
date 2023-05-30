@@ -85,7 +85,7 @@ public class PfmService { // Personal Finance Management Service
         return transactionRepository.sumAllTransactionsByType(userId, type);
     }
 
-    public List<Object[]> sumTransactionByCategory(Long userId) {
-        return transactionRepository.sumTransactionsByCategory(userId);
+    public List<Object[]> sumTransactionByCategory(Long userId, Type type) {
+        return transactionRepository.sumTransactionsByCategory(userId, type);
     }
 }

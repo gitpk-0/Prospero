@@ -11,7 +11,6 @@ public class CategoryTotal {
         this.categoryName = categoryName;
         this.totalAmount = totalAmount;
     }
-
     public String getCategoryName() {
         return categoryName;
     }
