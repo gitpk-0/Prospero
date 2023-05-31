@@ -147,13 +147,16 @@ public class ListView extends VerticalLayout {
 
     // Transaction Form
     private void configureForm() {
+        Long userId = securityService.getCurrentUserId(service);
+        List<Category> categories = service.findAllCategories().stream()
+                .filter(c -> c.isDefaultCategory() || c.hasUserId(userId))
+                .toList();
         transactionForm = new TransactionForm(
                 securityService,
                 service,
-                service.findAllCategories(),
+                categories,
                 service.findAllTypes());
         transactionForm.setWidth("25em");
-
 
         transactionForm.createNewCategoryBtn.addClickListener(e -> {
             closeTransactionEditor();
@@ -220,7 +223,19 @@ public class ListView extends VerticalLayout {
     }
 
     private void saveCategory(CustomCategoryForm.SaveEvent saveEvent) {
-        service.addNewCategory(saveEvent.getCategory());
+        Category newCategory = saveEvent.getCategory();
+        String newCategoryName = newCategory.getName();
+
+        String userIdStr = securityService.getCurrentUserId(service) + ",";
+        Category existingCategory = service.findCategoryByName(newCategoryName);
+
+        if (existingCategory == null) {
+            newCategory.setUserIdsCsv(userIdStr);
+            service.addNewCategory(newCategory);
+        } else {
+            Long existingCategoryId = existingCategory.getId();
+            service.updateCustomCategoryUserIds(existingCategoryId, userIdStr);
+        }
         closeCategoryEditor();
         UI.getCurrent().getPage().reload(); //
     }

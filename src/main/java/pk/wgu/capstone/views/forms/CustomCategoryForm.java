@@ -21,7 +21,6 @@ import pk.wgu.capstone.data.entity.Type;
 import pk.wgu.capstone.data.service.PfmService;
 import pk.wgu.capstone.security.SecurityService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -100,9 +99,6 @@ public class CustomCategoryForm extends FormLayout {
             Category newCategory = binder.getBean();
             if (validateNewCategory(newCategory)) {
                 newCategory.setDefault(false);
-                List<Long> userIds = new ArrayList<>();
-                userIds.add(securityService.getCurrentUserId(service));
-                newCategory.setUserIds(userIds);
                 fireEvent(new SaveEvent(this, newCategory));
             } else {
                 showFailure();
@@ -136,7 +132,7 @@ public class CustomCategoryForm extends FormLayout {
             }
 
             // if new category with same name and type already exists with current user
-            if (sameNameAndType && c.getUserIds().contains(userId)) {
+            if (sameNameAndType && c.hasUserId(userId)) {
                 return false; // show error
             }
         }

@@ -1,7 +1,9 @@
 package pk.wgu.capstone.data.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import pk.wgu.capstone.data.entity.Category;
 import pk.wgu.capstone.data.entity.Transaction;
 import pk.wgu.capstone.data.entity.Type;
@@ -15,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
+@EnableTransactionManagement
 public class PfmService { // Personal Finance Management Service
 
     private final TransactionRepository transactionRepository;
@@ -91,5 +94,14 @@ public class PfmService { // Personal Finance Management Service
 
     public void addNewCategory(Category category) {
         categoryRepository.save(category);
+    }
+
+    public Category findCategoryByName(String categoryName) {
+        return categoryRepository.findCategoryByName(categoryName);
+    }
+
+    @Transactional
+    public void updateCustomCategoryUserIds(Long categoryId, String userId) {
+        categoryRepository.updateCustomCategoryUserIds(categoryId, userId);
     }
 }

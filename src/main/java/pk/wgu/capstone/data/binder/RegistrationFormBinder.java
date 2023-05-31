@@ -59,14 +59,9 @@ public class RegistrationFormBinder {
             try {
                 User userBean = new User(); // new bean to store user info into
                 userBean.setRole(Role.USER);
-                List<Category> categoryList = service.findAllCategories();
-                categoryList.stream()
-                        .filter(category -> category.getDefault().equals(true)) // for all default categories
-                                .forEach(category -> {
-                                    List<Long> userIds = category.getUserIds();
-                                    userIds.add(userBean.getId());
-                                    category.setUserIds(userIds); // add new usersId to the userIds list
-                                });
+                List<Category> defaultCategories = service.findAllCategories().stream()
+                        .filter(category -> category.getDefault().equals(true))
+                        .toList();
 
                 binder.writeBean(userBean); // run validation and write the values to the bean
                 userBean.setPassword(passwordEncoder.encode(userBean.getPassword()));

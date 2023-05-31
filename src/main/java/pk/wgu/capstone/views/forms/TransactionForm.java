@@ -70,7 +70,6 @@ public class TransactionForm extends FormLayout {
         createNewCategoryBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         createNewCategoryBtn.getStyle().set("--lumo-primary-color", "green");
 
-
         binder.forField(datePick)
                 .withConverter(dateConverter)
                 .withValidator(Objects::nonNull, "Date is required")
@@ -196,8 +195,19 @@ public class TransactionForm extends FormLayout {
 
     private void saveCategory(CustomCategoryForm.SaveEvent saveEvent) {
         Category newCategory = saveEvent.getCategory();
+        String newCategoryName = newCategory.getName();
 
-        service.addNewCategory(newCategory);
+        String userIdStr = securityService.getCurrentUserId(service) + ",";
+        Category existingCategory = service.findCategoryByName(newCategoryName);
+
+        if (existingCategory == null) {
+            newCategory.setUserIdsCsv(userIdStr);
+            service.addNewCategory(newCategory);
+        } else {
+            Long existingCategoryId = existingCategory.getId();
+            service.updateCustomCategoryUserIds(existingCategoryId, userIdStr);
+        }
+
         closeCategoryEditor();
     }
 

@@ -62,6 +62,7 @@ public class DataGenerator {
             categories.add(new Category("Entertainment", Type.EXPENSE));
             categories.add(new Category("Other", Type.EXPENSE)); //19
             categories.forEach(category -> category.setDefault(true));
+            categories.forEach(category -> category.setUserIdsCsv("default"));
 
 
 
@@ -70,20 +71,36 @@ public class DataGenerator {
             types.forEach(type -> logger.info(type.toString()));
 
             List<User> users = new ArrayList<>();
-            User newUser = new User();
-            newUser.setFirstName("Patrick");
-            newUser.setLastName("Kell");
-            newUser.setEmail("patrick.kell1@pm.me");
-            newUser.setPassword(passwordEncoder().encode("easypass"));
-            newUser.setAllowsMarketingEmails(true);
-            newUser.setId(1101L);
-            newUser.setRole(Role.USER);
-            users.add(newUser);
+            User user1 = new User();
+            user1.setFirstName("user1");
+            user1.setLastName("Kell");
+            user1.setEmail("patrick.kell1@pm.me");
+            user1.setPassword(passwordEncoder().encode("easypass"));
+            user1.setAllowsMarketingEmails(true);
+            user1.setId(1101L);
+            user1.setRole(Role.USER);
 
-            List<Long> userIds = new ArrayList<>();
-            userIds.add(newUser.getId());
-            userIds.add(999L);
-            categories.forEach(cat -> cat.setUserIds(userIds));
+            User user2 = new User();
+            user2.setFirstName("user2");
+            user2.setLastName("Kell");
+            user2.setEmail("patrick.kell11@pm.me");
+            user2.setPassword(passwordEncoder().encode("easypass1"));
+            user2.setAllowsMarketingEmails(true);
+            user2.setId(1102L);
+            user2.setRole(Role.USER);
+
+            User user3 = new User();
+            user3.setFirstName("user3");
+            user3.setLastName("Kell");
+            user3.setEmail("patrick.kell111@pm.me");
+            user3.setPassword(passwordEncoder().encode("easypass11"));
+            user3.setAllowsMarketingEmails(true);
+            user3.setId(1103L);
+            user3.setRole(Role.USER);
+
+            users.add(user1);
+            users.add(user2);
+            users.add(user3);
 
             Random r = new Random();
 
