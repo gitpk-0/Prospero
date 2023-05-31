@@ -101,9 +101,9 @@ public class CustomCategoryForm extends FormLayout {
                 newCategory.setDefault(false);
                 fireEvent(new SaveEvent(this, newCategory));
             } else {
+                System.out.println("Problem creating new category");
                 showFailure();
             }
-            System.out.println("Problem creating new category");
         }
     }
 

@@ -5,6 +5,8 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -13,6 +15,7 @@ import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.context.annotation.Scope;
@@ -52,6 +55,7 @@ public class ListView extends VerticalLayout {
 
         addClassName("list-view");
         setSizeFull(); // makes this view the same size as the entire browser window
+        checkForMessage();
 
         configureGrid();
         sortGrid();
@@ -236,8 +240,34 @@ public class ListView extends VerticalLayout {
             Long existingCategoryId = existingCategory.getId();
             service.updateCustomCategoryUserIds(existingCategoryId, userIdStr);
         }
+
         closeCategoryEditor();
-        UI.getCurrent().getPage().reload(); //
+
+        VaadinSession.getCurrent().setAttribute("createCategorySuccess", "Category successfully created!");
+        UI.getCurrent().access(() -> {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            UI.getCurrent().getPage().reload();
+        });
+    }
+
+    private void checkForMessage() {
+        String message = (String) VaadinSession.getCurrent().getAttribute("createCategorySuccess");
+        if (message != null) {
+            showSuccess();
+        }
+    }
+
+    private void showSuccess() {
+        Notification notification =
+                Notification.show("Category successfully created!");
+
+        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        notification.setDuration(3000);
+        notification.setPosition(Notification.Position.MIDDLE);
     }
 
     private void closeCategoryEditor() {
