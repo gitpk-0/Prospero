@@ -1,15 +1,16 @@
 package pk.wgu.capstone.views;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ComponentEvent;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -220,6 +221,7 @@ public class ListView extends VerticalLayout {
         // dialog.setResizable(true);
 
         categoryBinder = new BeanValidationBinder<>(Category.class);
+        setCategory(new Category());
 
         ComboBox<Type> typeSelect = new ComboBox<>("Transaction Type");
         categoryBinder.forField(typeSelect)
@@ -230,8 +232,8 @@ public class ListView extends VerticalLayout {
         categoryBinder.forField(categoryName)
                 .withValidator(Objects::nonNull, "Category name is required")
                 .bind(Category::getName, Category::setName);
-        this.setCategory(new Category());
-        categoryBinder.bindInstanceFields(this); // bind fields to the data model
+
+        categoryBinder.bindInstanceFields(dialog); // bind fields to the data model
 
         typeSelect.setItems(service.findAllTypes());
         typeSelect.setItemLabelGenerator(Type::name);
@@ -291,6 +293,10 @@ public class ListView extends VerticalLayout {
     private boolean isValidNewCategory(Category newCategory) {
         Long userId = securityService.getCurrentUserId(service);
         String newCategoryName = newCategory.getName().toLowerCase();
+
+        if (newCategoryName.isEmpty() || newCategoryName.isBlank()) {
+            return false; // show error
+        }
 
         // new category validation
         List<Category> allCategories = service.findAllCategories();
@@ -374,13 +380,27 @@ public class ListView extends VerticalLayout {
     }
 
     private void showFailure() {
-        Notification notification =
-                Notification.show("There was an error creating the category you entered. " +
-                        "Please ensure that the category you provided does not already exist.");
+        ConfirmDialog dialog = new ConfirmDialog();
 
-        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        notification.setDuration(2500);
-        notification.setPosition(Notification.Position.MIDDLE);
+        Icon errorIcon = new Icon(VaadinIcon.EXCLAMATION_CIRCLE_O);
+        errorIcon.setColor("#ff7745");
+        errorIcon.setSize("2.5em");
+
+        H2 headerMessage = new H2("Creation failed");
+        headerMessage.getStyle().set("font-family", "system-ui").set("font-weight", "900");
+
+        HorizontalLayout headerLayout = new HorizontalLayout(errorIcon, headerMessage);
+        headerLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+
+        dialog.setHeader(headerLayout);
+        dialog.setText(new Html(
+                "<h5>There was an error creating the category you entered. Please ensure that the category you " +
+                        "provided does not already exist. <br/><br/>" +
+                        "If the problem persists, please contact: " +
+                        "<b><a href=\"mailto:prospero.support@pm.me\">prospero.support@pm.me</a></b></h5>"));
+
+        dialog.setConfirmText("OK");
+        dialog.open();
     }
 
     private void checkForMessage() {
