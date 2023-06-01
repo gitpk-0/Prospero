@@ -4,6 +4,7 @@ import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H6;
@@ -31,46 +32,64 @@ public class MainLayout extends AppLayout {
     }
 
     private void createDrawer() {
+        // logo
         Image logo = new Image("icons/icon.png", "Icon");
         logo.addClassName("logo-image");
 
-        H1 appname = new H1("Prospero");
-        appname.addClassName("app");
-
+        // prospero
+        H1 prospero = new H1("Prospero");
+        prospero.addClassName("app");
         H6 slogan = new H6("Your Path to Prosperity");
 
-        VerticalLayout appAndSlogan = new VerticalLayout(appname, slogan);
-        appAndSlogan.setPadding(false);
 
+        VerticalLayout appAndSlogan = new VerticalLayout(prospero, slogan);
+        appAndSlogan.setPadding(false);
         HorizontalLayout logoAppSlogan = new HorizontalLayout(logo, appAndSlogan);
         logoAppSlogan.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
-        Anchor listViewLink = new Anchor("localhost:8080");
+        Anchor listViewLink = new Anchor("https://patrick-kell.com/");
         listViewLink.add(logoAppSlogan);
         listViewLink.setTarget("_blank"); // open in new window
         listViewLink.addClassNames("text-l", "m-m");
 
-        String firstName = service.findUserById(securityService.getCurrentUserId(service)).getFirstName();
-
-        Button logout = new Button("Log out, " + firstName, e -> securityService.logout());
+        // log out
+        Button logout = new Button("Log out");
         logout.addClassName("btn-large");
+        logout.addClickListener(e -> {
+            openConfirmLogoutDialogue();
+        });
 
+        // light/dark mode toggle
         Checkbox themeToggle = new Checkbox("Dark Mode");
         themeToggle.setValue(true); // selected on start
         themeToggle.addValueChangeListener(e -> {
             setTheme(e.getValue());
         });
 
-        DrawerToggle drawerToggle = new DrawerToggle();
-        drawerToggle.addClassName("drawer-toggle");
+        // menu button
+        DrawerToggle menuButton = new DrawerToggle();
+        menuButton.addClassName("drawer-toggle");
 
-        HorizontalLayout header = new HorizontalLayout(drawerToggle, listViewLink, themeToggle, logout);
+        HorizontalLayout header = new HorizontalLayout(menuButton, listViewLink, themeToggle, logout);
         header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         header.expand(listViewLink);
         header.setWidthFull();
         header.addClassNames("py-0", "px-m");
 
         addToNavbar(header);
+    }
+
+    private void openConfirmLogoutDialogue() {
+        // current user's first name
+        String firstName = service.findUserById(securityService.getCurrentUserId(service)).getFirstName();
+
+        ConfirmDialog confirmLogout = new ConfirmDialog();
+        confirmLogout.setHeader("Log out?");
+        confirmLogout.setText(firstName + ", are you sure you want to log out?");
+        confirmLogout.setCancelable(true);
+        confirmLogout.setConfirmText("Log out");
+        confirmLogout.addConfirmListener(e -> securityService.logout());
+        confirmLogout.open();
     }
 
     private void createHeader() {
