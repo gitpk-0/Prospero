@@ -56,7 +56,7 @@ public class MainLayout extends AppLayout {
         Button logout = new Button("Log out");
         logout.addClassName("btn-large");
         logout.addClickListener(e -> {
-            openConfirmLogoutDialogue();
+            confirmLogoutDialog();
         });
 
         // light/dark mode toggle
@@ -79,7 +79,7 @@ public class MainLayout extends AppLayout {
         addToNavbar(header);
     }
 
-    private void openConfirmLogoutDialogue() {
+    private void confirmLogoutDialog() {
         // current user's first name
         String firstName = service.findUserById(securityService.getCurrentUserId(service)).getFirstName();
 

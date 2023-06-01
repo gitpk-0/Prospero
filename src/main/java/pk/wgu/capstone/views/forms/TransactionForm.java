@@ -1,12 +1,10 @@
 package pk.wgu.capstone.views.forms;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ComponentEvent;
-import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
@@ -34,10 +32,9 @@ public class TransactionForm extends FormLayout {
 
     private SecurityService securityService;
     private PfmService service;
-    CustomCategoryForm newCategoryForm;
 
     // data binding
-    Binder<Transaction> binder = new BeanValidationBinder<>(Transaction.class);
+    Binder<Transaction> transactionBinder = new BeanValidationBinder<>(Transaction.class);
 
     // converters
     BigDecimalToDoubleConverter amountConverter = new BigDecimalToDoubleConverter();
@@ -70,27 +67,26 @@ public class TransactionForm extends FormLayout {
         createNewCategoryBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         createNewCategoryBtn.getStyle().set("--lumo-primary-color", "green");
 
-        binder.forField(datePick)
+        transactionBinder.forField(datePick)
                 .withConverter(dateConverter)
                 .withValidator(Objects::nonNull, "Date is required")
                 .bind(Transaction::getDate, Transaction::setDate);
 
-        binder.forField(amount)
+        transactionBinder.forField(amount)
                 .withConverter(amountConverter)
                 .withValidator(Objects::nonNull, "Amount is required")
                 .withValidator(amount -> amount.compareTo(BigDecimal.valueOf(0.009)) > 0, "Amount must be at least $0.01")
                 .bind(Transaction::getAmount, Transaction::setAmount);
 
-        binder.forField(typeSelect)
+        transactionBinder.forField(typeSelect)
                 .withValidator(Objects::nonNull, "Type is required")
                 .bind(Transaction::getType, Transaction::setType);
 
-
-        binder.forField(categorySelect)
+        transactionBinder.forField(categorySelect)
                 .withValidator(Objects::nonNull, "Category is required")
                 .bind(Transaction::getCategory, Transaction::setCategory);
 
-        binder.bindInstanceFields(this); // bind fields to the data model
+        transactionBinder.bindInstanceFields(this); // bind fields to the data model
 
         description.setPlaceholder("Enter a description");
         // set items and label generators for category and type fields
@@ -102,31 +98,11 @@ public class TransactionForm extends FormLayout {
         typeSelect.setItemLabelGenerator(Type::name);
         typeSelect.setPlaceholder("Select a transaction type");
 
-
         // Only allow category selection after transaction type has been selected
         categorySelect.setEnabled(false);
         typeSelect.addValueChangeListener(e -> {
-            Type selectedType = e.getValue();
-            if (selectedType != null) {
-                if (selectedType.equals(Type.INCOME)) {
-                    categorySelect.setItems(categories
-                            .stream().filter(c -> c.getType() == Type.INCOME).collect(Collectors.toList()));
-                    categorySelect.setEnabled(true);
-                } else if (selectedType.equals(Type.EXPENSE)) {
-                    categorySelect.setItems(categories
-                            .stream().filter(c -> c.getType() == Type.EXPENSE).collect(Collectors.toList()));
-                    categorySelect.setEnabled(true);
-                } else {
-                    categorySelect.setEnabled(false);
-                }
-            }
+            filterCategoriesByType(categories, e);
         });
-
-        createNewCategoryBtn.addClickListener(e -> {
-            configureCategoryForm();
-            newCategoryForm.setVisible(true);
-        });
-
 
         add( // add form fields and button layout to the layout
                 datePick,
@@ -138,13 +114,31 @@ public class TransactionForm extends FormLayout {
         );
     }
 
+
+    private void filterCategoriesByType(List<Category> categories, AbstractField.ComponentValueChangeEvent<ComboBox<Type>, Type> e) {
+        Type selectedType = e.getValue();
+        if (selectedType != null) {
+            if (selectedType.equals(Type.INCOME)) {
+                categorySelect.setItems(categories
+                        .stream().filter(c -> c.getType() == Type.INCOME).collect(Collectors.toList()));
+                categorySelect.setEnabled(true);
+            } else if (selectedType.equals(Type.EXPENSE)) {
+                categorySelect.setItems(categories
+                        .stream().filter(c -> c.getType() == Type.EXPENSE).collect(Collectors.toList()));
+                categorySelect.setEnabled(true);
+            } else {
+                categorySelect.setEnabled(false);
+            }
+        }
+    }
+
     // Transaction
     public void setTransaction(Transaction transaction) {
-        binder.setBean(transaction);
+        transactionBinder.setBean(transaction);
     }
 
     public Transaction getTransaction() {
-        return binder.getBean();
+        return transactionBinder.getBean();
     }
 
     private Component createButtonLayout() {
@@ -155,7 +149,8 @@ public class TransactionForm extends FormLayout {
 
         // add click listeners to buttons
         save.addClickListener(event -> validateAndSave());
-        delete.addClickListener(event -> fireEvent(new DeleteEvent(this, binder.getBean())));
+        // delete.addClickListener(event -> fireEvent(new DeleteEvent(this, binder.getBean())));
+        delete.addClickListener(event -> confirmDeleteDialog());
         cancel.addClickListener(event -> fireEvent(new CloseEvent(this)));
 
         // add keyboard shortcuts to buttons
@@ -165,54 +160,32 @@ public class TransactionForm extends FormLayout {
         return new HorizontalLayout(save, delete, cancel);
     }
 
+    private void confirmDeleteDialog() {
+        // current user's first name
+        String firstName = service.findUserById(securityService.getCurrentUserId(service)).getFirstName();
+
+        ConfirmDialog confirmDelete = new ConfirmDialog();
+        confirmDelete.setHeader("Delete Transaction?");
+        confirmDelete.setText(firstName + ", are you sure you want to permanently delete this transaction?");
+        confirmDelete.setCancelable(true);
+        confirmDelete.setConfirmText("Delete");
+        confirmDelete.setConfirmButtonTheme("error primary");
+        confirmDelete.addConfirmListener(e -> fireEvent(new DeleteEvent(this, transactionBinder.getBean())));
+        confirmDelete.open();
+    }
+
     private void validateAndSave() {
-        if (binder.isValid()) {
-            Transaction transaction = binder.getBean();
+        if (transactionBinder.isValid()) {
+            Transaction transaction = transactionBinder.getBean();
             transaction.setUserId(securityService.getCurrentUserId(service));
             fireEvent(new SaveEvent(this, transaction));
         }
     }
 
-    // New Category Form
     private Component categoryFieldsLayout() {
         HorizontalLayout layout = new HorizontalLayout(categorySelect, createNewCategoryBtn);
         layout.setAlignItems(FlexComponent.Alignment.BASELINE);
         return layout;
-    }
-
-    private void configureCategoryForm() {
-        newCategoryForm = new CustomCategoryForm(
-                securityService,
-                service,
-                service.findAllTypes());
-
-        newCategoryForm.setWidth("30em");
-        newCategoryForm.setVisible(false);
-
-        newCategoryForm.addSaveListener(this::saveCategory);
-        newCategoryForm.addCloseListener(e -> closeCategoryEditor());
-    }
-
-    private void saveCategory(CustomCategoryForm.SaveEvent saveEvent) {
-        Category newCategory = saveEvent.getCategory();
-        String newCategoryName = newCategory.getName();
-
-        String userIdStr = securityService.getCurrentUserId(service) + ",";
-        Category existingCategory = service.findCategoryByName(newCategoryName);
-
-        if (existingCategory == null) {
-            newCategory.setUserIdsCsv(userIdStr);
-            service.addNewCategory(newCategory);
-        } else {
-            Long existingCategoryId = existingCategory.getId();
-            service.updateCustomCategoryUserIds(existingCategoryId, userIdStr);
-        }
-
-        closeCategoryEditor();
-    }
-
-    private void closeCategoryEditor() {
-        newCategoryForm.setVisible(false);
     }
 
     // Events

@@ -1,15 +1,23 @@
 package pk.wgu.capstone.views;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEvent;
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.BeanValidationBinder;
+import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -21,15 +29,16 @@ import jakarta.annotation.security.PermitAll;
 import org.springframework.context.annotation.Scope;
 import pk.wgu.capstone.data.entity.Category;
 import pk.wgu.capstone.data.entity.Transaction;
+import pk.wgu.capstone.data.entity.Type;
 import pk.wgu.capstone.data.service.PfmService;
 import pk.wgu.capstone.security.SecurityService;
-import pk.wgu.capstone.views.forms.CustomCategoryForm;
 import pk.wgu.capstone.views.forms.TransactionForm;
 
 import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 @SpringComponent
 @Scope("prototype")
@@ -41,9 +50,10 @@ public class ListView extends VerticalLayout {
     private SecurityService securityService;
     private PfmService service;
     TransactionForm transactionForm;
-    CustomCategoryForm newCategoryForm;
+    Dialog dialog;
 
     Grid<Transaction> grid = new Grid<>(Transaction.class);
+    Binder<Category> categoryBinder;
 
     TextField filterText = new TextField();
 
@@ -59,7 +69,6 @@ public class ListView extends VerticalLayout {
 
         configureGrid();
         sortGrid();
-        configureCategoryForm();
         configureForm();
         addClassName("name");
 
@@ -88,12 +97,11 @@ public class ListView extends VerticalLayout {
         return toolbar;
     }
 
-    // Page content - grid and forms
+    // Page content - grid and transaction form
     private Component getContent() {
-        HorizontalLayout content = new HorizontalLayout(grid, transactionForm, newCategoryForm);
+        HorizontalLayout content = new HorizontalLayout(grid, transactionForm);
         content.setFlexGrow(2, grid);
         content.setFlexGrow(1, transactionForm);
-        content.setFlexGrow(1, newCategoryForm);
         content.addClassName("content");
         content.setSizeFull();
 
@@ -131,12 +139,7 @@ public class ListView extends VerticalLayout {
 
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
 
-        grid.asSingleSelect().addValueChangeListener(e -> {
-            // prevent both forms from being opened simultaneously
-            if (!newCategoryForm.isVisible()) {
-                editTransaction(e.getValue());
-            }
-        });
+        grid.asSingleSelect().addValueChangeListener(e -> editTransaction(e.getValue()));
     }
 
     private void updateList() {
@@ -164,7 +167,7 @@ public class ListView extends VerticalLayout {
 
         transactionForm.createNewCategoryBtn.addClickListener(e -> {
             closeTransactionEditor();
-            editCategory();
+            openNewCategoryDialog();
         });
 
         transactionForm.addSaveListener(this::saveTransaction);
@@ -196,7 +199,7 @@ public class ListView extends VerticalLayout {
         editTransaction(new Transaction());
     }
 
-    private void editTransaction(Transaction transaction) {
+    public void editTransaction(Transaction transaction) {
         if (transaction == null) {
             closeTransactionEditor();
         } else {
@@ -206,27 +209,109 @@ public class ListView extends VerticalLayout {
         }
     }
 
+    // New Category Dialog
+    private void openNewCategoryDialog() {
+        dialog = new Dialog();
+        dialog.setHeaderTitle("Create a new Transaction Category");
+        dialog.setDraggable(true);
 
-    // New Category Form
-    private void configureCategoryForm() {
-        newCategoryForm = new CustomCategoryForm(
-                securityService,
-                service,
-                service.findAllTypes());
+        // if user clicks outside the dialog box, dialog is closed
+        dialog.setModal(true); // blocks the user from interacting with the rest of the UI
+        // dialog.setResizable(true);
 
-        newCategoryForm.setWidth("30em");
-        newCategoryForm.setVisible(false);
+        categoryBinder = new BeanValidationBinder<>(Category.class);
 
-        newCategoryForm.addSaveListener(this::saveCategory);
-        newCategoryForm.addCloseListener(e -> closeCategoryEditor());
+        ComboBox<Type> typeSelect = new ComboBox<>("Transaction Type");
+        categoryBinder.forField(typeSelect)
+                .withValidator(Objects::nonNull, "Type is required")
+                .bind(Category::getType, Category::setType);
+
+        TextField categoryName = new TextField("New Category Name");
+        categoryBinder.forField(categoryName)
+                .withValidator(Objects::nonNull, "Category name is required")
+                .bind(Category::getName, Category::setName);
+        this.setCategory(new Category());
+        categoryBinder.bindInstanceFields(this); // bind fields to the data model
+
+        typeSelect.setItems(service.findAllTypes());
+        typeSelect.setItemLabelGenerator(Type::name);
+        typeSelect.setPlaceholder("Select a transaction type");
+        categoryName.setPlaceholder("Enter a new category name");
+
+        VerticalLayout dialogLayout = new VerticalLayout(typeSelect,
+                categoryName);
+        dialogLayout.setPadding(false);
+        dialogLayout.setSpacing(false);
+        dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+        dialogLayout.getStyle().set("width", "18rem").set("max-width", "100%");
+
+        dialog.add(dialogLayout);
+
+        // buttons
+        Button saveButton = new Button("Save", e -> validateAndSave(dialog));
+        saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        Button cancelButton = new Button("Cancel", e -> dialog.close());
+
+        // add keyboard shortcuts to buttons
+        saveButton.addClickShortcut(Key.ENTER);
+        cancelButton.addClickShortcut(Key.ESCAPE);
+
+        dialog.getFooter().add(cancelButton);
+        dialog.getFooter().add(saveButton);
+
+        dialog.open();
     }
 
-    private void editCategory() {
-        newCategoryForm.setCategory(new Category());
-        newCategoryForm.setVisible(true);
+    public void setCategory(Category category) {
+        categoryBinder.setBean(category);
     }
 
-    private void saveCategory(CustomCategoryForm.SaveEvent saveEvent) {
+    public Category getCategory() {
+        return categoryBinder.getBean();
+    }
+
+    private void validateAndSave(Dialog dialog) {
+        if (categoryBinder.isValid()) {
+            Category newCategory = categoryBinder.getBean();
+            if (isValidNewCategory(newCategory)) {
+                newCategory.setDefault(false);
+                SaveEvent saveEvent = new ListView.SaveEvent(this, newCategory);
+                fireEvent(saveEvent);
+                saveCategory(saveEvent);
+                dialog.close();
+                showSuccess();
+                reloadPage();
+            } else {
+                System.out.println("Problem creating new category");
+                showFailure();
+            }
+        }
+    }
+
+    private boolean isValidNewCategory(Category newCategory) {
+        Long userId = securityService.getCurrentUserId(service);
+        String newCategoryName = newCategory.getName().toLowerCase();
+
+        // new category validation
+        List<Category> allCategories = service.findAllCategories();
+        for (Category c : allCategories) {
+            String cName = c.getName().toLowerCase();
+            boolean sameNameAndType = cName.equals(newCategoryName) && c.getType().equals(newCategory.getType());
+
+            // if default category with the same name and type already exists
+            if (c.getDefault().equals(true) && sameNameAndType) {
+                return false; // show error
+            }
+
+            // if new category with same name and type already exists with current user
+            if (sameNameAndType && c.hasUserId(userId)) {
+                return false; // show error
+            }
+        }
+        return true;
+    }
+
+    private void saveCategory(ListView.SaveEvent saveEvent) {
         Category newCategory = saveEvent.getCategory();
         String newCategoryName = newCategory.getName();
 
@@ -240,13 +325,13 @@ public class ListView extends VerticalLayout {
             Long existingCategoryId = existingCategory.getId();
             service.updateCustomCategoryUserIds(existingCategoryId, userIdStr);
         }
+    }
 
-        closeCategoryEditor();
-
+    private void reloadPage() {
         VaadinSession.getCurrent().setAttribute("createCategorySuccess", "Category successfully created!");
         UI.getCurrent().access(() -> {
             try {
-                Thread.sleep(2000);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -254,10 +339,28 @@ public class ListView extends VerticalLayout {
         });
     }
 
-    private void checkForMessage() {
-        String message = (String) VaadinSession.getCurrent().getAttribute("createCategorySuccess");
-        if (message != null) {
-            showSuccess();
+    public static abstract class ListViewEvent extends ComponentEvent<ListView> {
+        private Category category;
+
+        protected ListViewEvent(ListView source, Category category) {
+            super(source, false);
+            this.category = category;
+        }
+
+        public Category getCategory() {
+            return category;
+        }
+    }
+
+    public static class SaveEvent extends ListView.ListViewEvent {
+        SaveEvent(ListView source, Category category) {
+            super(source, category);
+        }
+    }
+
+    public static class CloseEvent extends ListView.ListViewEvent {
+        CloseEvent(ListView source) {
+            super(source, null);
         }
     }
 
@@ -270,8 +373,21 @@ public class ListView extends VerticalLayout {
         notification.setPosition(Notification.Position.MIDDLE);
     }
 
-    private void closeCategoryEditor() {
-        newCategoryForm.setVisible(false);
-        updateList();
+    private void showFailure() {
+        Notification notification =
+                Notification.show("There was an error creating the category you entered. " +
+                        "Please ensure that the category you provided does not already exist.");
+
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        notification.setDuration(2500);
+        notification.setPosition(Notification.Position.MIDDLE);
+    }
+
+    private void checkForMessage() {
+        String message = (String) VaadinSession.getCurrent().getAttribute("createCategorySuccess");
+        if (message != null) {
+            showSuccess();
+            VaadinSession.getCurrent().setAttribute("createCategorySuccess", null);
+        }
     }
 }
