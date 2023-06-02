@@ -335,14 +335,7 @@ public class ListView extends VerticalLayout {
 
     private void reloadPage() {
         VaadinSession.getCurrent().setAttribute("createCategorySuccess", "Category successfully created!");
-        UI.getCurrent().access(() -> {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            UI.getCurrent().getPage().reload();
-        });
+        UI.getCurrent().getPage().reload();
     }
 
     public static abstract class ListViewEvent extends ComponentEvent<ListView> {

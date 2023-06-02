@@ -1,9 +1,66 @@
-/*!*narrow screens*!*/
+
 @media all and (max-width: 900px) {
+    /*!* narrow screens *!*/
     .list-view.editing .toolbar,
     .list-view.editing .transaction-grid {
         display: none;
     }
+
+    .header {
+        flex-wrap: nowrap;
+    }
+
+    .logo-image {
+        width: 2rem;
+        height: 2rem;
+    }
+
+    .logo-image-login {
+        width: 4rem;
+        height: 4rem;
+    }
+
+    .app-name {
+        margin-bottom: -0.75rem;
+        font-size: x-large;
+    }
+
+    .slogan {
+        /*visibility: hidden;*/
+    }
+
+    .logo-app-slogan {
+        margin-left: 2rem;
+    }
+
+    .btn-large {
+        visibility: hidden;
+        /*font-size: 1.125rem;*/
+        /*padding: 0.5rem 1rem;*/
+    }
+
+    .drawer-toggle {
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 1.5rem;
+    }
+
+    .logout-and-theme {
+        visibility: visible;
+        padding-bottom: 1rem;
+        padding-left: 1rem;
+        margin-top: auto;
+        justify-content: center;
+    }
+
+    .header-theme-toggle {
+        visibility: hidden;
+    }
+
+    .header-log-out-btn {
+        visibility: hidden;
+    }
+
 }
 
 a[highlight] {
@@ -35,4 +92,17 @@ a[highlight] {
     width: 40px;
     height: 40px;
     font-size: 24px;
+}
+
+
+/*.vaadin-app-layout::part(drawer) {*/
+/*    width: 18rem;*/
+/*}*/
+
+.logout-and-theme {
+    visibility: hidden;
+    /*padding-bottom: 1rem;*/
+    /*padding-left: 1rem;*/
+    /*margin-top: auto;*/
+    /*justify-content: center;*/
 }
