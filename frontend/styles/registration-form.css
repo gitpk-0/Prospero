@@ -1,0 +1,6 @@
+@media (max-width: 490px) {
+    /* Styles for screens less than 490px wide */
+    .form-field {
+        grid-column: 1 / span 2; /* Make the form field span across both columns */
+    }
+}

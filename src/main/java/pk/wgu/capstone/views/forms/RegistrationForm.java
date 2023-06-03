@@ -28,15 +28,24 @@ public class RegistrationForm extends FormLayout {
     private Button submit;
 
     public RegistrationForm() {
+
         title = new H3("Registration form");
+        title.setClassName("form-field");
         firstName = new TextField("First name");
+        firstName.setClassName("form-field");
         lastName = new TextField("Last name");
+        lastName.setClassName("form-field");
         email = new EmailField("Email");
+        email.setClassName("form-field");
+
         allowMarketing = new Checkbox("Subscribe to marketing emails?");
         allowMarketing.getStyle().set("margin-top", "12px");
+
         password = new PasswordField("Password");
         passwordConfirmation = new PasswordField("Confirm password");
+
         errorMessage = new Span();
+
         submit = new Button("Start your journey!");
         submit.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
@@ -45,12 +54,13 @@ public class RegistrationForm extends FormLayout {
         add(title, firstName, lastName, email, password, passwordConfirmation,
                 allowMarketing, errorMessage, submit);
 
-        setMaxWidth("520px");
+        setMaxWidth("500px");
 
         setResponsiveSteps(
                 new ResponsiveStep("0", 1, ResponsiveStep.LabelsPosition.TOP),
-                new ResponsiveStep("500px", 2, ResponsiveStep.LabelsPosition.TOP)
+                new ResponsiveStep("490px", 2, ResponsiveStep.LabelsPosition.TOP)
         );
+
 
         // components below will use the full width of the form
         setColspan(title, 2);
