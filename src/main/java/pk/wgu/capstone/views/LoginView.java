@@ -1,5 +1,6 @@
 package pk.wgu.capstone.views;
 
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Image;
@@ -12,6 +13,7 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 @Route("login")
 @PageTitle("Login | Prospero")
 @AnonymousAllowed
+@CssImport(value = "./styles/login-form.css", themeFor = "")
 public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
     LoginI18n i18n = LoginI18n.createDefault();
