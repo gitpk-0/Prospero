@@ -3,9 +3,9 @@
     height: 7rem;
 }
 
-@media all and (max-width: 370px) { /* very small screen */
+@media all and (max-width: 380px) { /* very small screen */
     .logo-image-login {
-        width: 5rem;
-        height: 5rem;
+        width: 4rem;
+        height: 4rem;
     }
 }
