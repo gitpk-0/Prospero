@@ -46,7 +46,7 @@ import java.util.Objects;
 @PermitAll // all logged-in users can access this page
 @Route(value = "", layout = MainLayout.class)
 @PageTitle("Home | Prospero")
-public class ListView extends VerticalLayout {
+public class TransactionView extends VerticalLayout {
 
     private SecurityService securityService;
     private PfmService service;
@@ -60,7 +60,7 @@ public class ListView extends VerticalLayout {
 
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("E, MMM d, yyyy");
 
-    public ListView(SecurityService securityService, PfmService service) {
+    public TransactionView(SecurityService securityService, PfmService service) {
         this.securityService = securityService;
         this.service = service;
 
@@ -85,6 +85,7 @@ public class ListView extends VerticalLayout {
     // Search bar
     private Component getSearchbar() {
         filterText.setPlaceholder("Filter by description...");
+        filterText.addClassName("filter-text");
         filterText.setClearButtonVisible(true);
         filterText.setValueChangeMode(ValueChangeMode.LAZY); // prevents the database from being hit with every keystroke
         filterText.addValueChangeListener(e -> updateList());
@@ -277,7 +278,7 @@ public class ListView extends VerticalLayout {
             Category newCategory = categoryBinder.getBean();
             if (isValidNewCategory(newCategory)) {
                 newCategory.setDefault(false);
-                SaveEvent saveEvent = new ListView.SaveEvent(this, newCategory);
+                SaveEvent saveEvent = new TransactionView.SaveEvent(this, newCategory);
                 fireEvent(saveEvent);
                 saveCategory(saveEvent);
                 dialog.close();
@@ -317,7 +318,7 @@ public class ListView extends VerticalLayout {
         return true;
     }
 
-    private void saveCategory(ListView.SaveEvent saveEvent) {
+    private void saveCategory(TransactionView.SaveEvent saveEvent) {
         Category newCategory = saveEvent.getCategory();
         String newCategoryName = newCategory.getName();
 
@@ -338,10 +339,10 @@ public class ListView extends VerticalLayout {
         UI.getCurrent().getPage().reload();
     }
 
-    public static abstract class ListViewEvent extends ComponentEvent<ListView> {
+    public static abstract class ListViewEvent extends ComponentEvent<TransactionView> {
         private Category category;
 
-        protected ListViewEvent(ListView source, Category category) {
+        protected ListViewEvent(TransactionView source, Category category) {
             super(source, false);
             this.category = category;
         }
@@ -351,14 +352,14 @@ public class ListView extends VerticalLayout {
         }
     }
 
-    public static class SaveEvent extends ListView.ListViewEvent {
-        SaveEvent(ListView source, Category category) {
+    public static class SaveEvent extends TransactionView.ListViewEvent {
+        SaveEvent(TransactionView source, Category category) {
             super(source, category);
         }
     }
 
-    public static class CloseEvent extends ListView.ListViewEvent {
-        CloseEvent(ListView source) {
+    public static class CloseEvent extends TransactionView.ListViewEvent {
+        CloseEvent(TransactionView source) {
             super(source, null);
         }
     }

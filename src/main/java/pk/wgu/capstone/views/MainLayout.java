@@ -4,19 +4,21 @@ package pk.wgu.capstone.views;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
-import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.theme.lumo.Lumo;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 import pk.wgu.capstone.data.service.PfmService;
 import pk.wgu.capstone.security.SecurityService;
 
@@ -38,40 +40,23 @@ public class MainLayout extends AppLayout {
     }
 
     private void addHeader() {
-        // logo
+        // header logo and app name
         Image logo = new Image("icons/icon.png", "Icon");
-        logo.addClassName("logo-image");
-
-        // prospero
-        H1 prospero = new H1("Prospero");
-        prospero.addClassName("app-name");
-        H6 slogan = new H6("Your Path to Prosperity");
-        slogan.addClassName("slogan");
-
-
-        VerticalLayout appAndSlogan = new VerticalLayout(prospero, slogan);
-        appAndSlogan.setPadding(false);
-        HorizontalLayout logoAppSlogan = new HorizontalLayout(logo, appAndSlogan);
-        logoAppSlogan.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
-        logoAppSlogan.addClassName("logo-app-slogan");
+        logo.addClassName("logo");
+        H1 appname = new H1("Prospero");
+        appname.addClassName("app-name");
+        HorizontalLayout logoAppname = new HorizontalLayout(logo, appname);
+        logoAppname.addClassName("logo-app-name");
 
         Anchor listViewLink = new Anchor("https://patrick-kell.com/");
-        listViewLink.add(logoAppSlogan);
+        listViewLink.add(logoAppname);
         listViewLink.setTarget("_blank"); // open in new window
         listViewLink.addClassNames("text-l", "m-m");
 
-        // log out
-        Button logout = new Button("Log out");
-        logout.addClassName("btn-large");
-        logout.addClickListener(e -> {
-            confirmLogoutDialog();
-        });
-
-        // light/dark mode toggle
-        Icon themeIcon = new Icon(VaadinIcon.MOON);
-        Button themeBtn = new Button(themeIcon);
+        // light/dark mode toggle button
+        Button themeBtn = new Button(VaadinIcon.MOON.create());
+        themeBtn.addClassName("theme-btn");
         themeBtn.getElement().setAttribute("title", "Change current theme");
-
         themeBtn.addClickListener(e -> {
             if (isDarkTheme) {
                 setTheme(false);
@@ -86,15 +71,15 @@ public class MainLayout extends AppLayout {
         DrawerToggle menuButton = new DrawerToggle();
         menuButton.addClassName("drawer-toggle");
 
+        HorizontalLayout pageHeader = new HorizontalLayout(menuButton, logoAppname, themeBtn);
 
-        HorizontalLayout header = new HorizontalLayout(menuButton, listViewLink, themeBtn, logout);
-        header.addClassNames("header");
-        header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
-        header.expand(listViewLink);
-        header.setWidthFull();
-        header.addClassNames("py-0", "px-m");
+        pageHeader.addClassNames("page-header");
+        pageHeader.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        pageHeader.expand(listViewLink);
+        pageHeader.setWidthFull();
+        pageHeader.addClassName("px-m");
 
-        addToNavbar(header);
+        addToNavbar(pageHeader);
     }
 
     private void confirmLogoutDialog() {
@@ -111,59 +96,42 @@ public class MainLayout extends AppLayout {
     }
 
     private void addDrawer(Tabs links) {
-        H1 prospero = new H1("Prospero");
-        prospero.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
-        Header header = new Header(prospero);
+        // drawer logo
+        Image logo = new Image("icons/icon.png", "Icon");
+        logo.addClassName("drawer-logo");
 
-        // log out
-        Button logout = new Button("Log out");
-        logout.addClassNames("btn-large", "header-log-out-btn");
-        logout.addClickListener(e -> {
+        // drawer app name
+        H1 prospero = new H1("Prospero");
+        prospero.addClassNames("drawer-app-name");
+
+        // drawer header
+        HorizontalLayout drawerHeader = new HorizontalLayout(logo, prospero);
+        drawerHeader.addClassNames("drawer-header");
+
+        // drawer log out
+        Button logoutBtn = new Button("Log out");
+        logoutBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        logoutBtn.setIcon(VaadinIcon.SIGN_OUT.create());
+        logoutBtn.addClassNames("btn-large", "header-log-out-btn", "logout-btn");
+        logoutBtn.addClickListener(e -> {
             confirmLogoutDialog();
         });
 
-        // light/dark mode toggle
-        Icon themeIcon = new Icon(VaadinIcon.MOON);
-        Button themeBtn = new Button(themeIcon);
-
-
-        themeBtn.addClickListener(e -> {
-            if (isDarkTheme) {
-                setTheme(false);
-                isDarkTheme = false;
-            } else {
-                setTheme(true);
-                isDarkTheme = true;
-            }
-        });
-
         FlexLayout linkContent = new FlexLayout();
-
         linkContent.addClassName("link-content");
         linkContent.add(links);
 
-        HorizontalLayout logoutAndTheme = new HorizontalLayout(logout, themeBtn);
-        logoutAndTheme.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
-        logoutAndTheme.addClassName("logout-and-theme");
-
-        VerticalLayout drawerContent = new VerticalLayout(linkContent, logoutAndTheme);
-
         addToDrawer(
-                // drawerContent
-                // listView,
-                // incomeVsExpenseView,
-                links,
-                logoutAndTheme
-                // logout,
-                // themeToggle
-                // dashboardView
+                drawerHeader,
+                linkContent,
+                logoutBtn
         );
     }
 
     private Tabs getTabs() {
         Tabs tabs = new Tabs();
         tabs.add(
-                createTab(VaadinIcon.LIST, "Transactions", ListView.class),
+                createTab(VaadinIcon.LIST, "Transactions", TransactionView.class),
                 createTab(VaadinIcon.CHART, "Income vs. Expenses", IncomeVsExpenseView.class)
         );
         tabs.setOrientation(Tabs.Orientation.VERTICAL);
