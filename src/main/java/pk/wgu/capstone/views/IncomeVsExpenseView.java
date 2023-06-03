@@ -26,7 +26,8 @@ import java.util.List;
 @Route(value = "income-vs-expense", layout = MainLayout.class)
 @PageTitle("I & E | Prospero")
 @PermitAll
-@CssImport(value = "./styles/income-vs-expense-view-styles.css", themeFor = "vaadin-chart")
+@CssImport(value = "./styles/i-v-e-chart.css", themeFor = "vaadin-chart")
+@CssImport(value = "./styles/i-v-e-grids.css")
 public class IncomeVsExpenseView extends VerticalLayout {
 
     private SecurityService securityService;
@@ -51,7 +52,6 @@ public class IncomeVsExpenseView extends VerticalLayout {
         configureGrids();
 
         add(
-                // getTransactionStats(),
                 getTransactionsChart(),
                 getIncomeAndExpenseGridContent()
         );
@@ -62,8 +62,6 @@ public class IncomeVsExpenseView extends VerticalLayout {
     private void configureGrids() {
         // INCOME GRID
         incomeGrid.removeAllColumns();
-        // incomeGrid.addColumn(CategoryTotal::getType).setHeader(
-        //         new Html("<div style='font-size: 1.2rem; font-weight:900'>Type</div>"));
 
         incomeGrid.addColumn(CategoryTotal::getCategoryName).setHeader(
                         new Html("<div style='font-size: 1.2rem; font-weight:900'>Category</div>"))
@@ -84,8 +82,6 @@ public class IncomeVsExpenseView extends VerticalLayout {
 
         // EXPENSE GRID
         expenseGrid.removeAllColumns();
-        // expenseGrid.addColumn(CategoryTotal::getType).setHeader(
-        //         new Html("<div style='font-size: 1.2rem; font-weight:900'>Type</div>"));
 
         expenseGrid.addColumn(CategoryTotal::getCategoryName).setHeader(
                         new Html("<div style='font-size: 1.2rem; font-weight:900'>Category</div>"))
@@ -116,12 +112,7 @@ public class IncomeVsExpenseView extends VerticalLayout {
                 .stream()
                 .map(row -> new CategoryTotal((String) row[0], (BigDecimal) row[1])).toList();
 
-        // List<CategoryTotal> incomeData = incomeCt.stream()
-        //         .filter(row -> row.getType() == Type.INCOME).toList();
         incomeGrid.setItems(incomeData);
-
-        // List<CategoryTotal> expenseData = expenseCt.stream()
-        //         .filter(row -> row.getType() == Type.EXPENSE).toList();
         expenseGrid.setItems(expenseData);
     }
 
@@ -133,24 +124,6 @@ public class IncomeVsExpenseView extends VerticalLayout {
         content.setWidthFull();
         return content;
     }
-
-    // private Component getTransactionStats() {
-    //     Long userId = securityService.getCurrentUserId(service);
-    //
-    //     Span totalTransactions = new Span(service.countTransactionsByUser(userId) + " transactions");
-    //     Span incomes = new Span("$" + service.sumAllTransactionsByType(userId, Type.INCOME) + " in income");
-    //     Span expenses = new Span("$" + service.sumAllTransactionsByType(userId, Type.EXPENSE) + " in expenses");
-    //
-    //     totalTransactions.addClassNames("text-xl", "mt-m");
-    //     incomes.addClassNames("text-xl", "mt-m");
-    //     expenses.addClassNames("text-xl", "mt-m");
-    //
-    //     HorizontalLayout stats = new HorizontalLayout(incomes, expenses);
-    //
-    //     stats.setAlignItems(Alignment.CENTER);
-    //
-    //     return stats;
-    // }
 
     private Component getTransactionsChart() {
         Long userId = service.findUserByEmail(securityService.getAuthenticatedUser().getUsername()).getId();

@@ -4,6 +4,7 @@ import com.vaadin.flow.component.HasValueAndElement;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
@@ -13,6 +14,7 @@ import com.vaadin.flow.component.textfield.TextField;
 
 import java.util.stream.Stream;
 
+@CssImport(value = "./styles/registration-form.css", themeFor = "")
 public class RegistrationForm extends FormLayout {
 
     private H3 title;

@@ -160,7 +160,9 @@
  },
  "bundleImports": [
   "@vaadin/vaadin-themable-mixin",
-  "Frontend/styles/income-vs-expense-view-styles.css",
+  "Frontend/styles/i-v-e-chart.css",
+  "Frontend/styles/i-v-e-grids.css",
+  "Frontend/styles/registration-form.css",
   "@vaadin/grid/theme/lumo/vaadin-grid.js",
   "@vaadin/tooltip/theme/lumo/vaadin-tooltip.js",
   "@vaadin/grid/theme/lumo/vaadin-grid-column.js",
@@ -258,7 +260,9 @@
   "Frontend/generated/jar-resources/virtualListConnector.js"
  ],
  "frontendHashes": {
-  "styles/income-vs-expense-view-styles.css": "ebbaf8249891a032575a9cc1bd5020ed18039f7388195ee3e991826b1deeb667",
+  "styles/i-v-e-chart.css": "7e2f6bad4af1ae3dfebb3d84ca698d4f4375750c5d2a4853311b0ed0b6cbbdcd",
+  "styles/i-v-e-grids.css": "4eb29e1d11b7091321c5541cec9f2a36cee6f3910649b1eee4ce051316693ab7",
+  "styles/registration-form.css": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "comboBoxConnector.js": "1d004c3dae9c76f8bcc68678abe1b8f7bdc8b456f5c9c4c7f190df8ed25d66cd",
   "contextMenuConnector.js": "25a200f8086461635ddd92316ebeb5a868294c8650a190efbae120edb1088f4f",
   "contextMenuTargetConnector.js": "870f67643988dd5618c247bd3c28d843f70aa026ee89f44c3c7556b5e70856af",
@@ -284,7 +288,7 @@
   "prospero": "{\n  \"lumoImports\" : [ \"typography\", \"color\", \"spacing\", \"badge\", \"utility\" ],\n  \"include\": [\"styles.css\"]\n}"
  },
  "entryScripts": [
-  "VAADIN/build/indexhtml-41703362.js"
+  "VAADIN/build/indexhtml-e34dd5da.js"
  ],
  "webComponents": [],
  "packageJsonHash": "b8388d83fbed399c0a168af333606c4c74767b2a33a8ada84efccae4395830c5"
