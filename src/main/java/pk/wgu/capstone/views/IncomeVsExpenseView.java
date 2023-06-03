@@ -62,9 +62,10 @@ public class IncomeVsExpenseView extends VerticalLayout {
     private void configureGrids() {
         // INCOME GRID
         incomeGrid.removeAllColumns();
+        incomeGrid.setClassName("income-grid");
 
         incomeGrid.addColumn(CategoryTotal::getCategoryName).setHeader(
-                        new Html("<div style='font-size: 1.2rem; font-weight:900'>Category</div>"))
+                        new Html("<div class='grid-header'>Category</div>"))
                 .setSortable(true)
                 .setComparator(Comparator.comparing(CategoryTotal::getCategoryName));
 
@@ -72,30 +73,29 @@ public class IncomeVsExpenseView extends VerticalLayout {
         NumberRenderer<CategoryTotal> amountRenderer = new NumberRenderer<>(CategoryTotal::getTotalAmount, currencyFormat);
 
         incomeGrid.addColumn(amountRenderer).setHeader(
-                        new Html("<div style='font-size: 1.2rem; font-weight:900'>Amount</div>"))
+                        new Html("<div class='grid-header'>Amount</div>"))
                 .setSortable(true)
                 .setComparator(Comparator.comparing(CategoryTotal::getTotalAmount));
 
         incomeGrid.getColumns().forEach(col -> col.setAutoWidth(true));
         incomeGrid.asSingleSelect();
-        incomeGrid.getStyle().set("margin-left", "8rem");
 
         // EXPENSE GRID
         expenseGrid.removeAllColumns();
+        expenseGrid.setClassName("expense-grid");
 
         expenseGrid.addColumn(CategoryTotal::getCategoryName).setHeader(
-                        new Html("<div style='font-size: 1.2rem; font-weight:900'>Category</div>"))
+                        new Html("<div class='grid-header'>Category</div>"))
                 .setSortable(true)
                 .setComparator(Comparator.comparing(CategoryTotal::getCategoryName));
 
         expenseGrid.addColumn(amountRenderer).setHeader(
-                        new Html("<div style='font-size: 1.2rem; font-weight:900'>Amount</div>"))
+                        new Html("<div class='grid-header'>Amount</div>"))
                 .setSortable(true)
                 .setComparator(Comparator.comparing(CategoryTotal::getTotalAmount));
 
         expenseGrid.getColumns().forEach(col -> col.setAutoWidth(true));
         expenseGrid.asSingleSelect();
-        expenseGrid.getStyle().set("margin-right", "2rem");
     }
 
 
@@ -119,8 +119,6 @@ public class IncomeVsExpenseView extends VerticalLayout {
     private Component getIncomeAndExpenseGridContent() {
         HorizontalLayout content = new HorizontalLayout(incomeGrid, expenseGrid);
         content.setClassName("grids-layout");
-        content.getStyle().set("margin-top", "-1.5rem");
-        content.getStyle().set("grid-gap", "3rem");
         content.setWidthFull();
         return content;
     }
@@ -133,13 +131,11 @@ public class IncomeVsExpenseView extends VerticalLayout {
         DataSeries dataSeries = new DataSeries();
         dataSeries.setName("Transactions");
 
-
         DataSeriesItem incomeItem = new DataSeriesItem("Income", service.sumAllTransactionsByType(userId, Type.INCOME));
         incomeItem.setClassName("income-column-bar");
 
         DataSeriesItem expenseItem = new DataSeriesItem("Expenses", service.sumAllTransactionsByType(userId, Type.EXPENSE));
         expenseItem.setClassName("expense-column-bar");
-
 
         dataSeries.add(incomeItem);
         dataSeries.add(expenseItem);
@@ -178,7 +174,6 @@ public class IncomeVsExpenseView extends VerticalLayout {
         yAxis.setTitle("Amount");
 
         columnChart.addClassName("totals-chart");
-        columnChart.setHeight("800px");
 
         return columnChart;
     }
