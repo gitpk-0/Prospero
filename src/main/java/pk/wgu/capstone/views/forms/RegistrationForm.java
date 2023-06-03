@@ -6,17 +6,23 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.router.RouterLayout;
+import com.vaadin.flow.router.RouterLink;
+import pk.wgu.capstone.views.LoginView;
 
 import java.util.stream.Stream;
 
 @CssImport(value = "./styles/registration-form.css", themeFor = "")
-public class RegistrationForm extends FormLayout {
+public class RegistrationForm extends FormLayout implements RouterLayout {
 
+    private Image logo;
+    private H1 appname;
     private H3 title;
     private TextField firstName;
     private TextField lastName;
@@ -29,30 +35,48 @@ public class RegistrationForm extends FormLayout {
 
     public RegistrationForm() {
 
-        title = new H3("Registration form");
-        title.setClassName("form-field");
+        logo = new Image("icons/icon.png", "Icon");
+        logo.addClassName("logo-image-login");
+        appname = new H1("Sign up");
+        appname.addClassName("app-name-reg");
+        title = new H3("Create a new Prospero account");
+        title.addClassName("title");
+
+        VerticalLayout formHeader = new VerticalLayout(logo, appname, title);
+        formHeader.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.CENTER);
+        formHeader.setWidthFull();
+
         firstName = new TextField("First name");
-        firstName.setClassName("form-field");
         lastName = new TextField("Last name");
-        lastName.setClassName("form-field");
         email = new EmailField("Email");
-        email.setClassName("form-field");
+
 
         allowMarketing = new Checkbox("Subscribe to marketing emails?");
-        allowMarketing.getStyle().set("margin-top", "12px");
+        allowMarketing.getStyle().set("margin-top", "12px").set("margin-bottom", "12px");
 
         password = new PasswordField("Password");
         passwordConfirmation = new PasswordField("Confirm password");
 
         errorMessage = new Span();
 
-        submit = new Button("Start your journey!");
+        submit = new Button("Sign up");
         submit.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+        Div toLogin = new Div();
+        toLogin.setClassName("to-login");
+        toLogin.setText("Already have an account? ");
+
+        Button toLoginBtn = new Button("Login");
+        toLoginBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+
+        RouterLink toLoginView = new RouterLink(LoginView.class);
+        toLoginView.add(toLoginBtn);
+        toLogin.add(toLoginView);
 
         setRequiredIndicatorVisible(firstName, lastName, email, password, passwordConfirmation);
 
-        add(title, firstName, lastName, email, password, passwordConfirmation,
-                allowMarketing, errorMessage, submit);
+        add(formHeader, firstName, lastName, email, password, passwordConfirmation,
+                allowMarketing, errorMessage, submit, toLogin);
 
         setMaxWidth("500px");
 
@@ -63,11 +87,12 @@ public class RegistrationForm extends FormLayout {
 
 
         // components below will use the full width of the form
-        setColspan(title, 2);
+        setColspan(formHeader,2);
         setColspan(email, 2);
         setColspan(allowMarketing, 2);
         setColspan(errorMessage, 2);
         setColspan(submit, 2);
+        setColspan(toLogin, 2);
 
     }
 

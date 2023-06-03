@@ -264,7 +264,7 @@
   "styles/i-v-e-chart.css": "7e2f6bad4af1ae3dfebb3d84ca698d4f4375750c5d2a4853311b0ed0b6cbbdcd",
   "styles/i-v-e-grids.css": "9872d205620ffeb16d413296b17d70b33ca874b0d83bd927b523a8e629c1fb3a",
   "styles/login-form.css": "390084932bf182075c9ef5da786240d8198bd66de08cb582dc0ea699e50c3801",
-  "styles/registration-form.css": "68da70b17dd72c9b7b37bbc2256f475ffffcbce2003cbaa9a04eab527068e152",
+  "styles/registration-form.css": "15839839fb479acd42f0e81c0faa4bfeccd99561917318e3c7d040b942676971",
   "comboBoxConnector.js": "1d004c3dae9c76f8bcc68678abe1b8f7bdc8b456f5c9c4c7f190df8ed25d66cd",
   "contextMenuConnector.js": "25a200f8086461635ddd92316ebeb5a868294c8650a190efbae120edb1088f4f",
   "contextMenuTargetConnector.js": "870f67643988dd5618c247bd3c28d843f70aa026ee89f44c3c7556b5e70856af",
@@ -290,7 +290,7 @@
   "prospero": "{\n  \"lumoImports\" : [ \"typography\", \"color\", \"spacing\", \"badge\", \"utility\" ],\n  \"include\": [\"styles.css\"]\n}"
  },
  "entryScripts": [
-  "VAADIN/build/indexhtml-cb04cc88.js"
+  "VAADIN/build/indexhtml-6a6ae65d.js"
  ],
  "webComponents": [],
  "packageJsonHash": "b8388d83fbed399c0a168af333606c4c74767b2a33a8ada84efccae4395830c5"

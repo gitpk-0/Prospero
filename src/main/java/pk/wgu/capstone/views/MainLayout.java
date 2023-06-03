@@ -112,7 +112,7 @@ public class MainLayout extends AppLayout {
         Button logoutBtn = new Button("Log out");
         logoutBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         logoutBtn.setIcon(VaadinIcon.SIGN_OUT.create());
-        logoutBtn.addClassNames("btn-large", "header-log-out-btn", "logout-btn");
+        logoutBtn.addClassNames("logout-btn");
         logoutBtn.addClickListener(e -> {
             confirmLogoutDialog();
         });

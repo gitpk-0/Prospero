@@ -32,8 +32,6 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
         loginForm.setI18n(i18n);
 
-
-
         addClassName("login-view");
         setSizeFull();
         setAlignItems(Alignment.CENTER);

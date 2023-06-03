@@ -23,7 +23,6 @@ public class RegistrationView extends VerticalLayout {
 
         setSizeFull();
         RegistrationForm registrationForm = new RegistrationForm();
-        registrationForm.setWidth("600px");
         setAlignItems(Alignment.CENTER);
 
         setHorizontalComponentAlignment(Alignment.CENTER, registrationForm);
