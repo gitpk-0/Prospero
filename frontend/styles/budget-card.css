@@ -1,0 +1,19 @@
+.progress-bar {
+    height: 1rem;
+}
+
+.progress-bar-label {
+    font-weight: bold;
+}
+
+.green {
+    color: #30d35d;
+}
+
+.yellow {
+    color: #fff311;
+}
+
+.red {
+    color: #c21f1f;
+}

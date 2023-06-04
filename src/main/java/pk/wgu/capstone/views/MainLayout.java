@@ -21,6 +21,7 @@ import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.theme.lumo.Lumo;
 import pk.wgu.capstone.data.service.PfmService;
 import pk.wgu.capstone.security.SecurityService;
+import pk.wgu.capstone.views.budget.BudgetListView;
 
 public class MainLayout extends AppLayout {
 
@@ -132,7 +133,8 @@ public class MainLayout extends AppLayout {
         Tabs tabs = new Tabs();
         tabs.add(
                 createTab(VaadinIcon.LIST, "Transactions", TransactionView.class),
-                createTab(VaadinIcon.CHART, "Income vs. Expenses", IncomeVsExpenseView.class)
+                createTab(VaadinIcon.CHART, "Income vs. Expenses", IncomeVsExpenseView.class),
+                createTab(VaadinIcon.ABACUS, "Budgets", BudgetListView.class)
         );
         tabs.setOrientation(Tabs.Orientation.VERTICAL);
 
