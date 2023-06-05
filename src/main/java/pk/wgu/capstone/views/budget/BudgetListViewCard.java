@@ -25,7 +25,6 @@ public class BudgetListViewCard extends ListItem {
         // div.setHeight("160px"); // **** CHANGE TO EM/REM ****
 
         ProgressBar progressBar = new ProgressBar();
-        progressBar.setHeight(".2rem");
         progressBar.addClassName("progress-bar");
         if (progress > 1.0) {
             progress = 1.0;
@@ -40,12 +39,15 @@ public class BudgetListViewCard extends ListItem {
         layout.addClassName("progress-bar-label");
 
         if (progress <= 0.7) {
+            progressBar.getStyle().set("--progress-color", "#158443"); // green
             progressBar.addThemeVariants(ProgressBarVariant.LUMO_SUCCESS);
             progressValue.addClassName("green");
-        } else if (progress > 0.8 && progress <= 0.9) {
+        } else if (progress > 0.7 && progress <= 0.9) {
+            progressBar.getStyle().set("--progress-color", "#ffbd07"); // yellow
             progressValue.addClassName("yellow");
         } else {
             progressBar.addThemeVariants(ProgressBarVariant.LUMO_ERROR);
+            progressBar.getStyle().set("--progress-color", "#E21D12"); // red
             progressValue.addClassName("red");
         }
 

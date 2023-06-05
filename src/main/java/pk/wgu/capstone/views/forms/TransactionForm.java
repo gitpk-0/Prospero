@@ -165,7 +165,7 @@ public class TransactionForm extends FormLayout {
         String firstName = service.findUserById(securityService.getCurrentUserId(service)).getFirstName();
 
         ConfirmDialog confirmDelete = new ConfirmDialog();
-        confirmDelete.setHeader("Delete Transaction?");
+        confirmDelete.setHeader("Delete Transaction");
         confirmDelete.setText(firstName + ", are you sure you want to permanently delete this transaction?");
         confirmDelete.setCancelable(true);
         confirmDelete.setConfirmText("Delete");

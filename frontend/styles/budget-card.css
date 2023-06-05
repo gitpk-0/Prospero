@@ -1,19 +1,32 @@
+:host {
+    --progress-color: #d00fee;
+}
+:host [part="value"] {
+    background-color: var(--progress-color);
+}
+
+
 .progress-bar {
     height: 1rem;
 }
 
 .progress-bar-label {
     font-weight: bold;
+    font-size: larger;
 }
 
 .green {
-    color: #30d35d;
+    color: #158443;
 }
 
 .yellow {
-    color: #fff311;
+    color: #ffbd07;
 }
 
 .red {
-    color: #c21f1f;
+    color: #E21D12;
+}
+
+vaadin-progress-bar::part(value) {
+    background-color: var(--progress-color);
 }
