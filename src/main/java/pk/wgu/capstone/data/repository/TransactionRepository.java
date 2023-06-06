@@ -8,6 +8,7 @@ import pk.wgu.capstone.data.entity.Transaction;
 import pk.wgu.capstone.data.entity.Type;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.util.List;
 
 @Repository
@@ -24,7 +25,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Transaction> findAllByUserId(@Param("user_id") Long userId);
 
     @Query("select count(t.id) from transactions t where t.userId = :user_id")
-    long countByUserId(@Param("user_id")Long user_id);
+    long countByUserId(@Param("user_id") Long user_id);
 
     @Query("select sum(t.amount) from transactions t where t.userId = :user_id and t.type = :type")
     BigDecimal sumAllTransactionsByType(@Param("user_id") Long userId, @Param("type") Type type);
@@ -34,4 +35,21 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             "where t.userId = :user_id and c.type = :type " +
             "GROUP BY c.name")
     List<Object[]> sumTransactionsByCategory(@Param("user_id") Long userId, @Param("type") Type type);
+
+    @Query("select coalesce(SUM(t.amount), 0.0) from transactions t " +
+            "where t.userId = :user_id and t.date >= :start and t.date <= :end")
+    BigDecimal getSumTransactionsInDateRange(
+            @Param("start") Date start,
+            @Param("end") Date end,
+            @Param("user_id") Long userId);
+
+    @Query("SELECT c.name, SUM(t.amount) AS total_amount FROM transactions t " +
+            "JOIN categories c ON t.category.id = c.id " +
+            "where t.userId = :user_id and c.type = :type and t.date >= :start and t.date <= :end " +
+            "GROUP BY c.name")
+    List<Object[]> sumTransactionsInDateRangeByCategory(
+            @Param("user_id") Long userId,
+            @Param("type") Type type,
+            @Param("start") Date start,
+            @Param("end") Date end);
 }

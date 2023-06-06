@@ -1,4 +1,4 @@
-:host(.totals-chart) .highcharts-axis-title, text {
+:host(.totals-chart) .highcharts-axis-title text {
     font-size: large;
 }
 

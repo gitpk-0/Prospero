@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import pk.wgu.capstone.data.entity.*;
+import pk.wgu.capstone.data.repository.BudgetRepository;
 import pk.wgu.capstone.data.repository.CategoryRepository;
 import pk.wgu.capstone.data.repository.TransactionRepository;
 import pk.wgu.capstone.data.repository.UserRepository;
@@ -27,7 +28,8 @@ public class DataGenerator {
     @Bean
     public CommandLineRunner loadData(TransactionRepository transactionRepository,
                                       CategoryRepository categoryRepository,
-                                      UserRepository userRepository) {
+                                      UserRepository userRepository,
+                                      BudgetRepository budgetRepository) {
         return args -> {
             Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -40,7 +42,7 @@ public class DataGenerator {
             logger.info("Generating categories...");
             List<Category> categories = new ArrayList<>();
             // default income categories
-            categories.add(new Category("Paycheck", Type.INCOME)); //0
+            categories.add(new Category("Paycheck", Type.INCOME)); // 0
             categories.add(new Category("Bonus", Type.INCOME));
             categories.add(new Category("Savings", Type.INCOME));
             categories.add(new Category("Investment", Type.INCOME));
@@ -49,9 +51,9 @@ public class DataGenerator {
             categories.add(new Category("Social Security", Type.INCOME));
             categories.add(new Category("Rental Property", Type.INCOME));
             categories.add(new Category("Gift", Type.INCOME));
-            categories.add(new Category("Other", Type.INCOME)); //9
+            categories.add(new Category("Other", Type.INCOME)); // 9
             // default expense categories
-            categories.add(new Category("Rent", Type.EXPENSE)); //10
+            categories.add(new Category("Rent", Type.EXPENSE)); // 10
             categories.add(new Category("Car", Type.EXPENSE));
             categories.add(new Category("Food", Type.EXPENSE));
             categories.add(new Category("Medical", Type.EXPENSE));
@@ -60,10 +62,9 @@ public class DataGenerator {
             categories.add(new Category("Travel", Type.EXPENSE));
             categories.add(new Category("Transportation", Type.EXPENSE));
             categories.add(new Category("Entertainment", Type.EXPENSE));
-            categories.add(new Category("Other", Type.EXPENSE)); //19
+            categories.add(new Category("Other", Type.EXPENSE)); // 19
             categories.forEach(category -> category.setDefault(true));
             categories.forEach(category -> category.setUserIdsCsv("default"));
-
 
 
             List<Type> types = Arrays.asList(Type.values());
@@ -77,7 +78,7 @@ public class DataGenerator {
             user1.setEmail("patrick.kell1@pm.me");
             user1.setPassword(passwordEncoder().encode("easypass"));
             user1.setAllowsMarketingEmails(true);
-            user1.setId(1101L);
+            user1.setId(1151L);
             user1.setRole(Role.USER);
 
             User user2 = new User();
@@ -86,7 +87,7 @@ public class DataGenerator {
             user2.setEmail("patrick.kell11@pm.me");
             user2.setPassword(passwordEncoder().encode("easypass1"));
             user2.setAllowsMarketingEmails(true);
-            user2.setId(1102L);
+            user2.setId(1152L);
             user2.setRole(Role.USER);
 
             User user3 = new User();
@@ -95,7 +96,7 @@ public class DataGenerator {
             user3.setEmail("patrick.kell111@pm.me");
             user3.setPassword(passwordEncoder().encode("easypass11"));
             user3.setAllowsMarketingEmails(true);
-            user3.setId(1103L);
+            user3.setId(1153L);
             user3.setRole(Role.USER);
 
             users.add(user1);
@@ -124,7 +125,26 @@ public class DataGenerator {
                 transactions.add(transaction);
             }
 
+            List<Budget> budgets = new ArrayList<>();
+            budgets.add(new Budget(
+                    "June Budget",
+                    Date.valueOf(LocalDate.now().minusDays(1)),
+                    Date.valueOf(LocalDate.now().plusDays(3)),
+                    BigDecimal.valueOf(500L),
+                    "first budget",
+                    user1.getId()
+            ));
 
+            budgets.add(new Budget(
+                    "July Budget",
+                    Date.valueOf(LocalDate.now().plusMonths(1)),
+                    Date.valueOf(LocalDate.now().plusMonths(1).plusDays(3)),
+                    BigDecimal.valueOf(700L),
+                    "second budget",
+                    user1.getId()
+            ));
+
+            budgetRepository.saveAll(budgets);
             categoryRepository.saveAll(categories);
             transactionRepository.saveAll(transactions);
             userRepository.saveAll(users);

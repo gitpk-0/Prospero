@@ -11,3 +11,16 @@
     background-color: var(--lumo-base-color);
     box-shadow: var(--lumo-box-shadow-s);
 }
+
+.budget-dialog {
+    width: 40rem !important;
+    height: 40rem;
+}
+
+@media all and (max-width: 800px) {
+    .budget-dialog {
+        width: 22rem !important;;
+        height: 22rem;
+    }
+}
+

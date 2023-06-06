@@ -4,15 +4,14 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import pk.wgu.capstone.data.entity.Category;
-import pk.wgu.capstone.data.entity.Transaction;
-import pk.wgu.capstone.data.entity.Type;
-import pk.wgu.capstone.data.entity.User;
+import pk.wgu.capstone.data.entity.*;
+import pk.wgu.capstone.data.repository.BudgetRepository;
 import pk.wgu.capstone.data.repository.CategoryRepository;
 import pk.wgu.capstone.data.repository.TransactionRepository;
 import pk.wgu.capstone.data.repository.UserRepository;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,16 +19,19 @@ import java.util.List;
 @EnableTransactionManagement
 public class PfmService { // Personal Finance Management Service
 
+    private final UserRepository userRepository;
     private final TransactionRepository transactionRepository;
     private final CategoryRepository categoryRepository;
-    private final UserRepository userRepository;
+    private final BudgetRepository budgetRepository;
 
     @Autowired
     public PfmService(TransactionRepository transactionRepository,
-                      CategoryRepository categoryRepository, UserRepository userRepository) {
+                      CategoryRepository categoryRepository, UserRepository userRepository,
+                      BudgetRepository budgetRepository) {
         this.transactionRepository = transactionRepository;
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
+        this.budgetRepository = budgetRepository;
     }
 
     public List<Transaction> findAllTransactions(Long userId, String filterText) {
@@ -103,5 +105,29 @@ public class PfmService { // Personal Finance Management Service
     @Transactional
     public void updateCustomCategoryUserIds(Long categoryId, String userId) {
         categoryRepository.updateCustomCategoryUserIds(categoryId, userId);
+    }
+
+    public List<Budget> getBudgetsByUserId(Long userId) {
+        return budgetRepository.getBudgetsByUserId(userId);
+    }
+
+    public void saveBudget(Budget budget) {
+        if (budget == null) {
+            System.out.println("Budget is null");
+            return;
+        }
+        budgetRepository.save(budget);
+    }
+
+    public void deleteBudget(Budget budget) {
+        budgetRepository.delete(budget);
+    }
+
+    public BigDecimal getSumTransactionsInDateRange(Date start, Date end, Long userId) {
+        return transactionRepository.getSumTransactionsInDateRange(start, end, userId);
+    }
+
+    public List<Object[]> sumTransactionsInDateRangeByCategory(Long userId, Type type, Date start, Date end) {
+        return transactionRepository.sumTransactionsInDateRangeByCategory(userId, type, start, end);
     }
 }

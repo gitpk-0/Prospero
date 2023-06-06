@@ -1,0 +1,9 @@
+:where([styled-mode]) .highcharts-data-label text {
+    font-size: x-large !important;
+}
+
+@media all and (max-width: 800px) {
+    :where([styled-mode]) .highcharts-data-label text {
+        font-size: x-small !important;
+    }
+}

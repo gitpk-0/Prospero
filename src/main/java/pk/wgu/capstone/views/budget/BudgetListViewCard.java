@@ -14,23 +14,20 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 @CssImport(value = "./styles/budget-card.css")
 public class BudgetListViewCard extends ListItem {
 
-    public BudgetListViewCard(String budgetName, Double progress) {
+    public BudgetListViewCard(String budgetName, Double progress, String status) {
         addClassNames(LumoUtility.Background.CONTRAST_5, LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN,
                 LumoUtility.AlignItems.START, LumoUtility.Padding.MEDIUM, LumoUtility.BorderRadius.LARGE);
 
-        Div div = new Div();
-        div.addClassNames(LumoUtility.Background.CONTRAST, LumoUtility.Display.FLEX, LumoUtility.AlignItems.CENTER,
+        Div card = new Div();
+        card.addClassNames(LumoUtility.Background.CONTRAST, LumoUtility.Display.FLEX, LumoUtility.AlignItems.CENTER,
                 LumoUtility.JustifyContent.CENTER, LumoUtility.Margin.Bottom.MEDIUM, LumoUtility.Overflow.HIDDEN,
                 LumoUtility.BorderRadius.MEDIUM, LumoUtility.Width.FULL);
-        // div.setHeight("160px"); // **** CHANGE TO EM/REM ****
 
         ProgressBar progressBar = new ProgressBar();
         progressBar.addClassName("progress-bar");
-        if (progress > 1.0) {
-            progress = 1.0;
-        }
+        String progressStr = (int) (progress * 100) + "%";
 
-        String progressStr = String.valueOf(Integer.valueOf((int) (progress * 100))) + "%";
+
         Div budgetUtilization = new Div();
         budgetUtilization.setText("Budget Utilization: ");
         Div progressValue = new Div();
@@ -38,11 +35,11 @@ public class BudgetListViewCard extends ListItem {
         HorizontalLayout layout = new HorizontalLayout(budgetUtilization, progressValue);
         layout.addClassName("progress-bar-label");
 
-        if (progress <= 0.7) {
+        if (progress <= 0.75) {
             progressBar.getStyle().set("--progress-color", "#158443"); // green
             progressBar.addThemeVariants(ProgressBarVariant.LUMO_SUCCESS);
             progressValue.addClassName("green");
-        } else if (progress > 0.7 && progress <= 0.9) {
+        } else if (progress > 0.75 && progress <= 0.9) {
             progressBar.getStyle().set("--progress-color", "#ffbd07"); // yellow
             progressValue.addClassName("yellow");
         } else {
@@ -52,28 +49,66 @@ public class BudgetListViewCard extends ListItem {
         }
 
 
-        progressBar.setValue(progress);
+        // String[] budgetStatusList = {"Not Started", "In Progress", "Complete"};
+        String[] goalStatusList = {"Within Budget", "At Budget Capacity", "Over Budget"};
+
+
+        // String budgetStatus = "";
+        String goalStatus = "";
+        double progressBarValue = 0.0;
+
+
+        if (progress > 1.0) {
+            progressBarValue = 1.0;
+            goalStatus = goalStatusList[2];
+        } else if (progress == 1.0) {
+            progressBarValue = 1.0;
+            goalStatus = goalStatusList[1];
+        } else if (progress < 0.0) {
+            progressBarValue = 0.0;
+            goalStatus = goalStatusList[0];
+        } else {
+            progressBarValue = progress;
+            goalStatus = goalStatusList[0];
+        }
+        progressBar.setValue(progressBarValue);
         VerticalLayout progressLayout = new VerticalLayout(layout, progressBar);
-        div.add(progressLayout);
+        card.add(progressLayout);
 
 
-        Span header = new Span();
-        header.addClassNames(LumoUtility.FontSize.XLARGE, LumoUtility.FontWeight.SEMIBOLD);
-        header.setText(budgetName);
+        Span budgetTitle = new Span();
+        budgetTitle.addClassNames(LumoUtility.FontSize.XLARGE, LumoUtility.FontWeight.SEMIBOLD);
+        budgetTitle.setText(budgetName);
 
-        Span subtitle = new Span();
-        subtitle.addClassNames(LumoUtility.FontSize.SMALL, LumoUtility.TextColor.SECONDARY);
-        subtitle.setText("Card subtitle");
+        Span startDate = new Span();
+        startDate.addClassNames(LumoUtility.FontSize.SMALL, LumoUtility.TextColor.SECONDARY);
+        startDate.setText("Start Date: Thur, Jun 1, 2023");
+        Span endDate = new Span();
+        endDate.addClassNames(LumoUtility.FontSize.SMALL, LumoUtility.TextColor.SECONDARY);
+        endDate.setText("End Date: Fri, Jun 30, 2023");
 
-        Paragraph description = new Paragraph(
-                "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.");
-        description.addClassName(LumoUtility.Margin.Vertical.MEDIUM);
+        Paragraph budgetDescription = new Paragraph(
+                "A brief description that describes the purpose of this budget.");
+        budgetDescription.addClassName(LumoUtility.Margin.Vertical.MEDIUM);
 
-        Span badge = new Span();
-        badge.getElement().setAttribute("theme", "badge");
-        badge.setText("Label");
+        Span statusBadge = new Span();
+        statusBadge.getElement().setAttribute("theme", "badge");
+        statusBadge.setText(status);
 
-        add(header, subtitle, description, progressLayout, badge);
+        Span goalStatusBadge = new Span();
+        goalStatusBadge.getElement().setAttribute("theme", "badge");
+        goalStatusBadge.setText(goalStatus);
+
+        HorizontalLayout badges = new HorizontalLayout(statusBadge, goalStatusBadge);
+
+        add(
+                budgetTitle,
+                startDate,
+                endDate,
+                budgetDescription,
+                progressLayout,
+                badges
+        );
 
     }
 }
