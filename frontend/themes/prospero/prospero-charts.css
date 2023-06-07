@@ -1,3 +1,7 @@
+:where([styled-mode]) .highcharts-data-label text {
+    font-size: x-large !important;
+}
+
 :host(.totals-chart) .highcharts-axis-title text {
     font-size: large;
 }
@@ -9,7 +13,7 @@
     margin-top: 1rem;
 }
 
-:host(.totals-chart)  .highcharts-yaxis-labels { /*.highcharts-axis-labels*/
+:host(.totals-chart) .highcharts-yaxis-labels { /*.highcharts-axis-labels*/
     font-size: large;
 }
 
@@ -24,4 +28,13 @@
 .huge-axis {
     font-size: larger;
     font-weight: bolder;
+}
+
+
+/* MOBILE DEVICES */
+
+@media all and (max-width: 800px) {
+    :where([styled-mode]) .highcharts-data-label text {
+        font-size: small !important;
+    }
 }

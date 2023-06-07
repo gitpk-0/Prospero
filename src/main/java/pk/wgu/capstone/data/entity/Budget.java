@@ -20,6 +20,9 @@ public class Budget extends AbstractEntity {
     private Date end;
 
     @NotNull
+    private Date dateCreated;
+
+    @NotNull
     private BigDecimal spendingGoal;
 
     @NotEmpty
@@ -86,5 +89,13 @@ public class Budget extends AbstractEntity {
 
     public void setUserId(Long usedId) {
         this.userId = usedId;
+    }
+
+    public Date getDateCreated() {
+        return dateCreated;
+    }
+
+    public void setDateCreated(Date dateCreated) {
+        this.dateCreated = dateCreated;
     }
 }

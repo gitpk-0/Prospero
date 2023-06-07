@@ -37,10 +37,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Object[]> sumTransactionsByCategory(@Param("user_id") Long userId, @Param("type") Type type);
 
     @Query("select coalesce(SUM(t.amount), 0.0) from transactions t " +
-            "where t.userId = :user_id and t.date >= :start and t.date <= :end")
-    BigDecimal getSumTransactionsInDateRange(
+            "where t.userId = :user_id and t.date >= :start and t.date <= :end " +
+            "and t.type = :type")
+    BigDecimal getSumExpensesInDateRange(
             @Param("start") Date start,
             @Param("end") Date end,
+            @Param("type") Type type,
             @Param("user_id") Long userId);
 
     @Query("SELECT c.name, SUM(t.amount) AS total_amount FROM transactions t " +

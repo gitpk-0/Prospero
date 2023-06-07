@@ -29,8 +29,10 @@ public class SecurityService {
             UserDetails userPrincipal = (UserDetails) auth.getPrincipal();
             String usernameEmail = userPrincipal.getUsername();
             return service.findUserByEmail(usernameEmail).getId();
+        } else {
+            logout();
+            return null; // User not authenticated or user_id not available
         }
-        return null; // User not authenticated or user_id not available
     }
 
     public void logout() {

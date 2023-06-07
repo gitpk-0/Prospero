@@ -135,6 +135,7 @@ public class DataGenerator {
                     user1.getId()
             ));
 
+
             budgets.add(new Budget(
                     "July Budget",
                     Date.valueOf(LocalDate.now().plusMonths(1)),
@@ -143,6 +144,10 @@ public class DataGenerator {
                     "second budget",
                     user1.getId()
             ));
+
+            for (Budget b : budgets) {
+                b.setDateCreated(Date.valueOf(LocalDate.now()));
+            }
 
             budgetRepository.saveAll(budgets);
             categoryRepository.saveAll(categories);

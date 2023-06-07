@@ -123,8 +123,8 @@ public class PfmService { // Personal Finance Management Service
         budgetRepository.delete(budget);
     }
 
-    public BigDecimal getSumTransactionsInDateRange(Date start, Date end, Long userId) {
-        return transactionRepository.getSumTransactionsInDateRange(start, end, userId);
+    public BigDecimal getSumExpensesInDateRange(Date start, Date end, Type type, Long userId) {
+        return transactionRepository.getSumExpensesInDateRange(start, end, type, userId);
     }
 
     public List<Object[]> sumTransactionsInDateRangeByCategory(Long userId, Type type, Date start, Date end) {

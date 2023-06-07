@@ -26,7 +26,7 @@ import java.util.List;
 @Route(value = "income-vs-expense", layout = MainLayout.class)
 @PageTitle("I & E | Prospero")
 @PermitAll
-@CssImport(value = "./styles/i-v-e-chart.css", themeFor = "vaadin-chart")
+@CssImport(value = "./themes/prospero/prospero-charts.css", themeFor = "vaadin-chart")
 @CssImport(value = "./styles/i-v-e-grids.css")
 public class IncomeVsExpenseView extends VerticalLayout {
 
@@ -143,7 +143,7 @@ public class IncomeVsExpenseView extends VerticalLayout {
         DataLabels totalLabel = new DataLabels(true);
         totalLabel.setShape(Shape.CALLOUT);
         totalLabel.setY(-10);
-        totalLabel.setFormatter("function() { return '$' + Highcharts.numberFormat(this.point.y, 2, '.', ',') }");
+        totalLabel.setFormatter("function() { return '$' + Highcharts.numberFormat(this.point.y, 0, '.', ',') }");
         totalLabel.setInside(true);
         incomeItem.setDataLabels(totalLabel);
         expenseItem.setDataLabels(totalLabel);

@@ -8,6 +8,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -23,6 +24,7 @@ import pk.wgu.capstone.data.service.PfmService;
 import pk.wgu.capstone.security.SecurityService;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Objects;
 
 public class BudgetForm extends FormLayout {
@@ -54,7 +56,6 @@ public class BudgetForm extends FormLayout {
         this.securityService = securityService;
         this.service = service;
 
-        // addClassName("Budget-form");
         dollarPrefix.setText("$");
         spendingGoal.setPrefixComponent(dollarPrefix);
 
@@ -65,11 +66,21 @@ public class BudgetForm extends FormLayout {
         budgetBinder.forField(startDatePick)
                 .withConverter(dateConverter)
                 .withValidator(Objects::nonNull, "State date is required")
+                .withValidator(start -> {
+                    LocalDate startDate = startDatePick.getValue();
+                    LocalDate endDate = endDatePick.getValue();
+                    return startDate == null || endDate == null || startDate.isBefore(endDate);
+                }, "Start date must be before the end date")
                 .bind(Budget::getStart, Budget::setStart);
 
         budgetBinder.forField(endDatePick)
                 .withConverter(dateConverter)
                 .withValidator(Objects::nonNull, "End date is required")
+                .withValidator(end -> {
+                    LocalDate startDate = startDatePick.getValue();
+                    LocalDate endDate = endDatePick.getValue();
+                    return startDate == null || endDate == null || endDate.isAfter(startDate);
+                }, "End date must be after the start date")
                 .bind(Budget::getEnd, Budget::setEnd);
 
 
@@ -92,8 +103,8 @@ public class BudgetForm extends FormLayout {
                 startDatePick,
                 endDatePick,
                 description,
-                spendingGoal,
-                createButtonLayout()
+                spendingGoal
+                // createButtonLayout()
         );
     }
 
@@ -106,17 +117,27 @@ public class BudgetForm extends FormLayout {
         return budgetBinder.getBean();
     }
 
-    private Component createButtonLayout() {
+    public Component createButtonLayout(Dialog dialog) {
         // set theme variants for buttons
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
         cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
         // add click listeners to buttons
-        save.addClickListener(event -> validateAndSave());
-        // delete.addClickListener(event -> fireEvent(new DeleteEvent(this, binder.getBean())));
-        delete.addClickListener(event -> confirmDeleteDialog());
-        cancel.addClickListener(event -> fireEvent(new BudgetForm.CloseEvent(this)));
+        save.addClickListener(event -> {
+            validateAndSave();
+            dialog.close();
+        });
+
+        delete.addClickListener(event -> {
+            dialog.close();
+            confirmDeleteDialog(dialog);
+        });
+
+        cancel.addClickListener(event -> {
+            fireEvent(new BudgetForm.CloseEvent(this));
+            dialog.close();
+        });
 
         // add keyboard shortcuts to buttons
         save.addClickShortcut(Key.ENTER);
@@ -125,7 +146,7 @@ public class BudgetForm extends FormLayout {
         return new HorizontalLayout(save, delete, cancel);
     }
 
-    private void confirmDeleteDialog() {
+    private void confirmDeleteDialog(Dialog dialog) {
         // current user's first name
         String firstName = service.findUserById(securityService.getCurrentUserId(service)).getFirstName();
 
@@ -135,7 +156,10 @@ public class BudgetForm extends FormLayout {
         confirmDelete.setCancelable(true);
         confirmDelete.setConfirmText("Delete");
         confirmDelete.setConfirmButtonTheme("error primary");
-        confirmDelete.addConfirmListener(e -> fireEvent(new BudgetForm.DeleteEvent(this, budgetBinder.getBean())));
+        confirmDelete.addConfirmListener(e -> {
+            fireEvent(new BudgetForm.DeleteEvent(this, budgetBinder.getBean()));
+            dialog.close();
+        });
         confirmDelete.open();
     }
 

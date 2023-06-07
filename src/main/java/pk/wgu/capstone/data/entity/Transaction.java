@@ -31,6 +31,19 @@ public class Transaction extends AbstractEntity {
 
     private Long userId;
 
+    public Transaction() {
+    }
+
+    public Transaction(Date date, BigDecimal amount, String description,
+                       Category category, Type type, Long userId) {
+        this.date = date;
+        this.amount = amount;
+        this.description = description;
+        this.category = category;
+        this.type = type;
+        this.userId = userId;
+    }
+
     public Date getDate() {
         return date;
     }

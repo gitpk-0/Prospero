@@ -5,14 +5,12 @@ import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.charts.Chart;
 import com.vaadin.flow.component.charts.model.*;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Main;
-import com.vaadin.flow.component.html.OrderedList;
-import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -31,14 +29,14 @@ import pk.wgu.capstone.views.forms.BudgetForm;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.List;
 
-@PageTitle("Budget List")
+@PageTitle("Budgets | Prospero")
 @Route(value = "budget-list", layout = MainLayout.class)
 @PermitAll
-// @CssImport(value = "./styles/budget-list-view.css")
-@CssImport(value = "./themes/prospero/views/budget-chart.css", themeFor = "vaadin-chart")
+@CssImport(value = "./themes/prospero/prospero-charts.css", themeFor = "vaadin-chart")
 @CssImport(value = "./themes/prospero/views/budget-list-view.css")
 public class BudgetListView extends Main implements HasComponents, HasStyle {
 
@@ -57,17 +55,6 @@ public class BudgetListView extends Main implements HasComponents, HasStyle {
 
         generateUI();
         configureBudgetCards();
-
-        // budgetContainer.add(new BudgetListViewCard("First Budget", 0.25, "Complete"));
-        // budgetContainer.add(new BudgetListViewCard("Second Budget", 0.5, "In Progress"));
-        // budgetContainer.add(new BudgetListViewCard("Big Budget", 0.75, "In Progress"));
-        // budgetContainer.add(new BudgetListViewCard("Full Budget", 1.25, "Not Started"));
-        // budgetContainer.add(new BudgetListViewCard("Mid Budget", 0.85, "In Progress"));
-        // budgetContainer.add(new BudgetListViewCard("Little Budget", 0.99, "Complete"));
-        // budgetContainer.add(new BudgetListViewCard("Little Budget", 1.0, "Complete"));
-        // budgetContainer.add(new BudgetListViewCard("Little Budget", 0.745, "Complete"));
-
-
     }
 
     private void generateUI() {
@@ -84,7 +71,7 @@ public class BudgetListView extends Main implements HasComponents, HasStyle {
         header.addClassNames(LumoUtility.Margin.Bottom.NONE,
                 LumoUtility.Margin.Top.NONE, LumoUtility.FontSize.XXLARGE);
 
-        Paragraph description = new Paragraph("Reach your goals");
+        Paragraph description = new Paragraph("Conquer Your Wealth Objectives");
         description.addClassNames(LumoUtility.Margin.Bottom.NONE,
                 LumoUtility.Margin.Top.NONE, LumoUtility.TextColor.SECONDARY);
 
@@ -124,17 +111,23 @@ public class BudgetListView extends Main implements HasComponents, HasStyle {
         List<Budget> budgets = service.getBudgetsByUserId(userId);
         budgets.stream().forEach(budget -> {
             BudgetListViewCard card = new BudgetListViewCard(
-                    budget.getName(),
+                    budget,
                     calcBudgetProgress(budget, userId),
-                    calcBudgetStatus(budget)
+                    calcBudgetStatus(budget),
+                    service.getSumExpensesInDateRange(
+                            budget.getStart(),
+                            budget.getEnd(),
+                            Type.EXPENSE,
+                            userId)
             );
             card.addClickListener(e -> {
-                editBudget(budget);
+                viewBudgetChart(budget);
             });
             budgetContainer.add(card);
         });
 
     }
+
 
     private String calcBudgetStatus(Budget budget) {
         Date start = budget.getStart();
@@ -153,12 +146,8 @@ public class BudgetListView extends Main implements HasComponents, HasStyle {
     private Double calcBudgetProgress(Budget budget, Long userId) {
         Date start = budget.getStart();
         Date end = budget.getEnd();
-        System.out.println("Start: " + start);
-        System.out.println("end: " + end);
-        System.out.println("userId: " + userId);
-        System.out.println("GetSumTransactionsInDateRange: " + service.getSumTransactionsInDateRange(start, end, userId));
         Double spendingTotal = Double.valueOf(String.valueOf(
-                service.getSumTransactionsInDateRange(start, end, userId)));
+                service.getSumExpensesInDateRange(start, end, Type.EXPENSE, userId)));
         Double spendingGoal = Double.valueOf(String.valueOf(budget.getSpendingGoal()));
 
         return spendingTotal / spendingGoal;
@@ -166,9 +155,13 @@ public class BudgetListView extends Main implements HasComponents, HasStyle {
 
     // Budget Form
     private void configureForm() {
-        Long userId = securityService.getCurrentUserId(service);
         budgetForm = new BudgetForm(securityService, service);
+        budgetForm.getStyle()
+                .set("padding-left", "1rem")
+                .set("padding-right", "1rem")
+                .set("padding-bottom", "1rem");
         budgetForm.setWidth("25em");
+        budgetForm.addClassName("budget-form");
 
         budgetForm.addSaveListener(this::saveBudget);
         budgetForm.addDeleteListener(this::deleteBudget);
@@ -176,6 +169,10 @@ public class BudgetListView extends Main implements HasComponents, HasStyle {
     }
 
     private void saveBudget(BudgetForm.SaveEvent saveEvent) {
+        Budget budget = saveEvent.getBudget();
+        if (budget.getDateCreated() == null) {
+            budget.setDateCreated(Date.valueOf(LocalDate.now()));
+        }
         service.saveBudget(saveEvent.getBudget());
         configureBudgetCards();
         closeBudgetEditor();
@@ -188,36 +185,85 @@ public class BudgetListView extends Main implements HasComponents, HasStyle {
     }
 
     private void closeBudgetEditor() {
-        budgetForm.setBudget(null);
-        removeClassName("editing");
-        budgetForm.setVisible(false);
-        dialogLayout = null;
+        if (budgetForm != null) {
+            budgetForm.setBudget(null);
+            removeClassName("editing");
+            budgetForm.setVisible(false);
+            dialogLayout = null;
+        }
     }
 
     private void addBudget() {
-        editBudget(new Budget());
+        editBudget(new Budget(), new Dialog());
     }
 
-    public void editBudget(Budget budget) {
+    private void viewBudgetChart(Budget budget) {
+
+        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
+
         if (budget == null) {
             closeBudgetEditor();
         } else {
-            if (dialogLayout == null) {
-                configureForm();
-                // dialogLayout = new VerticalLayout(budgetForm);
-                dialogLayout = new VerticalLayout(getBudgetChart(budget));
-                // dialogLayout.getStyle().set("width" , "40rem").set("height", "40rem");
-                dialogLayout.addClassName("budget-dialog");
-                dialog = new Dialog(dialogLayout);
-            }
+            dialogLayout = new VerticalLayout();
+            H1 title = new H1(budget.getName());
+            title.getStyle().set("font-size", "xx-large");
+            H3 subtitle = new H3("Expense Breakdown");
+            subtitle.getStyle().set("font-size", "larger").set("padding-bottom", "2rem");
+            subtitle.addClassName("subtitle-text");
+            H3 spendingGoal = new H3("Spending Goal: " + currencyFormat.format(budget.getSpendingGoal()));
+            spendingGoal.getStyle().set("font-size", "large").set("padding-top", "1rem");
+            H3 totalExpenses = new H3("Total Expenses: " +
+                    currencyFormat.format(
+                            service.getSumExpensesInDateRange(
+                                    budget.getStart(), budget.getEnd(), Type.EXPENSE, budget.getUserId())));
+            totalExpenses.getStyle().set("font-size", "large");
+            totalExpenses.addClassName("total-expenses-text");
+
+            dialogLayout.add(title, subtitle, getBudgetChart(budget), spendingGoal, totalExpenses);
+            dialogLayout.addClassName("budget-dialog-vl");
+
+            dialog = new Dialog(dialogLayout);
+            dialog.setClassName("budget-dialog");
+
             Button cancelButton = new Button("Cancel", e -> {
                 dialog.close();
                 closeBudgetEditor();
             });
-            dialog.add(cancelButton);
-            budgetForm.setBudget(budget);
+            cancelButton.getStyle().set("padding", "1rem");
+
+            Button editButton = new Button("Edit Budget", e -> {
+                editBudget(budget, dialog);
+            });
+            editButton.getStyle().set("padding", "1rem");
+            editButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+
+            dialog.getFooter().add(cancelButton, editButton);
             dialog.open();
         }
+    }
+
+    public void editBudget(Budget budget, Dialog dialog) {
+        if (budget == null) {
+            closeBudgetEditor();
+        } else {
+            configureForm();
+            dialog.close();
+            Dialog editBudgetDialog = new Dialog();
+            H1 header;
+            if (budget.getName() == null) { // create new budget
+                header = new H1("Create Budget");
+            } else {
+                header = new H1("Edit Budget");
+            }
+            header.getStyle().set("font-size", "xx-large").set("padding-left", "1rem").set("padding-top", "0.5rem");
+            editBudgetDialog.add(header);
+            budgetForm.setBudget(budget);
+            editBudgetDialog.add(budgetForm);
+            editBudgetDialog.getFooter().add(budgetForm.createButtonLayout(editBudgetDialog));
+
+            editBudgetDialog.open();
+        }
+
     }
 
     private Component getBudgetChart(Budget budget) {
@@ -267,8 +313,7 @@ public class BudgetListView extends Main implements HasComponents, HasStyle {
 
             return pieChart;
         } else {
-            return new HorizontalLayout(new Text("Problem w chart"));
+            return new Text("No transactions within the time frame of this budget.");
         }
-
     }
 }

@@ -8,14 +8,14 @@ import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.ValueContext;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import pk.wgu.capstone.data.entity.Category;
-import pk.wgu.capstone.data.entity.Role;
-import pk.wgu.capstone.data.entity.User;
+import pk.wgu.capstone.data.entity.*;
 import pk.wgu.capstone.data.service.PfmService;
 import pk.wgu.capstone.views.LoginView;
 import pk.wgu.capstone.views.forms.RegistrationForm;
 
-import java.util.List;
+import java.math.BigDecimal;
+import java.sql.Date;
+import java.time.LocalDate;
 
 public class RegistrationFormBinder {
 
@@ -59,9 +59,6 @@ public class RegistrationFormBinder {
             try {
                 User userBean = new User(); // new bean to store user info into
                 userBean.setRole(Role.USER);
-                List<Category> defaultCategories = service.findAllCategories().stream()
-                        .filter(category -> category.getDefault().equals(true))
-                        .toList();
 
                 binder.writeBean(userBean); // run validation and write the values to the bean
                 userBean.setPassword(passwordEncoder.encode(userBean.getPassword()));
@@ -69,12 +66,67 @@ public class RegistrationFormBinder {
 
                 service.addNewUser(userBean);// add the new user to the database
 
+                generateSampleTransactions(userBean);
+                generateSampleBudget(userBean);
+
                 showSuccess(userBean); // success message
             } catch (ValidationException exception) {
                 System.out.println("Validation exception: " + exception.getMessage());
                 exception.getValidationErrors().forEach(System.out::println);
             }
         });
+    }
+
+    private void generateSampleBudget(User newUser) {
+        Budget sampleBudget = new Budget(
+                "Example Budget",
+                Date.valueOf(LocalDate.now().minusDays(10)),
+                Date.valueOf(LocalDate.now().plusDays(3)),
+                BigDecimal.valueOf(350.00),
+                "See how Prospero budgets work with this example. " +
+                        "Customize or delete this budget to fit your own financial plans.",
+                newUser.getId());
+        sampleBudget.setDateCreated(Date.valueOf(LocalDate.now()));
+
+        service.saveBudget(sampleBudget);
+    }
+
+    private void generateSampleTransactions(User newUser) {
+        Transaction income = new Transaction(
+                Date.valueOf(LocalDate.now().minusDays(1)),
+                BigDecimal.valueOf(1000.00),
+                "Sample Income Transaction",
+                service.findCategoryByName("Bonus"),
+                Type.INCOME,
+                newUser.getId());
+        service.saveTransaction(income);
+
+        Transaction expense1 = new Transaction(
+                Date.valueOf(LocalDate.now().minusDays(2)),
+                BigDecimal.valueOf(95.00),
+                "Sample Expense Transaction",
+                service.findCategoryByName("Food"),
+                Type.EXPENSE,
+                newUser.getId());
+        service.saveTransaction(expense1);
+
+        Transaction expense2 = new Transaction(
+                Date.valueOf(LocalDate.now().minusDays(3)),
+                BigDecimal.valueOf(75.00),
+                "Sample Expense Transaction",
+                service.findCategoryByName("Utilities"),
+                Type.EXPENSE,
+                newUser.getId());
+        service.saveTransaction(expense2);
+
+        Transaction expense3 = new Transaction(
+                Date.valueOf(LocalDate.now().minusDays(4)),
+                BigDecimal.valueOf(30.00),
+                "Sample Expense Transaction",
+                service.findCategoryByName("Entertainment"),
+                Type.EXPENSE,
+                newUser.getId());
+        service.saveTransaction(expense3);
     }
 
     private ValidationResult emailValidator(String email, ValueContext valueContext) {
