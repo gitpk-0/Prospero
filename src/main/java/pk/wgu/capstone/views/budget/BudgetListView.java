@@ -51,8 +51,6 @@ public class BudgetListView extends Main implements HasComponents, HasStyle {
     private Dialog dialog;
     private Select<String> sortBy;
 
-    private boolean isSaving = false;
-
     BudgetForm budgetForm;
 
     public BudgetListView(SecurityService securityService, PfmService service) {
@@ -62,6 +60,7 @@ public class BudgetListView extends Main implements HasComponents, HasStyle {
 
         generateUI();
         configureBudgetCards();
+
     }
 
     private void generateUI() {
@@ -90,8 +89,6 @@ public class BudgetListView extends Main implements HasComponents, HasStyle {
 
         sortBy = new Select<>();
         sortBy.setLabel("Sort by");
-        // sortBy.setItems("Newest to oldest", "Oldest to newest", "Sort A → Z", "Sort Z → A",
-        //         "Start Date →", "← Start Date", "End Date →", "← End Date");
         sortBy.setItems("Newest to oldest", "Oldest to newest",
                 "Start Date →", "← Start Date", "End Date →", "← End Date");
         sortBy.setValue("Newest to oldest");
@@ -120,62 +117,30 @@ public class BudgetListView extends Main implements HasComponents, HasStyle {
         );
     }
 
+    private void sortBudgets(List<BudgetListViewCard> budgetListViewCards, String sortOption) {
+        if (sortOption.equals("Newest to oldest")) {
+            budgetListViewCards.sort(Comparator.comparing(card -> card.getBudget().getDateCreated()));
+            Collections.reverse(budgetListViewCards);
+        } else if (sortOption.equals("Oldest to newest")) {
+            budgetListViewCards.sort(Comparator.comparing(card -> card.getBudget().getDateCreated()));
+        } else if (sortOption.equals("Start Date →")) {
+            budgetListViewCards.sort(Comparator.comparing(card -> card.getBudget().getStart()));
+        } else if (sortOption.equals("← Start Date")) {
+            budgetListViewCards.sort(Comparator.comparing(card -> card.getBudget().getStart()));
+            Collections.reverse(budgetListViewCards);
+        } else if (sortOption.equals("End Date →")) {
+            budgetListViewCards.sort(Comparator.comparing(card -> card.getBudget().getEnd()));
+        } else if (sortOption.equals("← End Date")) {
+            budgetListViewCards.sort(Comparator.comparing(card -> card.getBudget().getEnd()));
+            Collections.reverse(budgetListViewCards);
+        }
+    }
+
     private void sortBudgets(Select<String> sortBy) {
-        if (sortBy.getValue().equals("Newest to oldest")) {
-            // Sort the list based on the dateCreated field
-            budgetListViewCards.sort(Comparator.comparing(card -> card.getBudget().getDateCreated()));
-            Collections.reverse(budgetListViewCards); // reverse the list order
-            budgetContainer.removeAll(); // Clear the items from the OrderedList
-            budgetListViewCards.forEach(budgetContainer::add); // Add the sorted items back to the OrderedList
-        }
-        if (sortBy.getValue().equals("Oldest to newest")) {
-            // Sort the list based on the dateCreated field
-            budgetListViewCards.sort(Comparator.comparing(card -> card.getBudget().getDateCreated()));
-            // Collections.reverse(budgetListViewCards); // reverse the list order
-            budgetContainer.removeAll(); // Clear the items from the OrderedList
-            budgetListViewCards.forEach(budgetContainer::add); // Add the reverse sorted items back to the OrderedList
-        }
-
-        // if (sortBy.getValue().equals("Sort A → Z")) {
-        //     budgetListViewCards.sort(Comparator.comparing(card -> card.getBudget().getName()));
-        //     budgetContainer.removeAll(); // Clear the items from the OrderedList
-        //     budgetListViewCards.forEach(budgetContainer::add); // Add the reverse sorted items back to the OrderedList
-        // }
-        //
-        // if (sortBy.getValue().equals("Sort Z → A")) {
-        //     budgetListViewCards.sort(Comparator.comparing(card -> card.getBudget().getName()));
-        //     Collections.reverse(budgetListViewCards); // reverse the list order
-        //     budgetContainer.removeAll(); // Clear the items from the OrderedList
-        //     budgetListViewCards.forEach(budgetContainer::add); // Add the reverse sorted items back to the OrderedList
-        // }
-
-        if (sortBy.getValue().equals("Start Date →")) {
-            budgetListViewCards.sort(Comparator.comparing(card -> card.getBudget().getStart()));
-            // Collections.reverse(budgetListViewCards); // reverse the list order
-            budgetContainer.removeAll(); // Clear the items from the OrderedList
-            budgetListViewCards.forEach(budgetContainer::add); // Add the reverse sorted items back to the OrderedList
-        }
-
-        if (sortBy.getValue().equals("← Start Date")) {
-            budgetListViewCards.sort(Comparator.comparing(card -> card.getBudget().getStart()));
-            Collections.reverse(budgetListViewCards); // reverse the list order
-            budgetContainer.removeAll(); // Clear the items from the OrderedList
-            budgetListViewCards.forEach(budgetContainer::add); // Add the reverse sorted items back to the OrderedList
-        }
-
-        if (sortBy.getValue().equals("End Date →")) {
-            budgetListViewCards.sort(Comparator.comparing(card -> card.getBudget().getEnd()));
-            // Collections.reverse(budgetListViewCards); // reverse the list order
-            budgetContainer.removeAll(); // Clear the items from the OrderedList
-            budgetListViewCards.forEach(budgetContainer::add); // Add the reverse sorted items back to the OrderedList
-        }
-
-        if (sortBy.getValue().equals("← End Date")) {
-            budgetListViewCards.sort(Comparator.comparing(card -> card.getBudget().getEnd()));
-            Collections.reverse(budgetListViewCards); // reverse the list order
-            budgetContainer.removeAll(); // Clear the items from the OrderedList
-            budgetListViewCards.forEach(budgetContainer::add); // Add the reverse sorted items back to the OrderedList
-        }
+        String sortOption = sortBy.getValue();
+        sortBudgets(budgetListViewCards, sortOption);
+        budgetContainer.removeAll();
+        budgetListViewCards.forEach(budgetContainer::add);
     }
 
     private void configureBudgetCards() {
@@ -200,15 +165,11 @@ public class BudgetListView extends Main implements HasComponents, HasStyle {
             });
             budgetListViewCards.add(card);
         });
+        Collections.reverse(budgetListViewCards); // newest created to oldest
 
         for (BudgetListViewCard card : budgetListViewCards) {
             budgetContainer.add(card);
         }
-
-        sortBy.setValue("Newest to Oldest");
-        sortBudgets(sortBy);
-        sortBy.setValue("Newest to Oldest");
-
     }
 
 

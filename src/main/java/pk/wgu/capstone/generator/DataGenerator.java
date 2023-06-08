@@ -16,6 +16,7 @@ import pk.wgu.capstone.data.repository.UserRepository;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -156,7 +157,7 @@ public class DataGenerator {
 
             int i = 0;
             for (Budget b : budgets) {
-                b.setDateCreated(Date.valueOf(LocalDate.now().minusDays(50).plusDays(i)));
+                b.setDateCreated(LocalDateTime.now().minusDays(50).plusDays(i));
                 i++;
                 i++;
             }

@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.time.LocalDateTime;
 
 @Entity(name = "budgets")
 public class Budget extends AbstractEntity {
@@ -20,7 +21,7 @@ public class Budget extends AbstractEntity {
     private Date end;
 
     @NotNull
-    private Date dateCreated;
+    private LocalDateTime dateCreated;
 
     @NotNull
     private BigDecimal spendingGoal;
@@ -91,11 +92,11 @@ public class Budget extends AbstractEntity {
         this.userId = usedId;
     }
 
-    public Date getDateCreated() {
+    public LocalDateTime getDateCreated() {
         return dateCreated;
     }
 
-    public void setDateCreated(Date dateCreated) {
+    public void setDateCreated(LocalDateTime dateCreated) {
         this.dateCreated = dateCreated;
     }
 }

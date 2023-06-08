@@ -16,6 +16,7 @@ import pk.wgu.capstone.views.forms.RegistrationForm;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class RegistrationFormBinder {
 
@@ -86,7 +87,7 @@ public class RegistrationFormBinder {
                 "See how Prospero budgets work with this example. " +
                         "Customize or delete this budget to fit your own financial plans.",
                 newUser.getId());
-        sampleBudget.setDateCreated(Date.valueOf(LocalDate.now()));
+        sampleBudget.setDateCreated(LocalDateTime.now());
 
         service.saveBudget(sampleBudget);
     }

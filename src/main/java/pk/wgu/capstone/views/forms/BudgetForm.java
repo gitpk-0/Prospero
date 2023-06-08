@@ -23,8 +23,8 @@ import pk.wgu.capstone.security.SecurityService;
 import pk.wgu.capstone.views.budget.BudgetListView;
 
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class BudgetForm extends FormLayout {
@@ -222,7 +222,7 @@ public class BudgetForm extends FormLayout {
     private void saveBudget(SaveEvent saveEvent) {
         Budget budget = saveEvent.getBudget();
         if (budget.getDateCreated() == null) {
-            budget.setDateCreated(Date.valueOf(LocalDate.now()));
+            budget.setDateCreated(LocalDateTime.now());
         }
         service.saveBudget(budget);
         budgetListView.updateBudgetList();
