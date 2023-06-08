@@ -127,7 +127,7 @@ public class DataGenerator {
 
             List<Budget> budgets = new ArrayList<>();
             budgets.add(new Budget(
-                    "June Budget",
+                    "June Budget - oldest",
                     Date.valueOf(LocalDate.now().minusDays(1)),
                     Date.valueOf(LocalDate.now().plusDays(3)),
                     BigDecimal.valueOf(500L),
@@ -137,7 +137,7 @@ public class DataGenerator {
 
 
             budgets.add(new Budget(
-                    "July Budget",
+                    "July Budget - mid",
                     Date.valueOf(LocalDate.now().plusMonths(1)),
                     Date.valueOf(LocalDate.now().plusMonths(1).plusDays(3)),
                     BigDecimal.valueOf(700L),
@@ -145,8 +145,20 @@ public class DataGenerator {
                     user1.getId()
             ));
 
+            budgets.add(new Budget(
+                    "August Budget - youngest",
+                    Date.valueOf(LocalDate.now().plusMonths(2)),
+                    Date.valueOf(LocalDate.now().plusMonths(2).plusDays(3)),
+                    BigDecimal.valueOf(900L),
+                    "third budget",
+                    user1.getId()
+            ));
+
+            int i = 0;
             for (Budget b : budgets) {
-                b.setDateCreated(Date.valueOf(LocalDate.now()));
+                b.setDateCreated(Date.valueOf(LocalDate.now().minusDays(50).plusDays(i)));
+                i++;
+                i++;
             }
 
             budgetRepository.saveAll(budgets);

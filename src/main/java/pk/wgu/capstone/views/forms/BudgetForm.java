@@ -2,7 +2,6 @@ package pk.wgu.capstone.views.forms;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
-import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -16,14 +15,15 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.shared.Registration;
 import pk.wgu.capstone.data.converter.BigDecimalToDoubleConverter;
 import pk.wgu.capstone.data.converter.SqlDateToLocalDateConverter;
 import pk.wgu.capstone.data.entity.Budget;
 import pk.wgu.capstone.data.service.PfmService;
 import pk.wgu.capstone.security.SecurityService;
+import pk.wgu.capstone.views.budget.BudgetListView;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -31,6 +31,7 @@ public class BudgetForm extends FormLayout {
 
     private SecurityService securityService;
     private PfmService service;
+    private BudgetListView budgetListView;
 
     Binder<Budget> budgetBinder = new BeanValidationBinder<>(Budget.class);
 
@@ -58,6 +59,7 @@ public class BudgetForm extends FormLayout {
 
         dollarPrefix.setText("$");
         spendingGoal.setPrefixComponent(dollarPrefix);
+        endDatePick.setHelperText("Must be after start date");
 
         budgetBinder.forField(budgetName)
                 .withValidator(Objects::nonNull, "Budget name is required")
@@ -96,6 +98,13 @@ public class BudgetForm extends FormLayout {
 
         budgetBinder.bindInstanceFields(this);
 
+        // setDatePickerValues();
+        startDatePick.addValueChangeListener(e -> {
+            if (startDatePick.getValue() != null) {
+                endDatePick.setMin(startDatePick.getValue().plusDays(1));
+            }
+        });
+
         description.setPlaceholder("Enter a description");
 
         add(
@@ -117,7 +126,13 @@ public class BudgetForm extends FormLayout {
         return budgetBinder.getBean();
     }
 
-    public Component createButtonLayout(Dialog dialog) {
+    public void setDatePickerValues() {
+        startDatePick.setValue(LocalDate.now());
+        endDatePick.setValue(LocalDate.now().plusWeeks(1));
+        endDatePick.setMin(startDatePick.getValue().plusDays(1));
+    }
+
+    public Component editBudgetButtonLayout(Dialog dialog) {
         // set theme variants for buttons
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
@@ -125,8 +140,9 @@ public class BudgetForm extends FormLayout {
 
         // add click listeners to buttons
         save.addClickListener(event -> {
-            validateAndSave();
-            dialog.close();
+            if (validateAndSave()) {
+                dialog.close();
+            }
         });
 
         delete.addClickListener(event -> {
@@ -135,7 +151,6 @@ public class BudgetForm extends FormLayout {
         });
 
         cancel.addClickListener(event -> {
-            fireEvent(new BudgetForm.CloseEvent(this));
             dialog.close();
         });
 
@@ -144,6 +159,29 @@ public class BudgetForm extends FormLayout {
         cancel.addClickShortcut(Key.ESCAPE);
 
         return new HorizontalLayout(save, delete, cancel);
+    }
+
+    public Component createNewBudgetButtonLayout(Dialog dialog) {
+        // set theme variants for buttons
+        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+
+        // add click listeners to buttons
+        save.addClickListener(event -> {
+            if (validateAndSave()) {
+                dialog.close();
+            }
+        });
+
+        cancel.addClickListener(event -> {
+            dialog.close();
+        });
+
+        // add keyboard shortcuts to buttons
+        save.addClickShortcut(Key.ENTER);
+        cancel.addClickShortcut(Key.ESCAPE);
+
+        return new HorizontalLayout(save, cancel);
     }
 
     private void confirmDeleteDialog(Dialog dialog) {
@@ -157,18 +195,46 @@ public class BudgetForm extends FormLayout {
         confirmDelete.setConfirmText("Delete");
         confirmDelete.setConfirmButtonTheme("error primary");
         confirmDelete.addConfirmListener(e -> {
-            fireEvent(new BudgetForm.DeleteEvent(this, budgetBinder.getBean()));
+            deleteBudget(new DeleteEvent(this, budgetBinder.getBean()));
             dialog.close();
         });
         confirmDelete.open();
     }
 
-    private void validateAndSave() {
+    public boolean validateAndSave() {
         if (budgetBinder.isValid()) {
             Budget budget = budgetBinder.getBean();
             budget.setUserId(securityService.getCurrentUserId(service));
-            fireEvent(new BudgetForm.SaveEvent(this, budget));
+            saveBudget(new BudgetForm.SaveEvent(this, budget));
+            fireEvent(new BudgetForm.CloseEvent(this));
+            budgetListView.closeDialog();
+            return true;
+        } else {
+            ConfirmDialog confirmDialog = new ConfirmDialog();
+            confirmDialog.setHeader("Error creating budget");
+            confirmDialog.setText("Please make sure all fields are filled out properly.");
+            confirmDialog.setConfirmText("OK");
+            confirmDialog.open();
         }
+        return false;
+    }
+
+    private void saveBudget(SaveEvent saveEvent) {
+        Budget budget = saveEvent.getBudget();
+        if (budget.getDateCreated() == null) {
+            budget.setDateCreated(Date.valueOf(LocalDate.now()));
+        }
+        service.saveBudget(budget);
+        budgetListView.updateBudgetList();
+    }
+
+    private void deleteBudget(BudgetForm.DeleteEvent deleteEvent) {
+        service.deleteBudget(deleteEvent.getBudget());
+        budgetListView.updateBudgetList();
+    }
+
+    public void setBudgetListView(BudgetListView budgetListView) {
+        this.budgetListView = budgetListView;
     }
 
     // Events
@@ -208,18 +274,4 @@ public class BudgetForm extends FormLayout {
 
     }
 
-
-    public Registration addSaveListener(ComponentEventListener<BudgetForm.SaveEvent> listener) {
-        return addListener(BudgetForm.SaveEvent.class, listener);
-    }
-
-
-    public Registration addDeleteListener(ComponentEventListener<BudgetForm.DeleteEvent> listener) {
-        return addListener(BudgetForm.DeleteEvent.class, listener);
-    }
-
-
-    public Registration addCloseListener(ComponentEventListener<BudgetForm.CloseEvent> listener) {
-        return addListener(BudgetForm.CloseEvent.class, listener);
-    }
 }

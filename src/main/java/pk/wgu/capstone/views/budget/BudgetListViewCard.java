@@ -19,7 +19,10 @@ public class BudgetListViewCard extends ListItem {
     SimpleDateFormat dateFormatter = new SimpleDateFormat("E, MMM d, yyyy");
     NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
 
+    public Budget budget;
+
     public BudgetListViewCard(Budget budget, Double progress, String status, BigDecimal expenses) {
+        this.budget = budget;
         addClassNames(LumoUtility.Background.CONTRAST_5, LumoUtility.Display.FLEX, LumoUtility.FlexDirection.COLUMN,
                 LumoUtility.AlignItems.START, LumoUtility.Padding.MEDIUM, LumoUtility.BorderRadius.LARGE);
 
@@ -131,5 +134,13 @@ public class BudgetListViewCard extends ListItem {
                 progressLayout
         );
 
+    }
+
+    public Budget getBudget() {
+        return budget;
+    }
+
+    public void setBudget(Budget budget) {
+        this.budget = budget;
     }
 }
