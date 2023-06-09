@@ -1,37 +1,91 @@
-/*narrow screens*/
 @media all and (max-width: 900px) {
+    /*!* narrow screens *!*/
     .list-view.editing .toolbar,
     .list-view.editing .transaction-grid {
         display: none;
+    }
+
+    .drawer-header {
+        align-items: center;
+        justify-content: center;
+        margin-top: 1em;
+        margin-bottom: 1em;
+    }
+
+    .drawer-logo {
+        width: 2rem;
+        height: 2rem;
+    }
+    .drawer-app-name {
+        font-size: x-large;
+        font-family: system-ui;
+    }
+
+    .logo {
+        width: 2rem;
+        height: 2rem;
+    }
+
+    .app-name {
+        display: none;
+    }
+
+    .drawer-toggle {
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 1.5rem;
+    }
+
+    .logout-btn {
+        justify-content: center;
+        margin: auto 2rem 2rem 2rem;
+    }
+}
+
+@media all and (max-width: 370px) { /* very small screen */
+    .filter-text { /* make filter text box smaller */
+        width: 11rem;
     }
 }
 
 a[highlight] {
     font-weight: bold;
-    text-decoration: underline;
+    text-decoration: none;
 }
 
-.logo-image {
-    width: 50px;
-    height: 50px;
+.logo {
+    width: 3em;
+    height: 3em;
 }
-
-.logo-image-login {
-    width: 90px;
-    height: 90px;
-}
-
-.app {
-    margin-bottom: -15px;
-}
-
-.btn-large {
-    padding: 8px 16px;
-    font-size: 18px;
-}
-
 .drawer-toggle {
-    width: 40px;
-    height: 40px;
-    font-size: 24px;
+    width: 2rem;
+    height: 2rem;
+    font-size: 1.5rem;
+}
+
+
+/*.vaadin-app-layout::part(drawer) {*/
+/*    width: 18rem;*/
+/*}*/
+
+.app-name {
+    font-family: system-ui;
+}
+
+.logout-btn {
+    justify-content: center;
+    margin: auto 2rem 2rem 2rem;
+}
+
+.page-header {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+@media all and (min-width: 900px) {
+    .drawer-header { /* hide the logo and app name in drawer header for large screens */
+        display: none;
+    }
 }

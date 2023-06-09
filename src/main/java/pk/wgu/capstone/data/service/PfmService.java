@@ -107,7 +107,7 @@ public class PfmService { // Personal Finance Management Service
         categoryRepository.updateCustomCategoryUserIds(categoryId, userId);
     }
 
-    public List<Budget> getBudgetsByUserId(Long userId) {
+    public List<pk.wgu.capstone.data.entity.Budget> getBudgetsByUserId(Long userId) {
         return budgetRepository.getBudgetsByUserId(userId);
     }
 

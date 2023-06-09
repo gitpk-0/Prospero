@@ -15,10 +15,10 @@ public class Budget extends AbstractEntity {
     private String name;
 
     @NotNull
-    private Date start;
+    private Date startDate;
 
     @NotNull
-    private Date end;
+    private Date endDate;
 
     @NotNull
     private LocalDateTime dateCreated;
@@ -29,19 +29,21 @@ public class Budget extends AbstractEntity {
     @NotEmpty
     private String description;
 
+    @NotNull
     private Long userId;
 
     public Budget() {
     }
 
     public Budget(String name, Date start, Date end, BigDecimal spendingGoal,
-                  String description, Long userId) {
+                  String description, Long userId, LocalDateTime dateCreated) {
         this.name = name;
-        this.start = start;
-        this.end = end;
+        this.startDate = start;
+        this.endDate = end;
         this.spendingGoal = spendingGoal;
         this.description = description;
         this.userId = userId;
+        this.dateCreated = dateCreated;
     }
 
     public String getName() {
@@ -53,19 +55,19 @@ public class Budget extends AbstractEntity {
     }
 
     public Date getStart() {
-        return start;
+        return startDate;
     }
 
     public void setStart(Date start) {
-        this.start = start;
+        this.startDate = start;
     }
 
     public Date getEnd() {
-        return end;
+        return endDate;
     }
 
     public void setEnd(Date end) {
-        this.end = end;
+        this.endDate = end;
     }
 
     public BigDecimal getSpendingGoal() {

@@ -125,6 +125,7 @@ public class DataGenerator {
                 logger.info(transaction.toString());
                 transactions.add(transaction);
             }
+            logger.info("transactions created");
 
             List<Budget> budgets = new ArrayList<>();
             budgets.add(new Budget(
@@ -133,7 +134,8 @@ public class DataGenerator {
                     Date.valueOf(LocalDate.now().plusDays(3)),
                     BigDecimal.valueOf(500L),
                     "first budget",
-                    user1.getId()
+                    user1.getId(),
+                    LocalDateTime.now()
             ));
 
 
@@ -143,7 +145,8 @@ public class DataGenerator {
                     Date.valueOf(LocalDate.now().plusMonths(1).plusDays(3)),
                     BigDecimal.valueOf(700L),
                     "second budget",
-                    user1.getId()
+                    user1.getId(),
+                    LocalDateTime.now()
             ));
 
             budgets.add(new Budget(
@@ -152,20 +155,29 @@ public class DataGenerator {
                     Date.valueOf(LocalDate.now().plusMonths(2).plusDays(3)),
                     BigDecimal.valueOf(900L),
                     "third budget",
-                    user1.getId()
+                    user1.getId(),
+                    LocalDateTime.now()
             ));
 
-            int i = 0;
-            for (Budget b : budgets) {
-                b.setDateCreated(LocalDateTime.now().minusDays(50).plusDays(i));
-                i++;
-                i++;
-            }
+            logger.info("budgets created");
 
-            budgetRepository.saveAll(budgets);
+            // int i = 0;
+            // for (Budget b : budgets) {
+            //     b.setDateCreated(LocalDateTime.now().minusDays(50).plusDays(i));
+            //     i++;
+            //     i++;
+            // }
+
+
+
             categoryRepository.saveAll(categories);
+            logger.info("categoryRepository saved");
             transactionRepository.saveAll(transactions);
+            logger.info("transactionRepository saved");
             userRepository.saveAll(users);
+            logger.info("userRepository saved");
+            budgetRepository.saveAll(budgets);
+            logger.info("budgetRepository saved");
 
 
             logger.info("Generated demo data");

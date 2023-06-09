@@ -86,8 +86,8 @@ public class RegistrationFormBinder {
                 BigDecimal.valueOf(350.00),
                 "See how Prospero budgets work with this example. " +
                         "Customize or delete this budget to fit your own financial plans.",
-                newUser.getId());
-        sampleBudget.setDateCreated(LocalDateTime.now());
+                newUser.getId(),
+                LocalDateTime.now());
 
         service.saveBudget(sampleBudget);
     }

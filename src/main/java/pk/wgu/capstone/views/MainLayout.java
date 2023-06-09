@@ -19,6 +19,10 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.theme.lumo.Lumo;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
+import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import pk.wgu.capstone.data.service.PfmService;
 import pk.wgu.capstone.security.SecurityService;
 import pk.wgu.capstone.views.budget.BudgetListView;
@@ -134,7 +138,8 @@ public class MainLayout extends AppLayout {
         tabs.add(
                 createTab(VaadinIcon.LIST, "Transactions", TransactionView.class),
                 createTab(VaadinIcon.CHART, "Income vs. Expenses", IncomeVsExpenseView.class),
-                createTab(VaadinIcon.ABACUS, "Budgets", BudgetListView.class)
+                createTab(VaadinIcon.ABACUS, "Budgets", BudgetListView.class),
+                createTab(VaadinIcon.DOWNLOAD, "Export Data", ExportDataView.class)
         );
         tabs.setOrientation(Tabs.Orientation.VERTICAL);
 
@@ -161,3 +166,4 @@ public class MainLayout extends AppLayout {
         getElement().executeJs(js, dark ? Lumo.DARK : Lumo.LIGHT);
     }
 }
+
