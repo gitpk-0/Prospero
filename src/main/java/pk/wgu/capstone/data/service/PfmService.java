@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @EnableTransactionManagement
@@ -34,12 +35,8 @@ public class PfmService { // Personal Finance Management Service
         this.budgetRepository = budgetRepository;
     }
 
-    public List<Transaction> findAllTransactions(Long userId, String filterText) {
-        if (filterText == null || filterText.isEmpty()) {
-            return transactionRepository.findAllByUserId(userId);
-        } else {
-            return transactionRepository.searchByUserIdAndDescription(userId, filterText);
-        }
+    public List<Transaction> findAllTransactions(Long userId) {
+        return transactionRepository.findAllByUserId(userId);
     }
 
     public long countTransactionsByUser(Long userId) {
@@ -129,5 +126,52 @@ public class PfmService { // Personal Finance Management Service
 
     public List<Object[]> sumTransactionsInDateRangeByCategory(Long userId, Type type, Date start, Date end) {
         return transactionRepository.sumTransactionsInDateRangeByCategory(userId, type, start, end);
+    }
+
+    public List<Transaction> getFilteredTransactions(Long userId, String searchTerm, Date startDate, Date endDate,
+                                                     String category, String type) {
+        List<Transaction> transactions = transactionRepository.findAllByUserId(userId);
+
+        // Perform filtering based on the provided criteria
+        List<Transaction> filteredTransactions = transactions.stream()
+                .filter(transaction -> {
+                    // Filter by description (case-insensitive)
+                    if (searchTerm != null && !searchTerm.isEmpty()) {
+                        String lowerSearchTerm = searchTerm.toLowerCase();
+                        String lowerDescription = transaction.getDescription().toLowerCase();
+                        if (!lowerDescription.contains(lowerSearchTerm)) {
+                            return false;
+                        }
+                    }
+
+                    // Filter by date range
+                    if (startDate != null && endDate != null) {
+                        Date transactionDate = transaction.getDate();
+                        if (transactionDate.before(startDate) || transactionDate.after(endDate)) {
+                            return false;
+                        }
+                    }
+
+                    // Filter by category
+                    if (category != null && !category.isEmpty()) {
+                        String transactionCategory = transaction.getCategory().getName();
+                        if (!transactionCategory.equals(category)) {
+                            return false;
+                        }
+                    }
+
+                    // Filter by type
+                    if (type != null && !type.isEmpty()) {
+                        String transactionType = transaction.getType().toString().toLowerCase();
+                        if (!transactionType.equals(type.toLowerCase())) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                })
+                .collect(Collectors.toList());
+
+        return filteredTransactions;
     }
 }

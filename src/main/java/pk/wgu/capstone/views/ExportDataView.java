@@ -47,7 +47,7 @@ public class ExportDataView extends VerticalLayout {
 
         Long userId = securityService.getCurrentUserId(service);
 
-        List<Transaction> transactions = service.findAllTransactions(userId, null);
+        List<Transaction> transactions = service.findAllTransactions(userId);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {

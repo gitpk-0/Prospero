@@ -3,9 +3,7 @@ package pk.wgu.capstone.views;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.StyleSheet;
@@ -23,12 +21,13 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.NumberRenderer;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
@@ -43,12 +42,12 @@ import pk.wgu.capstone.data.service.PfmService;
 import pk.wgu.capstone.security.SecurityService;
 import pk.wgu.capstone.views.forms.TransactionForm;
 
+import java.sql.Date;
 import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @SpringComponent
 @Scope("prototype")
@@ -72,6 +71,13 @@ public class TransactionView extends Div {
 
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("E, MMM d, yyyy");
 
+    // Filters
+    private final TextField description = new TextField("Name");
+    private final DatePicker startDate = new DatePicker("Transaction Date");
+    private final DatePicker endDate = new DatePicker();
+    private final Select<String> categorySelect = new Select<>();
+    private final RadioButtonGroup<String> types = new RadioButtonGroup<>("Type");
+
     public TransactionView(SecurityService securityService, PfmService service) {
         addClassNames("transaction-view");
         this.securityService = securityService;
@@ -94,25 +100,8 @@ public class TransactionView extends Div {
                 getContent()
         );
 
-        updateList();
+        updateList(false);
         closeTransactionEditor();
-    }
-
-    // Search bar
-    private Component getSearchbar() {
-        filterText.setPlaceholder("Filter by description...");
-        filterText.addClassName("filter-text");
-        filterText.setClearButtonVisible(true);
-        filterText.setValueChangeMode(ValueChangeMode.LAZY); // prevents the database from being hit with every keystroke
-        filterText.addValueChangeListener(e -> updateList());
-
-        Button addTransactionButton = new Button("Add Transaction");
-        addTransactionButton.addClickListener(e -> addTransaction());
-
-        HorizontalLayout toolbar = new HorizontalLayout(filterText, addTransactionButton);
-        toolbar.addClassName("toolbar");
-
-        return toolbar;
     }
 
     // Page content - grid and transaction form
@@ -160,9 +149,28 @@ public class TransactionView extends Div {
         grid.asSingleSelect().addValueChangeListener(e -> editTransaction(e.getValue()));
     }
 
-    private void updateList() {
+    private void updateList(boolean filterList) {
         Long userId = securityService.getCurrentUserId(service);
-        grid.setItems(service.findAllTransactions(userId, filterText.getValue()));
+
+
+        if (filterList) {
+            // filter transactions grid based on the provided filter values
+            List<Transaction> filteredTransactions = service.getFilteredTransactions(
+                    userId,
+                    description.getValue() == null ? null : description.getValue().trim(),
+                    startDate.getValue() == null ? null : Date.valueOf(startDate.getValue()),
+                    endDate.getValue() == null ? null : Date.valueOf(endDate.getValue()),
+                    categorySelect.getValue() == null ? null : categorySelect.getValue(),
+                    types.getValue() == null ? null : types.getValue()
+            );
+            grid.setItems(filteredTransactions);
+        } else {
+            // return all transactions for the current user
+            grid.setItems(service.findAllTransactions(userId));
+            resetFilterFields();
+        }
+
+
     }
 
     private void sortGrid() {
@@ -195,13 +203,13 @@ public class TransactionView extends Div {
 
     private void saveTransaction(TransactionForm.SaveEvent saveEvent) {
         service.saveTransaction(saveEvent.getTransaction());
-        updateList();
+        updateList(false);
         closeTransactionEditor();
     }
 
     private void deleteTransaction(TransactionForm.DeleteEvent deleteEvent) {
         service.deleteTransaction(deleteEvent.getTransaction());
-        updateList();
+        updateList(false);
         closeTransactionEditor();
     }
 
@@ -421,16 +429,14 @@ public class TransactionView extends Div {
         }
     }
 
-    // Filters
-    // public static class Filters extends Div implements Specification<Transaction> {
-
-    private final TextField description = new TextField("Name");
-    private final DatePicker startDate = new DatePicker("Transaction Date");
-    private final DatePicker endDate = new DatePicker();
-    private final MultiSelectComboBox<String> categories = new MultiSelectComboBox<>("Category");
-    private final CheckboxGroup<String> types = new CheckboxGroup<>("Type");
 
     private Component createFilterLayout() {
+
+        startDate.addValueChangeListener(e -> {
+            if (startDate.getValue() != null) {
+                endDate.setMin(startDate.getValue().plusDays(1));
+            }
+        });
 
         Div filterDiv = new Div();
         filterDiv.setWidthFull();
@@ -439,34 +445,63 @@ public class TransactionView extends Div {
                 LumoUtility.BoxSizing.BORDER);
         description.setPlaceholder("Description");
 
-        List<String> categoryNames = service.findAllCategories()
-                .stream().map(Category::getName).collect(Collectors.toList());
-        categories.setItems(categoryNames);
+
+        categorySelect.setItems(getCategoryNames(null));
 
         types.setItems("Income", "Expense");
         types.addClassName("double-width");
 
+        types.addValueChangeListener(e -> {
+            if (types.getValue() != null) {
+                categorySelect.clear();
+                if (Objects.equals(types.getValue(), "Income")) {
+                    categorySelect.setItems(getCategoryNames("Income"));
+                } else if (Objects.equals(types.getValue(), "Expense")) {
+                    categorySelect.setItems(getCategoryNames("Expense"));
+                }
+            }
+        });
+
         // Action buttons
         Button resetBtn = new Button("Reset");
         resetBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        resetBtn.addClickListener(e -> {
-            description.clear();
-            startDate.clear();
-            endDate.clear();
-            categories.clear();
-            types.clear();
-            // onSearch.run();
-        });
+        resetBtn.addClickListener(e -> resetFilterFields());
+
         Button searchBtn = new Button("Search");
         searchBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        searchBtn.addClickListener(e -> updateList());
+        searchBtn.addClickListener(e -> updateList(true));
 
-        Div actions = new Div(resetBtn, searchBtn);
+        Button addTransactionBtn = new Button("Add Transaction");
+        addTransactionBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        addTransactionBtn.getStyle().set("--lumo-primary-color", "green");
+        addTransactionBtn.addClickListener(e -> addTransaction());
+
+        Div actions = new Div(resetBtn, searchBtn, addTransactionBtn);
         actions.addClassName(LumoUtility.Gap.SMALL);
         actions.addClassName("actions");
 
-        filterDiv.add(description, createDateRangeFilter(), categories, types, actions);
+        filterDiv.add(description, createDateRangeFilter(), categorySelect, types, actions);
         return filterDiv;
+    }
+
+    private List<String> getCategoryNames(String filterByType) {
+        Long userId = securityService.getCurrentUserId(service);
+        List<Category> allUserCategories = service.findAllCategories().stream()
+                .filter(c -> c.isDefaultCategory() || c.hasUserId(userId))
+                .filter(c -> filterByType == null || c.getType().toString().equalsIgnoreCase(filterByType))
+                .distinct()
+                .toList();
+
+        return allUserCategories.stream().map(Category::getName).distinct().toList();
+    }
+
+    private void resetFilterFields() {
+        description.clear();
+        startDate.clear();
+        endDate.clear();
+        categorySelect.clear();
+        types.clear();
+        categorySelect.setItems(getCategoryNames(null));
     }
 
 
