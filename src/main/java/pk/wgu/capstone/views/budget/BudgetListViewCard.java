@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 
-@CssImport(value = "./styles/budget-card.css")
+@CssImport(value = "./themes/prospero/views/budget-card.css")
 public class BudgetListViewCard extends ListItem {
 
     SimpleDateFormat dateFormatter = new SimpleDateFormat("E, MMM d, yyyy");

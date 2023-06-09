@@ -161,11 +161,11 @@
  "bundleImports": [
   "@vaadin/vaadin-themable-mixin",
   "Frontend/themes/prospero/prospero-charts.css",
-  "Frontend/styles/i-v-e-grids.css",
-  "Frontend/styles/login-form.css",
+  "Frontend/themes/prospero/views/i-v-e-grids.css",
+  "Frontend/themes/prospero/views/login-form.css",
   "Frontend/themes/prospero/views/budget-list-view.css",
-  "Frontend/styles/budget-card.css",
-  "Frontend/styles/registration-form.css",
+  "Frontend/themes/prospero/views/budget-card.css",
+  "Frontend/themes/prospero/views/registration-form.css",
   "@vaadin/grid/theme/lumo/vaadin-grid.js",
   "@vaadin/tooltip/theme/lumo/vaadin-tooltip.js",
   "@vaadin/grid/theme/lumo/vaadin-grid-column.js",
@@ -264,11 +264,11 @@
  ],
  "frontendHashes": {
   "themes/prospero/prospero-charts.css": "f0845d20b39bfe955eb5e0d8a4d77955983bc4140726d08d48b66285c0c69fce",
-  "styles/i-v-e-grids.css": "41fdc168f78bf5b824e53c8c06e24faf4299ac79ba0e62820f82598d6dfc48da",
-  "styles/login-form.css": "390084932bf182075c9ef5da786240d8198bd66de08cb582dc0ea699e50c3801",
-  "themes/prospero/views/budget-list-view.css": "aad93fcf8d6887a0075739268ad924513184ceed78ab0bd7742723f8aae398ad",
-  "styles/budget-card.css": "9b50bf2c5d5d8c9def7e9867e96a730bc4e576d0976eb883dda976b3d881687c",
-  "styles/registration-form.css": "15839839fb479acd42f0e81c0faa4bfeccd99561917318e3c7d040b942676971",
+  "themes/prospero/views/i-v-e-grids.css": "41fdc168f78bf5b824e53c8c06e24faf4299ac79ba0e62820f82598d6dfc48da",
+  "themes/prospero/views/login-form.css": "390084932bf182075c9ef5da786240d8198bd66de08cb582dc0ea699e50c3801",
+  "themes/prospero/views/budget-list-view.css": "7cec680e74dc1a1c88c44a14e9a188ca84dad34ac6f6e83be7f83ffd3711503b",
+  "themes/prospero/views/budget-card.css": "9b50bf2c5d5d8c9def7e9867e96a730bc4e576d0976eb883dda976b3d881687c",
+  "themes/prospero/views/registration-form.css": "15839839fb479acd42f0e81c0faa4bfeccd99561917318e3c7d040b942676971",
   "comboBoxConnector.js": "1d004c3dae9c76f8bcc68678abe1b8f7bdc8b456f5c9c4c7f190df8ed25d66cd",
   "contextMenuConnector.js": "25a200f8086461635ddd92316ebeb5a868294c8650a190efbae120edb1088f4f",
   "contextMenuTargetConnector.js": "870f67643988dd5618c247bd3c28d843f70aa026ee89f44c3c7556b5e70856af",
@@ -294,7 +294,7 @@
   "prospero": "{\n  \"lumoImports\" : [ \"typography\", \"color\", \"spacing\", \"badge\", \"utility\" ],\n  \"include\": [\"styles.css\"]\n}"
  },
  "entryScripts": [
-  "VAADIN/build/indexhtml-4c2b762a.js"
+  "VAADIN/build/indexhtml-717ef98f.js"
  ],
  "webComponents": [],
  "packageJsonHash": "b8388d83fbed399c0a168af333606c4c74767b2a33a8ada84efccae4395830c5"

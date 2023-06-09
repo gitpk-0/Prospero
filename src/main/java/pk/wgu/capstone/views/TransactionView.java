@@ -3,17 +3,24 @@ package pk.wgu.capstone.views;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -26,8 +33,11 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.PermitAll;
+import jakarta.persistence.criteria.*;
 import org.springframework.context.annotation.Scope;
+import org.springframework.data.jpa.domain.Specification;
 import pk.wgu.capstone.data.entity.Category;
 import pk.wgu.capstone.data.entity.Transaction;
 import pk.wgu.capstone.data.entity.Type;
@@ -37,21 +47,26 @@ import pk.wgu.capstone.views.forms.TransactionForm;
 
 import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @SpringComponent
 @Scope("prototype")
 @PermitAll // all logged-in users can access this page
 @Route(value = "", layout = MainLayout.class)
 @PageTitle("Home | Prospero")
-public class TransactionView extends VerticalLayout {
+@StyleSheet(value = "./themes/prospero/views/transaction-view.css")
+public class TransactionView extends Div {
 
     private SecurityService securityService;
     private PfmService service;
     TransactionForm transactionForm;
     Dialog dialog;
+
+    private Filters filters;
 
     Grid<Transaction> grid = new Grid<>(Transaction.class);
     Binder<Category> categoryBinder;
@@ -61,20 +76,25 @@ public class TransactionView extends VerticalLayout {
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("E, MMM d, yyyy");
 
     public TransactionView(SecurityService securityService, PfmService service) {
+        addClassNames("transaction-view");
         this.securityService = securityService;
         this.service = service;
 
-        addClassName("list-view");
+        filters = new Filters(this::refreshGrid, securityService, service);
+
+
         setSizeFull(); // makes this view the same size as the entire browser window
         checkForMessage();
 
         configureGrid();
         sortGrid();
         configureForm();
-        addClassName("name");
+        // addClassName("name");
 
         add(
-                getSearchbar(),
+                // getSearchbar(),
+                createMobileFilters(),
+                filters,
                 getContent()
         );
 
@@ -403,5 +423,167 @@ public class TransactionView extends VerticalLayout {
             showSuccess();
             VaadinSession.getCurrent().setAttribute("createCategorySuccess", null);
         }
+    }
+
+    // Filters
+    public static class Filters extends Div implements Specification<Transaction> {
+
+        private final TextField description = new TextField("Name");
+        private final DatePicker startDate = new DatePicker("Transaction Date");
+        private final DatePicker endDate = new DatePicker();
+        private final MultiSelectComboBox<String> categories = new MultiSelectComboBox<>("Category");
+        private final CheckboxGroup<String> types = new CheckboxGroup<>("Type");
+
+        private SecurityService securityService;
+        private PfmService service;
+
+        public Filters(Runnable onSearch, SecurityService securityService, PfmService service) {
+            this.securityService = securityService;
+            this.service = service;
+
+            setWidthFull();
+            // addClassName("transaction-view");
+            addClassName("filter-layout");
+            addClassNames(LumoUtility.Padding.Horizontal.LARGE, LumoUtility.Padding.Vertical.MEDIUM,
+                    LumoUtility.BoxSizing.BORDER);
+            description.setPlaceholder("Description");
+
+            List<String> categoryNames = service.findAllCategories()
+                    .stream().map(Category::getName).collect(Collectors.toList());
+            categories.setItems(categoryNames);
+
+            types.setItems("Income", "Expense");
+            types.addClassName("double-width");
+
+            // Action buttons
+            Button resetBtn = new Button("Reset");
+            resetBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+            resetBtn.addClickListener(e -> {
+                description.clear();
+                startDate.clear();
+                endDate.clear();
+                categories.clear();
+                types.clear();
+                onSearch.run();
+            });
+            Button searchBtn = new Button("Search");
+            searchBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            searchBtn.addClickListener(e -> onSearch.run());
+
+            Div actions = new Div(resetBtn, searchBtn);
+            actions.addClassName(LumoUtility.Gap.SMALL);
+            actions.addClassName("actions");
+
+            add(description, categories, types, actions);
+        }
+
+        @Override
+        public Predicate toPredicate(Root<Transaction> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (!description.isEmpty()) {
+                String lowerCaseFilter = description.getValue().toLowerCase();
+                Predicate descriptionMatch = criteriaBuilder.like(criteriaBuilder.lower(root.get("description")),
+                        lowerCaseFilter + "%");
+                predicates.add(criteriaBuilder.or(descriptionMatch));
+            }
+            if (startDate.getValue() != null) {
+                String databaseColumn = "dateOfBirth";
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get(databaseColumn),
+                        criteriaBuilder.literal(startDate.getValue())));
+            }
+            if (endDate.getValue() != null) {
+                String databaseColumn = "dateOfBirth";
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(criteriaBuilder.literal(endDate.getValue()),
+                        root.get(databaseColumn)));
+            }
+            if (!categories.isEmpty()) {
+                String databaseColumn = "occupation";
+                List<Predicate> categoryPredicates = new ArrayList<>();
+                for (String category : categories.getValue()) {
+                    categoryPredicates
+                            .add(criteriaBuilder.equal(criteriaBuilder.literal(category), root.get(databaseColumn)));
+                }
+                predicates.add(criteriaBuilder.or(categoryPredicates.toArray(Predicate[]::new)));
+            }
+            if (!types.isEmpty()) {
+                String databaseColumn = "type";
+                List<Predicate> typePredicates = new ArrayList<>();
+                for (String type : types.getValue()) {
+                    typePredicates.add(criteriaBuilder.equal(criteriaBuilder.literal(type), root.get(databaseColumn)));
+                }
+                predicates.add(criteriaBuilder.or(typePredicates.toArray(Predicate[]::new)));
+            }
+            return criteriaBuilder.and(predicates.toArray(Predicate[]::new));
+        }
+
+        private Component createDateRangeFilter() {
+            startDate.setPlaceholder("From");
+
+            endDate.setPlaceholder("To");
+
+            // For screen readers
+            setAriaLabel(startDate, "From date");
+            setAriaLabel(endDate, "To date");
+
+            FlexLayout dateRangeComponent = new FlexLayout(startDate, new Text(" – "), endDate);
+            dateRangeComponent.setAlignItems(FlexComponent.Alignment.BASELINE);
+            dateRangeComponent.addClassName(LumoUtility.Gap.XSMALL);
+
+            return dateRangeComponent;
+        }
+
+        private void setAriaLabel(DatePicker datePicker, String label) {
+            datePicker.getElement().executeJs("const input = this.inputElement;" //
+                    + "input.setAttribute('aria-label', $0);" //
+                    + "input.removeAttribute('aria-labelledby');", label);
+        }
+
+        private String ignoreCharacters(String characters, String in) {
+            String result = in;
+            for (int i = 0; i < characters.length(); i++) {
+                result = result.replace("" + characters.charAt(i), "");
+            }
+            return result;
+        }
+
+        private Expression<String> ignoreCharacters(String characters, CriteriaBuilder criteriaBuilder,
+                                                    Expression<String> inExpression) {
+            Expression<String> expression = inExpression;
+            for (int i = 0; i < characters.length(); i++) {
+                expression = criteriaBuilder.function("replace", String.class, expression,
+                        criteriaBuilder.literal(characters.charAt(i)), criteriaBuilder.literal(""));
+            }
+            return expression;
+        }
+    }
+
+    private HorizontalLayout createMobileFilters() {
+        // Mobile version
+        HorizontalLayout mobileFilters = new HorizontalLayout();
+        mobileFilters.setWidthFull();
+        mobileFilters.addClassNames(LumoUtility.Padding.MEDIUM, LumoUtility.BoxSizing.BORDER,
+                LumoUtility.AlignItems.CENTER);
+        mobileFilters.addClassName("mobile-filters");
+
+        Icon mobileIcon = new Icon("lumo", "plus");
+        Span filtersHeading = new Span("Filters");
+        mobileFilters.add(mobileIcon, filtersHeading);
+        mobileFilters.setFlexGrow(1, filtersHeading);
+        mobileFilters.addClickListener(e -> {
+            if (filters.getClassNames().contains("visible")) {
+                filters.removeClassName("visible");
+                mobileIcon.getElement().setAttribute("icon", "lumo:plus");
+            } else {
+                filters.addClassName("visible");
+                mobileIcon.getElement().setAttribute("icon", "lumo:minus");
+            }
+        });
+        return mobileFilters;
+    }
+
+
+    private void refreshGrid() {
+        grid.getDataProvider().refreshAll();
     }
 }

@@ -18,7 +18,7 @@ import pk.wgu.capstone.views.LoginView;
 
 import java.util.stream.Stream;
 
-@CssImport(value = "./styles/registration-form.css", themeFor = "")
+@CssImport(value = "./themes/prospero/views/registration-form.css", themeFor = "")
 public class RegistrationForm extends FormLayout implements RouterLayout {
 
     private Image logo;

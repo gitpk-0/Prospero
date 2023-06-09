@@ -27,7 +27,7 @@ import java.util.List;
 @PageTitle("I & E | Prospero")
 @PermitAll
 @CssImport(value = "./themes/prospero/prospero-charts.css", themeFor = "vaadin-chart")
-@CssImport(value = "./styles/i-v-e-grids.css")
+@CssImport(value = "./themes/prospero/views/i-v-e-grids.css")
 public class IncomeVsExpenseView extends VerticalLayout {
 
     private SecurityService securityService;
