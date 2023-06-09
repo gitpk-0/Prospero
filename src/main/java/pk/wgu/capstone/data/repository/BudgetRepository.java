@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface BudgetRepository extends JpaRepository<Budget, Long> {
 
-    @Query("select bud from Budget bud where bud.userId = :user_id")
+    @Query("select b from budgets b where b.userId = :user_id")
     List<pk.wgu.capstone.data.entity.Budget> getBudgetsByUserId(@Param("user_id") Long userId);
 
 }
