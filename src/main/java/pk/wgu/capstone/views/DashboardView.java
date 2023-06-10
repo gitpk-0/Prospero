@@ -20,12 +20,14 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.PermitAll;
 import pk.wgu.capstone.data.converter.BigDecimalToDoubleConverter;
+import pk.wgu.capstone.data.entity.Type;
 import pk.wgu.capstone.data.service.PfmService;
 import pk.wgu.capstone.security.SecurityService;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -139,7 +141,10 @@ public class DashboardView extends Main {
     }
 
     private Component createYearViewChart(Long userId) {
+        HorizontalLayout header = createHeader("Year View", "Transaction Totals by Month");
+
         Select<Integer> yearSelect = new Select<>();
+        yearSelect.setWidth("100px");
         List<Integer> distinctYears = service.findDistinctYears(userId);
 
         if (distinctYears.isEmpty()) {
@@ -155,12 +160,11 @@ public class DashboardView extends Main {
                 yearSelect.setValue(currentYear);
             }
         }
-
-
-        yearSelect.setWidth("100px");
-
-        HorizontalLayout header = createHeader("Year View", "Transaction Totals by Month");
         header.add(yearSelect);
+        yearSelect.addValueChangeListener(e -> {
+            // updateYearViewChart(userId, yearSelect.getValue());
+            //  System.out.println("Year selection changed");
+        });
 
         Chart yearViewChart = new Chart(ChartType.AREASPLINE);
         yearViewChart.addClassName("year-view-chart");
@@ -178,10 +182,14 @@ public class DashboardView extends Main {
         plotOptionsIncome.setPointPlacement(PointPlacement.ON);
         plotOptionsIncome.setMarker(new Marker(false));
 
+        if (!distinctYears.isEmpty()) {
+            ListSeries incomeSeries = updateYearViewChartIncome(userId, yearSelect.getValue());
+            incomeSeries.setPlotOptions(plotOptionsIncome);
+            config.addSeries(incomeSeries);
+        }
 
-        ListSeries income = new ListSeries("Income", 189, 191, 291, 396, 501, 403, 609, 712, 729, 942, 1044, 1247);
-        income.setPlotOptions(plotOptionsIncome);
-        config.addSeries(income);
+        // ListSeries income = new ListSeries("Income", 189, 191, 291, 396, 501, 403, 609, 712, 729, 942, 1044, 1247);
+
 
         PlotOptionsAreaspline plotOptionsExpense = new PlotOptionsAreaspline();
         plotOptionsExpense.setColorIndex(2);
@@ -199,6 +207,17 @@ public class DashboardView extends Main {
         layout.setSpacing(false);
         layout.getElement().getThemeList().add("spacing-l");
         return layout;
+    }
+
+    private ListSeries updateYearViewChartIncome(Long userId, Integer year) {
+        ListSeries incomeSeries = new ListSeries("Income");
+        List<Integer> incomeData = new ArrayList<>();
+        for (int month = 1; month <= 12; month++) {
+            incomeData.add(service.getSumTransactionsByMonthAndYearAndType(
+                    userId, year, month, Type.INCOME));
+        }
+        incomeData.forEach(incomeSeries::addData);
+        return incomeSeries;
     }
 
     private HorizontalLayout createHeader(String title, String subtitle) {

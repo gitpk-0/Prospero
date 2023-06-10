@@ -186,4 +186,8 @@ public class PfmService { // Personal Finance Management Service
     public List<Integer> findDistinctYears(Long userId) {
         return transactionRepository.findDistinctYears(userId);
     }
+
+    public Integer getSumTransactionsByMonthAndYearAndType(Long userId, Integer year, Integer month, Type type) {
+        return transactionRepository.getSumTransactionsByMonthAndYearAndType(userId, year, month, type);
+    }
 }
