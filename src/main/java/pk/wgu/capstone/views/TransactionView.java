@@ -52,8 +52,8 @@ import java.util.Objects;
 @SpringComponent
 @Scope("prototype")
 @PermitAll // all logged-in users can access this page
-@Route(value = "", layout = MainLayout.class)
-@PageTitle("Home | Prospero")
+@Route(value = "transactions", layout = MainLayout.class)
+@PageTitle("Transactions | Prospero")
 @StyleSheet(value = "./themes/prospero/views/transaction-view.css")
 public class TransactionView extends Div {
 

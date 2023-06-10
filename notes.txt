@@ -1,0 +1,49 @@
+
+
+schedule:
+dashboard
+reports accordion -> tabs (inc v exp, income, expenses)
+user settings
+anchor link main logo
+testing
+
+
+Filter Options for each view - by year, by month
+reports accordion - income view (pie), expenses view (pie), income v expenses view (column)
+
+User settings view - user icon instead of theme button -- allow user to add an image, update there info, and log out,
+    edit custom categories
+
+
+move css files into themes/prospero directory
+
+user avatar
+Mobile Responsiveness -- transactions view -> responsive grid: https://cookbook.vaadin.com/responsive-grid
+budget view - BACKUP for non pro -> grid for category breakdown
+
+
+
+
+::::::::Completed::::::::
+Format dollar amounts on Income vs Expense View
+Tooltips for column chart
+Update transaction form to be dynamic -- https://vaadin.com/blog/building-a-dynamic-web-form-with-validation
+test: refine addUserId in Category entity, remove adding userIds to default categories in RegFormBinder
+Add new Category form
+Success message when creating new category
+change custom category form to dialogue pop up
+change custom category error message to dialogue pop up
+confirm dialogues for delete click events
+Mobile Responsiveness -- main layout
+Mobile Responsiveness -- income vs expenses view
+Mobile Responsiveness -- registration form
+icons for each drawer item
+Budget View - create budget for date range, click budget card for category breakdown of expenses (pie chart)
+budget view - edit budget in dialog
+budgets view - set budget for specific date range
+sample transactions, budget for new user
+budget - createdDate
+budget view - sort options and logic
+change createdDate to LocalDateTime- budget
+export transaction data as csv
+filter transactions page
