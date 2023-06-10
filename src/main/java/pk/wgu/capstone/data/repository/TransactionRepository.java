@@ -24,13 +24,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     @Query("select t from transactions t where t.userId = :user_id")
     List<Transaction> findAllByUserId(@Param("user_id") Long userId);
 
-    @Query("select count(t.id) from transactions t where t.userId = :user_id")
-    long countByUserId(@Param("user_id") Long user_id);
-
     @Query("select sum(t.amount) from transactions t where t.userId = :user_id and t.type = :type")
     BigDecimal sumAllTransactionsByType(@Param("user_id") Long userId, @Param("type") Type type);
 
-    @Query("SELECT c.name, SUM(t.amount) AS total_amount FROM transactions t " +
+    @Query("select c.name, SUM(t.amount) AS total_amount FROM transactions t " +
             "JOIN categories c ON t.category.id = c.id " +
             "where t.userId = :user_id and c.type = :type " +
             "GROUP BY c.name")
@@ -45,7 +42,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             @Param("type") Type type,
             @Param("user_id") Long userId);
 
-    @Query("SELECT c.name, SUM(t.amount) AS total_amount FROM transactions t " +
+    @Query("select c.name, SUM(t.amount) AS total_amount FROM transactions t " +
             "JOIN categories c ON t.category.id = c.id " +
             "where t.userId = :user_id and c.type = :type and t.date >= :start and t.date <= :end " +
             "GROUP BY c.name")
@@ -54,4 +51,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             @Param("type") Type type,
             @Param("start") Date start,
             @Param("end") Date end);
+
+    @Query("select sum(t.amount) as income from transactions t where t.userId = :user_id and t.type = :type")
+    BigDecimal getSumTransactionsByType(@Param("user_id") Long userId, @Param("type") Type type);
+
+    @Query("select count(t.id) from transactions t where t.userId = :user_id")
+    Integer getTransactionCount(@Param("user_id") Long userId);
 }

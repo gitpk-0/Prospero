@@ -39,10 +39,6 @@ public class PfmService { // Personal Finance Management Service
         return transactionRepository.findAllByUserId(userId);
     }
 
-    public long countTransactionsByUser(Long userId) {
-        return transactionRepository.countByUserId(userId);
-    }
-
     public void deleteTransaction(Transaction transaction) {
         transactionRepository.delete(transaction);
     }
@@ -173,5 +169,17 @@ public class PfmService { // Personal Finance Management Service
                 .collect(Collectors.toList());
 
         return filteredTransactions;
+    }
+
+    public BigDecimal getSumIncomeTransactions(Long userId) {
+        return transactionRepository.getSumTransactionsByType(userId, Type.INCOME);
+    }
+
+    public BigDecimal getSumExpenseTransactions(Long userId) {
+        return transactionRepository.getSumTransactionsByType(userId, Type.EXPENSE);
+    }
+
+    public Integer getTransactionCount(Long userId) {
+        return transactionRepository.getTransactionCount(userId);
     }
 }
