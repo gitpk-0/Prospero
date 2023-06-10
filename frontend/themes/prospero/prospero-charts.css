@@ -18,11 +18,13 @@
 }
 
 :host(.totals-chart) .income-column-bar {
-    fill: #1ac349;
+    /*fill: #1ac349;*/
+    fill: #90ed7d;
 }
 
 :host(.totals-chart) .expense-column-bar {
-    fill: #ff7745;
+    /*fill: #ff7745;*/
+    fill: #ff7d94;
 }
 
 .huge-axis {
