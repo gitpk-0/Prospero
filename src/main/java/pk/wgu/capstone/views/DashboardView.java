@@ -26,6 +26,8 @@ import pk.wgu.capstone.security.SecurityService;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 
 @Route(value = "", layout = MainLayout.class)
 @PageTitle("Dashboard | Prospero")
@@ -56,7 +58,7 @@ public class DashboardView extends Main {
                 createHighlight("Income", getIncomeTotal(userId), currentMonth),
                 createHighlight("Expenses", getExpensesTotal(userId), currentMonth),
                 createHighlight("Transactions", getTransactionCount(userId), currentMonth));
-        board.addRow(createYearViewChart());
+        board.addRow(createYearViewChart(userId));
         board.addRow(createIncomePieChart(), createExpensePieChart());
         add(board);
     }
@@ -136,20 +138,34 @@ public class DashboardView extends Main {
         return layout;
     }
 
-    private Component createYearViewChart() {
-        Select year = new Select();
-        year.setItems("2020", "2021", "2022", "2023");
-        year.setValue("2022");
-        year.setWidth("100px");
+    private Component createYearViewChart(Long userId) {
+        Select<Integer> yearSelect = new Select<>();
+        List<Integer> distinctYears = service.findDistinctYears(userId);
+
+        if (distinctYears.isEmpty()) {
+            yearSelect.setEnabled(false); // no transactions exist yet
+        } else {
+            List<Integer> sortedYears = distinctYears.stream()
+                    .sorted(Collections.reverseOrder()).toList();
+
+            yearSelect.setItems(sortedYears);
+            Integer currentYear = LocalDate.now().getYear();
+
+            if (sortedYears.contains(currentYear)) {
+                yearSelect.setValue(currentYear);
+            }
+        }
+
+
+        yearSelect.setWidth("100px");
 
         HorizontalLayout header = createHeader("Year View", "Transaction Totals by Month");
-        header.add(year);
+        header.add(yearSelect);
 
         Chart yearViewChart = new Chart(ChartType.AREASPLINE);
         yearViewChart.addClassName("year-view-chart");
         Configuration config = yearViewChart.getConfiguration();
         config.getChart().setStyledMode(true);
-        // yearViewChart.setThemeName("classic");
 
         XAxis xAxis = new XAxis();
         xAxis.setCategories("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
@@ -212,12 +228,12 @@ public class DashboardView extends Main {
         incomePieChart.setThemeName("gradient");
 
         DataSeries incomeSeries = new DataSeries();
-        incomeSeries.add(new DataSeriesItem("Salary" ,12.5));
-        incomeSeries.add(new DataSeriesItem("Bonus" ,12.5));
-        incomeSeries.add(new DataSeriesItem("Commission" ,12.5));
-        incomeSeries.add(new DataSeriesItem("Gift" ,12.5));
-        incomeSeries.add(new DataSeriesItem("Other" ,12.5));
-        incomeSeries.add(new DataSeriesItem("Investment" ,12.5));
+        incomeSeries.add(new DataSeriesItem("Salary", 12.5));
+        incomeSeries.add(new DataSeriesItem("Bonus", 12.5));
+        incomeSeries.add(new DataSeriesItem("Commission", 12.5));
+        incomeSeries.add(new DataSeriesItem("Gift", 12.5));
+        incomeSeries.add(new DataSeriesItem("Other", 12.5));
+        incomeSeries.add(new DataSeriesItem("Investment", 12.5));
         config.addSeries(incomeSeries);
 
         VerticalLayout layout = new VerticalLayout(header, incomePieChart);
@@ -237,12 +253,12 @@ public class DashboardView extends Main {
         expensePieChart.setThemeName("classic");
 
         DataSeries expenseSeries = new DataSeries();
-        expenseSeries.add(new DataSeriesItem("Salary" ,12.5));
-        expenseSeries.add(new DataSeriesItem("Bonus" ,12.5));
-        expenseSeries.add(new DataSeriesItem("Commission" ,12.5));
-        expenseSeries.add(new DataSeriesItem("Gift" ,12.5));
-        expenseSeries.add(new DataSeriesItem("Other" ,12.5));
-        expenseSeries.add(new DataSeriesItem("Investment" ,12.5));
+        expenseSeries.add(new DataSeriesItem("Salary", 12.5));
+        expenseSeries.add(new DataSeriesItem("Bonus", 12.5));
+        expenseSeries.add(new DataSeriesItem("Commission", 12.5));
+        expenseSeries.add(new DataSeriesItem("Gift", 12.5));
+        expenseSeries.add(new DataSeriesItem("Other", 12.5));
+        expenseSeries.add(new DataSeriesItem("Investment", 12.5));
         config.addSeries(expenseSeries);
 
         VerticalLayout layout = new VerticalLayout(header, expensePieChart);

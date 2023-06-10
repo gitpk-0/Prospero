@@ -182,4 +182,8 @@ public class PfmService { // Personal Finance Management Service
     public Integer getTransactionCount(Long userId) {
         return transactionRepository.getTransactionCount(userId);
     }
+
+    public List<Integer> findDistinctYears(Long userId) {
+        return transactionRepository.findDistinctYears(userId);
+    }
 }

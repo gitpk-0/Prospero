@@ -52,9 +52,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             @Param("start") Date start,
             @Param("end") Date end);
 
-    @Query("select sum(t.amount) as income from transactions t where t.userId = :user_id and t.type = :type")
+    @Query("select coalesce(sum(t.amount), 0.0) as income from transactions t where t.userId = :user_id and t.type = :type")
     BigDecimal getSumTransactionsByType(@Param("user_id") Long userId, @Param("type") Type type);
 
-    @Query("select count(t.id) from transactions t where t.userId = :user_id")
+    @Query("select coalesce(count(t.id), 0) from transactions t where t.userId = :user_id")
     Integer getTransactionCount(@Param("user_id") Long userId);
+
+    @Query("select distinct year(t.date) from transactions t where t.userId = :user_id")
+    List<Integer> findDistinctYears(@Param("user_id") Long userId);
 }
