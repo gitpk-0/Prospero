@@ -79,7 +79,7 @@ public class DataGenerator {
             user1.setEmail("patrick.kell1@pm.me");
             user1.setPassword(passwordEncoder().encode("easypass"));
             user1.setAllowsMarketingEmails(true);
-            user1.setId(1101L);
+            user1.setId(1451L);
             user1.setRole(Role.USER);
 
             User user2 = new User();
@@ -88,7 +88,7 @@ public class DataGenerator {
             user2.setEmail("patrick.kell11@pm.me");
             user2.setPassword(passwordEncoder().encode("easypass1"));
             user2.setAllowsMarketingEmails(true);
-            user2.setId(1102L);
+            user2.setId(1452L);
             user2.setRole(Role.USER);
 
             User user3 = new User();
@@ -97,7 +97,7 @@ public class DataGenerator {
             user3.setEmail("patrick.kell111@pm.me");
             user3.setPassword(passwordEncoder().encode("easypass11"));
             user3.setAllowsMarketingEmails(true);
-            user3.setId(1103L);
+            user3.setId(1453L);
             user3.setRole(Role.USER);
 
             users.add(user1);
@@ -108,7 +108,7 @@ public class DataGenerator {
 
             logger.info("Generating transactions...");
             List<Transaction> transactions = new ArrayList<>();
-            for (int i = 0; i < 40; i++) {
+            for (int i = 0; i < 400; i++) {
                 Transaction transaction = new Transaction();
                 transaction.setDate(generateRandomDate());
                 transaction.setAmount(BigDecimal.valueOf(r.nextDouble(1200)));
@@ -186,8 +186,8 @@ public class DataGenerator {
 
 
     static Date generateRandomDate() {
-        LocalDate minDay = LocalDate.now().minusYears(2);
-        LocalDate maxDay = LocalDate.now();
+        LocalDate minDay = LocalDate.now().minusYears(5);
+        LocalDate maxDay = LocalDate.now().plusDays(60);
 
         long minEpochDay = minDay.toEpochDay();
         long maxEpochDay = maxDay.toEpochDay();

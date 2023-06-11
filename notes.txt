@@ -1,7 +1,7 @@
 
 
 schedule:
-dashboard
+dashboard -> tool tips, pie charts data, connect highlights to year select
 reports accordion -> tabs (inc v exp, income, expenses)
 user settings
 anchor link main logo

@@ -47,15 +47,17 @@ public class DashboardView extends Main {
     NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
 
     // board rows
-    Row highlightsRow;
-    Row areasplieChartRow;
-    Row pieChartsRow;
+    private Row highlightsRow;
+    private Row areasplieChartRow;
+    private Row pieChartsRow;
 
-    // year view
-    Select<Integer> yearSelect;
-    Chart yearViewChart;
-    HorizontalLayout yearViewHeader;
-    VerticalLayout yearViewLayout;
+    // area spline chart
+    private Select<Integer> yearSelect;
+    private Chart yearViewChart;
+    private Configuration yearViewChartConfig;
+    private ListSeries incomeSeries;
+    private ListSeries expenseSeries;
+    private List<Series> yearViewSeriesList;
 
     public DashboardView(SecurityService securityService, PfmService service) {
         this.securityService = securityService;
@@ -68,12 +70,6 @@ public class DashboardView extends Main {
         String currentMonth = LocalDate.now().getMonth().toString();
         Integer currentYear = LocalDate.now().getYear();
 
-        yearViewHeader = createHeader("Year View", "Transaction Totals by Month");
-        yearSelect = generateYearSelect(userId, currentYear);
-        yearViewHeader.add(yearSelect);
-
-        // yearViewLayout = generateYearViewLayout(yearViewHeader, createYearViewLayout(userId));
-
 
         Board board = new Board();
         highlightsRow = new Row(createWelcomeHighlight("Welcome " + firstName, userId),
@@ -81,7 +77,7 @@ public class DashboardView extends Main {
                 createHighlight("Expenses", getExpensesTotal(userId), currentMonth),
                 createHighlight("Transactions", getTransactionCount(userId), currentMonth));
 
-        areasplieChartRow = new Row(createYearViewLayout(userId));
+        areasplieChartRow = new Row(createYearViewLayout(userId, currentYear));
         pieChartsRow = new Row(createIncomePieChart(), createExpensePieChart());
 
         board.addRow(highlightsRow);
@@ -90,55 +86,177 @@ public class DashboardView extends Main {
 
         add(board);
 
-        // yearSelect.addValueChangeListener(e -> {
-        //     System.out.println("addValueChangeListenercalled");
-        //     Integer selectedYear = e.getValue();
-        //     areasplieChartRow.removeAll();
-        //     yearViewLayout = updateYearViewLayout(yearViewHeader, updateYearViewChart(userId, selectedYear));
-        //     yearSelect.setValue(selectedYear);
-        //     areasplieChartRow.add(yearViewLayout);
-        // });
+        yearSelect.addValueChangeListener(e -> {
+            Integer selectedYear = e.getValue();
+            incomeSeries = updateYearViewChartIncome(userId, selectedYear);
+            expenseSeries = updateYearViewChartExpense(userId, selectedYear);
+
+            yearViewSeriesList = new ArrayList<>();
+            yearViewSeriesList.add(incomeSeries);
+            yearViewSeriesList.add(expenseSeries);
+
+            yearViewChartConfig.setSeries(yearViewSeriesList);
+
+            yearViewChart.drawChart();
+        });
     }
 
-    private VerticalLayout updateYearViewLayout(HorizontalLayout header, Chart chart) {
-        VerticalLayout innerLayout = new VerticalLayout(header, chart);
-        innerLayout.addClassName(LumoUtility.Padding.LARGE);
-        innerLayout.setPadding(false);
-        innerLayout.setSpacing(false);
-        innerLayout.getElement().getThemeList().add("spacing-l");
 
-        return innerLayout;
-    }
+    private Component createYearViewLayout(Long userId, Integer year) {
+        HorizontalLayout yearViewHeader = createHeader("Year View", "Transaction Totals by Month");
 
-    private Select<Integer> generateYearSelect(Long userId, Integer year) {
-        Select<Integer> innerYearSelect = new Select<>();
-        innerYearSelect.setWidth("100px");
+        yearSelect = new Select<>();
+        yearSelect.setWidth("100px");
         List<Integer> distinctYears = service.findDistinctYears(userId);
 
+        VerticalLayout layout = new VerticalLayout();
+        layout.addClassName(LumoUtility.Padding.LARGE);
+        layout.setPadding(false);
+        layout.setSpacing(false);
+        layout.getElement().getThemeList().add("spacing-l");
+
         if (distinctYears.isEmpty()) {
-            innerYearSelect.setEnabled(false); // no transactions exist yet
+            yearSelect.setEnabled(false); // no transactions exist yet
+
+            layout.add(new H3("No transaction data"));
         } else {
             List<Integer> sortedYears = distinctYears.stream()
                     .sorted(Collections.reverseOrder()).toList();
 
-            innerYearSelect.setItems(sortedYears);
-            // Integer currentYear = LocalDate.now().getYear();
+            yearSelect.setItems(sortedYears);
+            Integer currentYear = LocalDate.now().getYear();
 
-            if (sortedYears.contains(year)) {
-                innerYearSelect.setValue(year);
+            if (sortedYears.contains(currentYear)) {
+                yearSelect.setValue(currentYear);
             }
 
-            innerYearSelect.addValueChangeListener(e -> {
-                System.out.println("addValueChangeListenercalled");
-                Integer selectedYear = e.getValue();
-                areasplieChartRow.removeAll();
-                yearViewLayout = updateYearViewLayout(yearViewHeader, updateYearViewChart(userId, selectedYear));
-                yearSelect = generateYearSelect(userId, year);
-                yearSelect.setValue(selectedYear);
-                areasplieChartRow.add(yearViewLayout);
-            });
+            yearViewHeader.add(yearSelect);
+
+            yearViewChart = new Chart(ChartType.AREASPLINE);
+            yearViewChart.addClassName("year-view-chart");
+            yearViewChartConfig = yearViewChart.getConfiguration();
+            yearViewChartConfig.getChart().setStyledMode(true);
+
+            XAxis xAxis = new XAxis();
+            xAxis.setCategories("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
+            yearViewChartConfig.addxAxis(xAxis);
+
+            yearViewChartConfig.getyAxis().setTitle("Totals");
+
+            incomeSeries = updateYearViewChartIncome(userId, year);
+            expenseSeries = updateYearViewChartExpense(userId, year);
+
+            yearViewSeriesList = new ArrayList<>();
+            yearViewSeriesList.add(incomeSeries);
+            yearViewSeriesList.add(expenseSeries);
+
+            yearViewChartConfig.setSeries(yearViewSeriesList);
+
+            layout.add(yearViewHeader, yearViewChart);
         }
-        return innerYearSelect;
+        return layout;
+    }
+
+    private ListSeries updateYearViewChartIncome(Long userId, Integer year) {
+        PlotOptionsAreaspline plotOptionsIncome = new PlotOptionsAreaspline();
+        plotOptionsIncome.setColorIndex(4);  //#90ed7d
+        plotOptionsIncome.setPointPlacement(PointPlacement.ON);
+        plotOptionsIncome.setMarker(new Marker(false));
+
+        ListSeries incomeSeries = new ListSeries("Income");
+        List<Integer> incomeData = new ArrayList<>();
+        for (int month = 1; month <= 12; month++) {
+            incomeData.add(service.getSumTransactionsByMonthAndYearAndType(
+                    userId, year, month, Type.INCOME));
+        }
+        incomeData.forEach(incomeSeries::addData);
+        incomeSeries.setPlotOptions(plotOptionsIncome);
+        return incomeSeries;
+    }
+
+    private ListSeries updateYearViewChartExpense(Long userId, Integer year) {
+        PlotOptionsAreaspline plotOptionsExpense = new PlotOptionsAreaspline();
+        plotOptionsExpense.setColorIndex(2);
+        plotOptionsExpense.setPointPlacement(PointPlacement.ON);
+        plotOptionsExpense.setMarker(new Marker(false));
+
+        ListSeries expenseSeries = new ListSeries("Expense");
+        List<Integer> expenseData = new ArrayList<>();
+        for (int month = 1; month <= 12; month++) {
+            expenseData.add(service.getSumTransactionsByMonthAndYearAndType(
+                    userId, year, month, Type.EXPENSE));
+        }
+        expenseData.forEach(expenseSeries::addData);
+        expenseSeries.setPlotOptions(plotOptionsExpense);
+        return expenseSeries;
+    }
+
+    private HorizontalLayout createHeader(String title, String subtitle) {
+        H2 h2 = new H2(title);
+        h2.addClassNames(LumoUtility.FontSize.XLARGE, LumoUtility.Margin.NONE);
+
+        Span span = new Span(subtitle);
+        span.addClassNames(LumoUtility.TextColor.SECONDARY, LumoUtility.FontSize.XSMALL);
+
+        VerticalLayout column = new VerticalLayout(h2, span);
+        column.setPadding(false);
+        column.setSpacing(false);
+
+        HorizontalLayout header = new HorizontalLayout(column);
+        header.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+        header.setSpacing(false);
+        header.setWidthFull();
+        return header;
+    }
+
+    private Component createIncomePieChart() {
+        HorizontalLayout header = createHeader("Income", "All Time");
+
+        Chart incomePieChart = new Chart(ChartType.PIE);
+        Configuration config = incomePieChart.getConfiguration();
+        config.getChart().setStyledMode(true);
+        incomePieChart.setThemeName("gradient");
+
+        DataSeries incomeSeries = new DataSeries();
+        incomeSeries.add(new DataSeriesItem("Salary", 12.5));
+        incomeSeries.add(new DataSeriesItem("Bonus", 12.5));
+        incomeSeries.add(new DataSeriesItem("Commission", 12.5));
+        incomeSeries.add(new DataSeriesItem("Gift", 12.5));
+        incomeSeries.add(new DataSeriesItem("Other", 12.5));
+        incomeSeries.add(new DataSeriesItem("Investment", 12.5));
+        config.addSeries(incomeSeries);
+
+        VerticalLayout layout = new VerticalLayout(header, incomePieChart);
+        layout.addClassName(LumoUtility.Padding.LARGE);
+        layout.setPadding(false);
+        layout.setSpacing(false);
+        layout.getElement().getThemeList().add("spacing-l");
+        return layout;
+    }
+
+    private Component createExpensePieChart() {
+        HorizontalLayout header = createHeader("Expense", "All Time");
+
+        Chart expensePieChart = new Chart(ChartType.PIE);
+        Configuration config = expensePieChart.getConfiguration();
+        config.getChart().setStyledMode(true);
+        expensePieChart.setThemeName("classic");
+
+        DataSeries expenseSeries = new DataSeries();
+        expenseSeries.add(new DataSeriesItem("Salary", 12.5));
+        expenseSeries.add(new DataSeriesItem("Bonus", 12.5));
+        expenseSeries.add(new DataSeriesItem("Commission", 12.5));
+        expenseSeries.add(new DataSeriesItem("Gift", 12.5));
+        expenseSeries.add(new DataSeriesItem("Other", 12.5));
+        expenseSeries.add(new DataSeriesItem("Investment", 12.5));
+        config.addSeries(expenseSeries);
+
+        VerticalLayout layout = new VerticalLayout(header, expensePieChart);
+        layout.addClassName(LumoUtility.Padding.LARGE);
+        layout.setPadding(false);
+        layout.setSpacing(false);
+        layout.getElement().getThemeList().add("spacing-l");
+        return layout;
     }
 
     private String getTransactionCount(Long userId) {
@@ -212,166 +330,6 @@ public class DashboardView extends Main {
         layout.addClassName(LumoUtility.Padding.LARGE);
         layout.setPadding(false);
         layout.setSpacing(false);
-        return layout;
-    }
-
-    private Component createYearViewLayout(Long userId) {
-        HorizontalLayout header = createHeader("Year View", "Transaction Totals by Month");
-
-        yearSelect = new Select<>();
-        yearSelect.setWidth("100px");
-        List<Integer> distinctYears = service.findDistinctYears(userId);
-
-        if (distinctYears.isEmpty()) {
-            yearSelect.setEnabled(false); // no transactions exist yet
-        } else {
-            List<Integer> sortedYears = distinctYears.stream()
-                    .sorted(Collections.reverseOrder()).toList();
-
-            yearSelect.setItems(sortedYears);
-            Integer currentYear = LocalDate.now().getYear();
-
-            if (sortedYears.contains(currentYear)) {
-                yearSelect.setValue(currentYear);
-            }
-
-            header.add(yearSelect);
-
-            yearViewChart = updateYearViewChart(userId, yearSelect.getValue());
-
-            VerticalLayout layout = new VerticalLayout(header, yearViewChart);
-            layout.addClassName(LumoUtility.Padding.LARGE);
-            layout.setPadding(false);
-            layout.setSpacing(false);
-            layout.getElement().getThemeList().add("spacing-l");
-
-
-            return layout;
-        }
-        return new H3("No transaction data");
-    }
-
-    private Chart updateYearViewChart(Long userId, Integer year) {
-        yearViewChart = new Chart(ChartType.AREASPLINE);
-        yearViewChart.addClassName("year-view-chart");
-        Configuration config = yearViewChart.getConfiguration();
-        config.getChart().setStyledMode(true);
-
-        XAxis xAxis = new XAxis();
-        xAxis.setCategories("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
-        config.addxAxis(xAxis);
-
-        config.getyAxis().setTitle("Totals");
-
-        PlotOptionsAreaspline plotOptionsIncome = new PlotOptionsAreaspline();
-        plotOptionsIncome.setColorIndex(4);  //#90ed7d
-        plotOptionsIncome.setPointPlacement(PointPlacement.ON);
-        plotOptionsIncome.setMarker(new Marker(false));
-
-        PlotOptionsAreaspline plotOptionsExpense = new PlotOptionsAreaspline();
-        plotOptionsExpense.setColorIndex(2);
-        plotOptionsExpense.setPointPlacement(PointPlacement.ON);
-        plotOptionsExpense.setMarker(new Marker(false));
-
-
-        ListSeries incomeSeries = updateYearViewChartIncome(userId, year);
-        incomeSeries.setPlotOptions(plotOptionsIncome);
-        config.addSeries(incomeSeries);
-
-        ListSeries expenseSeries = updateYearViewChartExpense(userId, year);
-        expenseSeries.setPlotOptions(plotOptionsExpense);
-        config.addSeries(expenseSeries);
-
-        return yearViewChart;
-    }
-
-    private ListSeries updateYearViewChartIncome(Long userId, Integer year) {
-        ListSeries incomeSeries = new ListSeries("Income");
-        List<Integer> incomeData = new ArrayList<>();
-        for (int month = 1; month <= 12; month++) {
-            incomeData.add(service.getSumTransactionsByMonthAndYearAndType(
-                    userId, year, month, Type.INCOME));
-        }
-        incomeData.forEach(incomeSeries::addData);
-        return incomeSeries;
-    }
-
-    private ListSeries updateYearViewChartExpense(Long userId, Integer year) {
-        ListSeries expenseSeries = new ListSeries("Expense");
-        List<Integer> expenseData = new ArrayList<>();
-        for (int month = 1; month <= 12; month++) {
-            expenseData.add(service.getSumTransactionsByMonthAndYearAndType(
-                    userId, year, month, Type.EXPENSE));
-        }
-        expenseData.forEach(expenseSeries::addData);
-        return expenseSeries;
-    }
-
-    private HorizontalLayout createHeader(String title, String subtitle) {
-        H2 h2 = new H2(title);
-        h2.addClassNames(LumoUtility.FontSize.XLARGE, LumoUtility.Margin.NONE);
-
-        Span span = new Span(subtitle);
-        span.addClassNames(LumoUtility.TextColor.SECONDARY, LumoUtility.FontSize.XSMALL);
-
-        VerticalLayout column = new VerticalLayout(h2, span);
-        column.setPadding(false);
-        column.setSpacing(false);
-
-        HorizontalLayout header = new HorizontalLayout(column);
-        header.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-        header.setSpacing(false);
-        header.setWidthFull();
-        return header;
-    }
-
-    private Component createIncomePieChart() {
-        HorizontalLayout header = createHeader("Income", "All Time");
-
-        Chart incomePieChart = new Chart(ChartType.PIE);
-        Configuration config = incomePieChart.getConfiguration();
-        config.getChart().setStyledMode(true);
-        incomePieChart.setThemeName("gradient");
-
-        DataSeries incomeSeries = new DataSeries();
-        incomeSeries.add(new DataSeriesItem("Salary", 12.5));
-        incomeSeries.add(new DataSeriesItem("Bonus", 12.5));
-        incomeSeries.add(new DataSeriesItem("Commission", 12.5));
-        incomeSeries.add(new DataSeriesItem("Gift", 12.5));
-        incomeSeries.add(new DataSeriesItem("Other", 12.5));
-        incomeSeries.add(new DataSeriesItem("Investment", 12.5));
-        config.addSeries(incomeSeries);
-
-        VerticalLayout layout = new VerticalLayout(header, incomePieChart);
-        layout.addClassName(LumoUtility.Padding.LARGE);
-        layout.setPadding(false);
-        layout.setSpacing(false);
-        layout.getElement().getThemeList().add("spacing-l");
-        return layout;
-    }
-
-    private Component createExpensePieChart() {
-        HorizontalLayout header = createHeader("Expense", "All Time");
-
-        Chart expensePieChart = new Chart(ChartType.PIE);
-        Configuration config = expensePieChart.getConfiguration();
-        config.getChart().setStyledMode(true);
-        expensePieChart.setThemeName("classic");
-
-        DataSeries expenseSeries = new DataSeries();
-        expenseSeries.add(new DataSeriesItem("Salary", 12.5));
-        expenseSeries.add(new DataSeriesItem("Bonus", 12.5));
-        expenseSeries.add(new DataSeriesItem("Commission", 12.5));
-        expenseSeries.add(new DataSeriesItem("Gift", 12.5));
-        expenseSeries.add(new DataSeriesItem("Other", 12.5));
-        expenseSeries.add(new DataSeriesItem("Investment", 12.5));
-        config.addSeries(expenseSeries);
-
-        VerticalLayout layout = new VerticalLayout(header, expensePieChart);
-        layout.addClassName(LumoUtility.Padding.LARGE);
-        layout.setPadding(false);
-        layout.setSpacing(false);
-        layout.getElement().getThemeList().add("spacing-l");
         return layout;
     }
 }
