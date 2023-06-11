@@ -2,10 +2,12 @@ package pk.wgu.capstone.views;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.board.Board;
+import com.vaadin.flow.component.board.Row;
 import com.vaadin.flow.component.charts.Chart;
 import com.vaadin.flow.component.charts.model.*;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Main;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -44,6 +46,17 @@ public class DashboardView extends Main {
     BigDecimalToDoubleConverter amountConverter = new BigDecimalToDoubleConverter();
     NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
 
+    // board rows
+    Row highlightsRow;
+    Row areasplieChartRow;
+    Row pieChartsRow;
+
+    // year view
+    Select<Integer> yearSelect;
+    Chart yearViewChart;
+    HorizontalLayout yearViewHeader;
+    VerticalLayout yearViewLayout;
+
     public DashboardView(SecurityService securityService, PfmService service) {
         this.securityService = securityService;
         this.service = service;
@@ -53,16 +66,79 @@ public class DashboardView extends Main {
         Long userId = securityService.getCurrentUserId(service);
         String firstName = service.findUserById(userId).getFirstName();
         String currentMonth = LocalDate.now().getMonth().toString();
+        Integer currentYear = LocalDate.now().getYear();
+
+        yearViewHeader = createHeader("Year View", "Transaction Totals by Month");
+        yearSelect = generateYearSelect(userId, currentYear);
+        yearViewHeader.add(yearSelect);
+
+        // yearViewLayout = generateYearViewLayout(yearViewHeader, createYearViewLayout(userId));
+
 
         Board board = new Board();
-        board.addRow(
-                createWelcomeHighlight("Welcome " + firstName, userId),
+        highlightsRow = new Row(createWelcomeHighlight("Welcome " + firstName, userId),
                 createHighlight("Income", getIncomeTotal(userId), currentMonth),
                 createHighlight("Expenses", getExpensesTotal(userId), currentMonth),
                 createHighlight("Transactions", getTransactionCount(userId), currentMonth));
-        board.addRow(createYearViewChart(userId));
-        board.addRow(createIncomePieChart(), createExpensePieChart());
+
+        areasplieChartRow = new Row(createYearViewLayout(userId));
+        pieChartsRow = new Row(createIncomePieChart(), createExpensePieChart());
+
+        board.addRow(highlightsRow);
+        board.addRow(areasplieChartRow);
+        board.addRow(pieChartsRow);
+
         add(board);
+
+        // yearSelect.addValueChangeListener(e -> {
+        //     System.out.println("addValueChangeListenercalled");
+        //     Integer selectedYear = e.getValue();
+        //     areasplieChartRow.removeAll();
+        //     yearViewLayout = updateYearViewLayout(yearViewHeader, updateYearViewChart(userId, selectedYear));
+        //     yearSelect.setValue(selectedYear);
+        //     areasplieChartRow.add(yearViewLayout);
+        // });
+    }
+
+    private VerticalLayout updateYearViewLayout(HorizontalLayout header, Chart chart) {
+        VerticalLayout innerLayout = new VerticalLayout(header, chart);
+        innerLayout.addClassName(LumoUtility.Padding.LARGE);
+        innerLayout.setPadding(false);
+        innerLayout.setSpacing(false);
+        innerLayout.getElement().getThemeList().add("spacing-l");
+
+        return innerLayout;
+    }
+
+    private Select<Integer> generateYearSelect(Long userId, Integer year) {
+        Select<Integer> innerYearSelect = new Select<>();
+        innerYearSelect.setWidth("100px");
+        List<Integer> distinctYears = service.findDistinctYears(userId);
+
+        if (distinctYears.isEmpty()) {
+            innerYearSelect.setEnabled(false); // no transactions exist yet
+        } else {
+            List<Integer> sortedYears = distinctYears.stream()
+                    .sorted(Collections.reverseOrder()).toList();
+
+            innerYearSelect.setItems(sortedYears);
+            // Integer currentYear = LocalDate.now().getYear();
+
+            if (sortedYears.contains(year)) {
+                innerYearSelect.setValue(year);
+            }
+
+            innerYearSelect.addValueChangeListener(e -> {
+                System.out.println("addValueChangeListenercalled");
+                Integer selectedYear = e.getValue();
+                areasplieChartRow.removeAll();
+                yearViewLayout = updateYearViewLayout(yearViewHeader, updateYearViewChart(userId, selectedYear));
+                yearSelect = generateYearSelect(userId, year);
+                yearSelect.setValue(selectedYear);
+                areasplieChartRow.add(yearViewLayout);
+            });
+        }
+        return innerYearSelect;
     }
 
     private String getTransactionCount(Long userId) {
@@ -70,7 +146,6 @@ public class DashboardView extends Main {
     }
 
     private String getExpensesTotal(Long userId) {
-        System.out.println("expensesTOTAL: " + service.getSumExpenseTransactions(userId));
         return currencyFormat.format(service.getSumExpenseTransactions(userId));
     }
 
@@ -140,10 +215,10 @@ public class DashboardView extends Main {
         return layout;
     }
 
-    private Component createYearViewChart(Long userId) {
+    private Component createYearViewLayout(Long userId) {
         HorizontalLayout header = createHeader("Year View", "Transaction Totals by Month");
 
-        Select<Integer> yearSelect = new Select<>();
+        yearSelect = new Select<>();
         yearSelect.setWidth("100px");
         List<Integer> distinctYears = service.findDistinctYears(userId);
 
@@ -159,14 +234,25 @@ public class DashboardView extends Main {
             if (sortedYears.contains(currentYear)) {
                 yearSelect.setValue(currentYear);
             }
-        }
-        header.add(yearSelect);
-        yearSelect.addValueChangeListener(e -> {
-            // updateYearViewChart(userId, yearSelect.getValue());
-            //  System.out.println("Year selection changed");
-        });
 
-        Chart yearViewChart = new Chart(ChartType.AREASPLINE);
+            header.add(yearSelect);
+
+            yearViewChart = updateYearViewChart(userId, yearSelect.getValue());
+
+            VerticalLayout layout = new VerticalLayout(header, yearViewChart);
+            layout.addClassName(LumoUtility.Padding.LARGE);
+            layout.setPadding(false);
+            layout.setSpacing(false);
+            layout.getElement().getThemeList().add("spacing-l");
+
+
+            return layout;
+        }
+        return new H3("No transaction data");
+    }
+
+    private Chart updateYearViewChart(Long userId, Integer year) {
+        yearViewChart = new Chart(ChartType.AREASPLINE);
         yearViewChart.addClassName("year-view-chart");
         Configuration config = yearViewChart.getConfiguration();
         config.getChart().setStyledMode(true);
@@ -182,31 +268,21 @@ public class DashboardView extends Main {
         plotOptionsIncome.setPointPlacement(PointPlacement.ON);
         plotOptionsIncome.setMarker(new Marker(false));
 
-        if (!distinctYears.isEmpty()) {
-            ListSeries incomeSeries = updateYearViewChartIncome(userId, yearSelect.getValue());
-            incomeSeries.setPlotOptions(plotOptionsIncome);
-            config.addSeries(incomeSeries);
-        }
-
-        // ListSeries income = new ListSeries("Income", 189, 191, 291, 396, 501, 403, 609, 712, 729, 942, 1044, 1247);
-
-
         PlotOptionsAreaspline plotOptionsExpense = new PlotOptionsAreaspline();
         plotOptionsExpense.setColorIndex(2);
         plotOptionsExpense.setPointPlacement(PointPlacement.ON);
         plotOptionsExpense.setMarker(new Marker(false));
 
-        ListSeries expense = new ListSeries("Expense", 138, 246, 248, 348, 352, 353, 463, 573, 778, 779, 885, 887);
-        expense.setPlotOptions(plotOptionsExpense);
-        config.addSeries(expense);
 
+        ListSeries incomeSeries = updateYearViewChartIncome(userId, year);
+        incomeSeries.setPlotOptions(plotOptionsIncome);
+        config.addSeries(incomeSeries);
 
-        VerticalLayout layout = new VerticalLayout(header, yearViewChart);
-        layout.addClassName(LumoUtility.Padding.LARGE);
-        layout.setPadding(false);
-        layout.setSpacing(false);
-        layout.getElement().getThemeList().add("spacing-l");
-        return layout;
+        ListSeries expenseSeries = updateYearViewChartExpense(userId, year);
+        expenseSeries.setPlotOptions(plotOptionsExpense);
+        config.addSeries(expenseSeries);
+
+        return yearViewChart;
     }
 
     private ListSeries updateYearViewChartIncome(Long userId, Integer year) {
@@ -218,6 +294,17 @@ public class DashboardView extends Main {
         }
         incomeData.forEach(incomeSeries::addData);
         return incomeSeries;
+    }
+
+    private ListSeries updateYearViewChartExpense(Long userId, Integer year) {
+        ListSeries expenseSeries = new ListSeries("Expense");
+        List<Integer> expenseData = new ArrayList<>();
+        for (int month = 1; month <= 12; month++) {
+            expenseData.add(service.getSumTransactionsByMonthAndYearAndType(
+                    userId, year, month, Type.EXPENSE));
+        }
+        expenseData.forEach(expenseSeries::addData);
+        return expenseSeries;
     }
 
     private HorizontalLayout createHeader(String title, String subtitle) {
