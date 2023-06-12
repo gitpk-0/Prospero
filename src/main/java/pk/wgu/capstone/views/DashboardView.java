@@ -64,11 +64,13 @@ public class DashboardView extends Main {
     private Chart incomePieChart;
     private Configuration incomeChartConfig;
     private DataSeries incomePieSeries;
+    private HorizontalLayout incomeChartHeader;
 
     // expense pie chart
     private Chart expensePieChart;
     private Configuration expenseChartConfig;
     private DataSeries expensePieSeries;
+    private HorizontalLayout expenseChartHeader;
 
     public DashboardView(SecurityService securityService, PfmService service) {
         this.securityService = securityService;
@@ -97,31 +99,36 @@ public class DashboardView extends Main {
         add(board);
 
         yearSelect.addValueChangeListener(e -> {
-            Integer selectedYear = e.getValue();
-            incomeAreaSeries = updateYearViewChartIncome(userId, selectedYear);
-            expenseSeries = updateYearViewChartExpense(userId, selectedYear);
+            Integer selectedYear = e.getValue(); // selected year
 
-
-            yearViewSeriesList = new ArrayList<>();
-            yearViewSeriesList.add(incomeAreaSeries);
-            yearViewSeriesList.add(expenseSeries);
-
-            yearViewChartConfig.setSeries(yearViewSeriesList);
-
-            yearViewChart.drawChart();
-
-            incomePieSeries = updateIncomePieChartData(userId, selectedYear);
-            incomeChartConfig.setSeries(incomePieSeries);
-            incomePieChart.drawChart();
-
-            highlightsRow.removeAll();
-            Row newHighlightsRow = new Row(createWelcomeHighlight("Welcome " + firstName, userId),
-                    createHighlight("Income", getIncomeTotal(userId, selectedYear), selectedYear),
-                    createHighlight("Expenses", getExpensesTotal(userId, selectedYear), selectedYear),
-                    createHighlight("Transactions", getTransactionCount(userId, selectedYear), selectedYear));
-            highlightsRow.replace(highlightsRow, newHighlightsRow);
-
+            updateDashboard(userId, firstName, selectedYear);
         });
+    }
+
+    private void updateDashboard(Long userId, String firstName, Integer selectedYear) {
+        // highlights row
+        highlightsRow.removeAll();
+        Row newHighlightsRow = new Row(createWelcomeHighlight("Welcome " + firstName, userId),
+                createHighlight("Income", getIncomeTotal(userId, selectedYear), selectedYear),
+                createHighlight("Expenses", getExpensesTotal(userId, selectedYear), selectedYear),
+                createHighlight("Transactions", getTransactionCount(userId, selectedYear), selectedYear));
+        highlightsRow.replace(highlightsRow, newHighlightsRow);
+
+        // Year view chart
+        incomeAreaSeries = updateYearViewChartIncome(userId, selectedYear);
+        expenseSeries = updateYearViewChartExpense(userId, selectedYear);
+
+        yearViewSeriesList = new ArrayList<>();
+        yearViewSeriesList.add(incomeAreaSeries);
+        yearViewSeriesList.add(expenseSeries);
+
+        yearViewChartConfig.setSeries(yearViewSeriesList);
+        yearViewChart.drawChart();
+
+        pieChartsRow.removeAll();
+        Row newPieChartsRow =
+                new Row(createIncomePieChart(userId, selectedYear), createExpensePieChart(userId, selectedYear));
+        pieChartsRow.replace(pieChartsRow, newPieChartsRow);
     }
 
 
@@ -141,7 +148,7 @@ public class DashboardView extends Main {
         if (distinctYears.isEmpty()) {
             yearSelect.setEnabled(false); // no transactions exist yet
 
-            layout.add(new H3("No transaction data"));
+            layout.add(new H3("No transaction data - To view dashboard charts you need to add transactions"));
         } else {
             List<Integer> sortedYears = distinctYears.stream()
                     .sorted(Collections.reverseOrder()).toList();
@@ -214,7 +221,7 @@ public class DashboardView extends Main {
         return expenseSeries;
     }
 
-    private DataSeries updateIncomePieChartData(Long userId, Integer year) {
+    private DataSeries generateIncomePieChartData(Long userId, Integer year) {
         PlotOptionsPie incomePlotOptions = new PlotOptionsPie();
         incomeChartConfig.setPlotOptions(incomePlotOptions);
 
@@ -238,8 +245,28 @@ public class DashboardView extends Main {
         return incomePieSeries;
     }
 
-    private DataSeries updateExpensePieChartData(Long userId, Integer year) {
-        return new DataSeries();
+    private DataSeries generateExpensePieChartData(Long userId, Integer year) {
+        PlotOptionsPie expensePlotOptions = new PlotOptionsPie();
+        expenseChartConfig.setPlotOptions(expensePlotOptions);
+
+        DataLabels expensePlotsOptions = new DataLabels();
+        expensePlotsOptions.setEnabled(false);
+        expensePlotOptions.setDataLabels(expensePlotsOptions);
+
+        DataSeries expensePieSeries = new DataSeries();
+
+        List<Object[]> expenseResults = service.sumTransactionByCategoryAndYear(userId, Type.EXPENSE, year);
+
+        // convert the result sets into a lists of CategoryTotal objects
+        List<CategoryTotal> expenseData = expenseResults
+                .stream()
+                .map(row -> new CategoryTotal((String) row[0], (BigDecimal) row[1])).toList();
+
+        expenseData.forEach(item -> {
+            expensePieSeries.add(new DataSeriesItem(item.getCategoryName(), item.getTotalAmount()));
+        });
+
+        return expensePieSeries;
     }
 
     private HorizontalLayout createHeader(String title, String subtitle) {
@@ -272,16 +299,16 @@ public class DashboardView extends Main {
         List<Integer> distinctYears = service.findDistinctYears(userId);
 
         if (distinctYears.isEmpty()) {
-            layout.add(new H3("To view this chart you need to add some transactions"));
+            layout.add(new H3(""));
         } else {
-            HorizontalLayout incomeChartHeader = createHeader("Income", year.toString());
+            incomeChartHeader = createHeader("Income", year.toString());
 
             incomePieChart = new Chart(ChartType.PIE);
             incomeChartConfig = incomePieChart.getConfiguration();
             incomeChartConfig.getChart().setStyledMode(true);
             incomePieChart.setThemeName("gradient");
 
-            incomePieSeries = updateIncomePieChartData(userId, year);
+            incomePieSeries = generateIncomePieChartData(userId, year);
             incomeChartConfig.setSeries(incomePieSeries);
 
             Tooltip incomeTooltip = new Tooltip();
@@ -292,53 +319,40 @@ public class DashboardView extends Main {
             incomeChartConfig.setTooltip(incomeTooltip);
             layout.add(incomeChartHeader, incomePieChart);
         }
-
-
         return layout;
     }
 
     private Component createExpensePieChart(Long userId, Integer year) {
-        HorizontalLayout expenseChartHeader = createHeader("Expense", "All Time");
 
-        expensePieChart = new Chart(ChartType.PIE);
-        expenseChartConfig = expensePieChart.getConfiguration();
-        expenseChartConfig.getChart().setStyledMode(true);
-        expensePieChart.setThemeName("classic");
-
-        PlotOptionsPie expensePlotOptions = new PlotOptionsPie();
-        expenseChartConfig.setPlotOptions(expensePlotOptions);
-
-        DataLabels expensePlotsOptions = new DataLabels();
-        expensePlotsOptions.setEnabled(false);
-        expensePlotOptions.setDataLabels(expensePlotsOptions);
-
-        DataSeries expensePieSeries = new DataSeries();
-
-        List<Object[]> expenseResults = service.sumTransactionByCategory(userId, Type.EXPENSE);
-
-        // convert the result sets into a lists of CategoryTotal objects
-        List<CategoryTotal> expenseData = expenseResults
-                .stream()
-                .map(row -> new CategoryTotal((String) row[0], (BigDecimal) row[1])).toList();
-
-        expenseData.forEach(item -> {
-            expensePieSeries.add(new DataSeriesItem(item.getCategoryName(), item.getTotalAmount()));
-        });
-        expenseChartConfig.setSeries(expensePieSeries);
-
-        Tooltip expenseTooltip = new Tooltip();
-        expenseTooltip.setFormatter("function() {" +
-                "    return '<br/><b>' + this.point.name + '</b><br/>' +" +
-                "        'Total: $' + Highcharts.numberFormat(this.point.y, 2, '.', ',') + '<br/><br/>'}");
-        expenseTooltip.setEnabled(true);
-        expenseChartConfig.setTooltip(expenseTooltip);
-
-        VerticalLayout layout = new VerticalLayout(expenseChartHeader, expensePieChart);
+        VerticalLayout layout = new VerticalLayout();
         layout.addClassName(LumoUtility.Padding.LARGE);
         layout.setPadding(false);
         layout.setSpacing(false);
         layout.getElement().getThemeList().add("spacing-l");
 
+        List<Integer> distinctYears = service.findDistinctYears(userId);
+
+        if (distinctYears.isEmpty()) {
+            layout.add(new H3(""));
+        } else {
+            expenseChartHeader = createHeader("Expense", year.toString());
+
+            expensePieChart = new Chart(ChartType.PIE);
+            expenseChartConfig = expensePieChart.getConfiguration();
+            expenseChartConfig.getChart().setStyledMode(true);
+            expensePieChart.setThemeName("classic");
+
+            expensePieSeries = generateExpensePieChartData(userId,year);
+            expenseChartConfig.setSeries(expensePieSeries);
+
+            Tooltip expenseTooltip = new Tooltip();
+            expenseTooltip.setFormatter("function() {" +
+                    "    return '<br/><b>' + this.point.name + '</b><br/>' +" +
+                    "        'Total: $' + Highcharts.numberFormat(this.point.y, 2, '.', ',') + '<br/><br/>'}");
+            expenseTooltip.setEnabled(true);
+            expenseChartConfig.setTooltip(expenseTooltip);
+            layout.add(expenseChartHeader, expensePieChart);
+        }
         return layout;
     }
 
