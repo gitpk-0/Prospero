@@ -3,13 +3,14 @@ package pk.wgu.capstone.views.forms;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.select.SelectVariant;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
@@ -44,8 +45,8 @@ public class TransactionForm extends FormLayout {
     DatePicker datePick = new DatePicker("Date");
     NumberField amount = new NumberField("Amount");
     Div dollarPrefix = new Div();
-    ComboBox<Type> typeSelect = new ComboBox<>("Type");
-    ComboBox<Category> categorySelect = new ComboBox<>("Category");
+    Select<Type> typeSelect = new Select<>();
+    Select<Category> categorySelect = new Select<>();
     TextField description = new TextField("Description");
     public Button createNewCategoryBtn = new Button("Create new");
 
@@ -60,6 +61,12 @@ public class TransactionForm extends FormLayout {
                            List<Type> types) {
         this.securityService = securityService;
         this.service = service;
+
+        typeSelect.setHelperText("Type");
+        typeSelect.getElement().getThemeList().add(SelectVariant.LUMO_HELPER_ABOVE_FIELD.getVariantName());
+
+        categorySelect.setHelperText("Category");
+        categorySelect.getElement().getThemeList().add(SelectVariant.LUMO_HELPER_ABOVE_FIELD.getVariantName());
 
         addClassName("transaction-form"); // for styling
         dollarPrefix.setText("$");
@@ -91,7 +98,7 @@ public class TransactionForm extends FormLayout {
         description.setPlaceholder("Enter a description");
         // set items and label generators for category and type fields
         categorySelect.setItems(categories);
-        categorySelect.setAllowCustomValue(true);
+        // categorySelect.setAllowCustomValue(true);
         categorySelect.setItemLabelGenerator(Category::getName);
         categorySelect.setPlaceholder("Select a category");
         typeSelect.setItems(types);
@@ -115,7 +122,7 @@ public class TransactionForm extends FormLayout {
     }
 
 
-    private void filterCategoriesByType(List<Category> categories, AbstractField.ComponentValueChangeEvent<ComboBox<Type>, Type> e) {
+    private void filterCategoriesByType(List<Category> categories, AbstractField.ComponentValueChangeEvent<Select<Type>, Type> e) {
         Type selectedType = e.getValue();
         if (selectedType != null) {
             if (selectedType.equals(Type.INCOME)) {
@@ -184,7 +191,7 @@ public class TransactionForm extends FormLayout {
 
     private Component categoryFieldsLayout() {
         HorizontalLayout layout = new HorizontalLayout(categorySelect, createNewCategoryBtn);
-        layout.setAlignItems(FlexComponent.Alignment.BASELINE);
+        layout.setAlignItems(FlexComponent.Alignment.END);
         return layout;
     }
 
