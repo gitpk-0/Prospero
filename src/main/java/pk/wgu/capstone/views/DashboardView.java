@@ -82,7 +82,6 @@ public class DashboardView extends Main {
         String firstName = service.findUserById(userId).getFirstName();
         Integer currentYear = LocalDate.now().getYear();
 
-
         Board board = new Board();
         highlightsRow = new Row(createWelcomeHighlight("Welcome " + firstName, userId),
                 createHighlight("Income", getIncomeTotal(userId, currentYear), currentYear),
@@ -100,37 +99,83 @@ public class DashboardView extends Main {
 
         yearSelect.addValueChangeListener(e -> {
             Integer selectedYear = e.getValue(); // selected year
-
             updateDashboard(userId, firstName, selectedYear);
         });
     }
 
-    private void updateDashboard(Long userId, String firstName, Integer selectedYear) {
-        // highlights row
-        highlightsRow.removeAll();
-        Row newHighlightsRow = new Row(createWelcomeHighlight("Welcome " + firstName, userId),
-                createHighlight("Income", getIncomeTotal(userId, selectedYear), selectedYear),
-                createHighlight("Expenses", getExpensesTotal(userId, selectedYear), selectedYear),
-                createHighlight("Transactions", getTransactionCount(userId, selectedYear), selectedYear));
-        highlightsRow.replace(highlightsRow, newHighlightsRow);
+    private Component createWelcomeHighlight(String welcome, Long userId) {
+        VaadinIcon icon = VaadinIcon.MONEY;
+        String prefix = " ";
+        String theme = "badge";
 
-        // Year view chart
-        incomeAreaSeries = generateIncomeYearChartData(userId, selectedYear);
-        expenseSeries = generateExpenseYearChartData(userId, selectedYear);
+        Double accountBalance = getAccountBalance(userId);
 
-        yearViewSeriesList = new ArrayList<>();
-        yearViewSeriesList.add(incomeAreaSeries);
-        yearViewSeriesList.add(expenseSeries);
+        if (accountBalance > 0) {
+            theme += " success";
+        } else if (accountBalance < 0) {
+            theme += " error";
+        }
 
-        yearViewChartConfig.setSeries(yearViewSeriesList);
-        yearViewChart.drawChart();
+        H2 welcomeText = new H2(welcome);
+        welcomeText.addClassNames(LumoUtility.FontWeight.NORMAL, LumoUtility.Margin.NONE,
+                LumoUtility.TextColor.SECONDARY, LumoUtility.FontSize.MEDIUM);
 
-        pieChartsRow.removeAll();
-        Row newPieChartsRow =
-                new Row(createIncomePieChart(userId, selectedYear), createExpensePieChart(userId, selectedYear));
-        pieChartsRow.replace(pieChartsRow, newPieChartsRow);
+        Span accountBalanceSpan = new Span("Account Balance");
+        accountBalanceSpan.addClassNames(LumoUtility.FontWeight.SEMIBOLD, LumoUtility.FontSize.LARGE);
+
+        Icon i = icon.create();
+        i.addClassNames(LumoUtility.BoxSizing.BORDER, LumoUtility.Padding.XSMALL);
+
+        String balance = currencyFormat.format(accountBalance);
+        Span badge = new Span(i, new Span(prefix + balance));
+        badge.getElement().getThemeList().add(theme);
+        badge.addClassNames(LumoUtility.FontSize.LARGE);
+
+        VerticalLayout layout = new VerticalLayout(welcomeText, accountBalanceSpan, badge);
+        layout.addClassName(LumoUtility.Padding.LARGE);
+        layout.setPadding(false);
+        layout.setSpacing(false);
+        return layout;
     }
 
+    private Component createHighlight(String title, String value, Integer year) {
+
+        H2 titleText = new H2(title);
+        titleText.addClassNames(LumoUtility.FontWeight.NORMAL, LumoUtility.Margin.NONE,
+                LumoUtility.TextColor.SECONDARY, LumoUtility.FontSize.MEDIUM);
+
+        Span valueSpan = new Span(value);
+        valueSpan.addClassNames(LumoUtility.FontWeight.SEMIBOLD, LumoUtility.FontSize.XXXLARGE);
+
+        String theme = "badge";
+        Span badge = new Span(year.toString());
+        badge.getElement().getThemeList().add(theme);
+
+        VerticalLayout layout = new VerticalLayout(titleText, valueSpan, badge);
+        layout.addClassName(LumoUtility.Padding.LARGE);
+        layout.setPadding(false);
+        layout.setSpacing(false);
+        return layout;
+    }
+
+    private HorizontalLayout createHeader(String title, String subtitle) {
+        H2 h2 = new H2(title);
+        h2.addClassNames(LumoUtility.FontSize.XLARGE, LumoUtility.Margin.NONE);
+
+        Span span = new Span(subtitle);
+        span.addClassNames(LumoUtility.TextColor.SECONDARY, LumoUtility.FontSize.XSMALL);
+        span.getElement().getThemeList().add("badge");
+
+        VerticalLayout column = new VerticalLayout(h2, span);
+        column.setPadding(false);
+        column.setSpacing(false);
+
+        HorizontalLayout header = new HorizontalLayout(column);
+        header.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+        header.setSpacing(false);
+        header.setWidthFull();
+        return header;
+    }
 
     private Component createYearViewLayout(Long userId, Integer year) {
         HorizontalLayout yearViewHeader = createHeader("Year View", "Transaction Totals by Month");
@@ -191,6 +236,101 @@ public class DashboardView extends Main {
             layout.add(yearViewHeader, yearViewChart);
         }
         return layout;
+    }
+
+    private Component createIncomePieChart(Long userId, Integer year) {
+
+        VerticalLayout layout = new VerticalLayout();
+        layout.addClassName(LumoUtility.Padding.LARGE);
+        layout.setPadding(false);
+        layout.setSpacing(false);
+        layout.getElement().getThemeList().add("spacing-l");
+
+        List<Integer> distinctYears = service.findDistinctYears(userId);
+
+        if (distinctYears.isEmpty()) {
+            layout.add(new H3(""));
+        } else {
+            incomeChartHeader = createHeader("Income", year.toString());
+
+            incomePieChart = new Chart(ChartType.PIE);
+            incomeChartConfig = incomePieChart.getConfiguration();
+            incomeChartConfig.getChart().setStyledMode(true);
+            incomePieChart.setThemeName("gradient");
+
+            incomePieSeries = generateIncomePieChartData(userId, year);
+            incomeChartConfig.setSeries(incomePieSeries);
+
+            Tooltip incomeTooltip = new Tooltip();
+            incomeTooltip.setFormatter("function() {" +
+                    "    return '<br/><b>' + this.point.name + '</b><br/>' +" +
+                    "        'Total: $' + Highcharts.numberFormat(this.point.y, 2, '.', ',') + '<br/><br/>'}");
+            incomeTooltip.setEnabled(true);
+            incomeChartConfig.setTooltip(incomeTooltip);
+            layout.add(incomeChartHeader, incomePieChart);
+        }
+        return layout;
+    }
+
+    private Component createExpensePieChart(Long userId, Integer year) {
+
+        VerticalLayout layout = new VerticalLayout();
+        layout.addClassName(LumoUtility.Padding.LARGE);
+        layout.setPadding(false);
+        layout.setSpacing(false);
+        layout.getElement().getThemeList().add("spacing-l");
+
+        List<Integer> distinctYears = service.findDistinctYears(userId);
+
+        if (distinctYears.isEmpty()) {
+            layout.add(new H3(""));
+        } else {
+            expenseChartHeader = createHeader("Expense", year.toString());
+
+            expensePieChart = new Chart(ChartType.PIE);
+            expenseChartConfig = expensePieChart.getConfiguration();
+            expenseChartConfig.getChart().setStyledMode(true);
+            expensePieChart.setThemeName("classic");
+
+            expensePieSeries = generateExpensePieChartData(userId,year);
+            expenseChartConfig.setSeries(expensePieSeries);
+
+            Tooltip expenseTooltip = new Tooltip();
+            expenseTooltip.setFormatter("function() {" +
+                    "    return '<br/><b>' + this.point.name + '</b><br/>' +" +
+                    "        'Total: $' + Highcharts.numberFormat(this.point.y, 2, '.', ',') + '<br/><br/>'}");
+            expenseTooltip.setEnabled(true);
+            expenseChartConfig.setTooltip(expenseTooltip);
+            layout.add(expenseChartHeader, expensePieChart);
+        }
+        return layout;
+    }
+
+    private void updateDashboard(Long userId, String firstName, Integer selectedYear) {
+        // highlights row
+        highlightsRow.removeAll();
+        Row newHighlightsRow = new Row(createWelcomeHighlight("Welcome " + firstName, userId),
+                createHighlight("Income", getIncomeTotal(userId, selectedYear), selectedYear),
+                createHighlight("Expenses", getExpensesTotal(userId, selectedYear), selectedYear),
+                createHighlight("Transactions", getTransactionCount(userId, selectedYear), selectedYear));
+        highlightsRow.replace(highlightsRow, newHighlightsRow);
+
+        // Year view chart
+        incomeAreaSeries = generateIncomeYearChartData(userId, selectedYear);
+        expenseSeries = generateExpenseYearChartData(userId, selectedYear);
+
+        yearViewSeriesList = new ArrayList<>();
+        yearViewSeriesList.add(incomeAreaSeries);
+        yearViewSeriesList.add(expenseSeries);
+
+        yearViewChartConfig.setSeries(yearViewSeriesList);
+        yearViewChart.drawChart();
+
+        // Pie charts row
+        pieChartsRow.removeAll();
+        Row newPieChartsRow =
+                new Row(createIncomePieChart(userId, selectedYear), createExpensePieChart(userId, selectedYear));
+        pieChartsRow.replace(pieChartsRow, newPieChartsRow);
     }
 
     private ListSeries generateIncomeYearChartData(Long userId, Integer year) {
@@ -275,104 +415,16 @@ public class DashboardView extends Main {
         return expensePieSeries;
     }
 
-    private HorizontalLayout createHeader(String title, String subtitle) {
-        H2 h2 = new H2(title);
-        h2.addClassNames(LumoUtility.FontSize.XLARGE, LumoUtility.Margin.NONE);
-
-        Span span = new Span(subtitle);
-        span.addClassNames(LumoUtility.TextColor.SECONDARY, LumoUtility.FontSize.XSMALL);
-        span.getElement().getThemeList().add("badge");
-
-        VerticalLayout column = new VerticalLayout(h2, span);
-        column.setPadding(false);
-        column.setSpacing(false);
-
-        HorizontalLayout header = new HorizontalLayout(column);
-        header.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-        header.setSpacing(false);
-        header.setWidthFull();
-        return header;
-    }
-
-    private Component createIncomePieChart(Long userId, Integer year) {
-
-        VerticalLayout layout = new VerticalLayout();
-        layout.addClassName(LumoUtility.Padding.LARGE);
-        layout.setPadding(false);
-        layout.setSpacing(false);
-        layout.getElement().getThemeList().add("spacing-l");
-
-        List<Integer> distinctYears = service.findDistinctYears(userId);
-
-        if (distinctYears.isEmpty()) {
-            layout.add(new H3(""));
-        } else {
-            incomeChartHeader = createHeader("Income", year.toString());
-
-            incomePieChart = new Chart(ChartType.PIE);
-            incomeChartConfig = incomePieChart.getConfiguration();
-            incomeChartConfig.getChart().setStyledMode(true);
-            incomePieChart.setThemeName("gradient");
-
-            incomePieSeries = generateIncomePieChartData(userId, year);
-            incomeChartConfig.setSeries(incomePieSeries);
-
-            Tooltip incomeTooltip = new Tooltip();
-            incomeTooltip.setFormatter("function() {" +
-                    "    return '<br/><b>' + this.point.name + '</b><br/>' +" +
-                    "        'Total: $' + Highcharts.numberFormat(this.point.y, 2, '.', ',') + '<br/><br/>'}");
-            incomeTooltip.setEnabled(true);
-            incomeChartConfig.setTooltip(incomeTooltip);
-            layout.add(incomeChartHeader, incomePieChart);
-        }
-        return layout;
-    }
-
-    private Component createExpensePieChart(Long userId, Integer year) {
-
-        VerticalLayout layout = new VerticalLayout();
-        layout.addClassName(LumoUtility.Padding.LARGE);
-        layout.setPadding(false);
-        layout.setSpacing(false);
-        layout.getElement().getThemeList().add("spacing-l");
-
-        List<Integer> distinctYears = service.findDistinctYears(userId);
-
-        if (distinctYears.isEmpty()) {
-            layout.add(new H3(""));
-        } else {
-            expenseChartHeader = createHeader("Expense", year.toString());
-
-            expensePieChart = new Chart(ChartType.PIE);
-            expenseChartConfig = expensePieChart.getConfiguration();
-            expenseChartConfig.getChart().setStyledMode(true);
-            expensePieChart.setThemeName("classic");
-
-            expensePieSeries = generateExpensePieChartData(userId,year);
-            expenseChartConfig.setSeries(expensePieSeries);
-
-            Tooltip expenseTooltip = new Tooltip();
-            expenseTooltip.setFormatter("function() {" +
-                    "    return '<br/><b>' + this.point.name + '</b><br/>' +" +
-                    "        'Total: $' + Highcharts.numberFormat(this.point.y, 2, '.', ',') + '<br/><br/>'}");
-            expenseTooltip.setEnabled(true);
-            expenseChartConfig.setTooltip(expenseTooltip);
-            layout.add(expenseChartHeader, expensePieChart);
-        }
-        return layout;
-    }
-
-
     private String getTransactionCount(Long userId, Integer year) {
         return String.valueOf(service.getTransactionCountByYear(userId, year));
     }
 
-    private String getExpensesTotal(Long userId, Integer year) {
-        return currencyFormat.format(service.getSumExpenseTransactionsByYear(userId, year));
-    }
-
     private String getIncomeTotal(Long userId, Integer year) {
         return currencyFormat.format(service.getSumIncomeTransactionsByYear(userId, year));
+    }
+
+    private String getExpensesTotal(Long userId, Integer year) {
+        return currencyFormat.format(service.getSumExpenseTransactionsByYear(userId, year));
     }
 
     private Double getAccountBalance(Long userId) {
@@ -380,60 +432,5 @@ public class DashboardView extends Main {
         BigDecimal expenses = service.getSumExpenseTransactions(userId);
         BigDecimal accountBalanceBd = income.subtract(expenses);
         return amountConverter.convertToPresentation(accountBalanceBd, new ValueContext());
-    }
-
-    private Component createHighlight(String title, String value, Integer year) {
-
-        H2 titleText = new H2(title);
-        titleText.addClassNames(LumoUtility.FontWeight.NORMAL, LumoUtility.Margin.NONE,
-                LumoUtility.TextColor.SECONDARY, LumoUtility.FontSize.MEDIUM);
-
-        Span valueSpan = new Span(value);
-        valueSpan.addClassNames(LumoUtility.FontWeight.SEMIBOLD, LumoUtility.FontSize.XXXLARGE);
-
-        String theme = "badge";
-        Span badge = new Span(year.toString());
-        badge.getElement().getThemeList().add(theme);
-
-        VerticalLayout layout = new VerticalLayout(titleText, valueSpan, badge);
-        layout.addClassName(LumoUtility.Padding.LARGE);
-        layout.setPadding(false);
-        layout.setSpacing(false);
-        return layout;
-    }
-
-    private Component createWelcomeHighlight(String welcome, Long userId) {
-        VaadinIcon icon = VaadinIcon.MONEY;
-        String prefix = " ";
-        String theme = "badge";
-
-        Double accountBalance = getAccountBalance(userId);
-
-        if (accountBalance > 0) {
-            theme += " success";
-        } else if (accountBalance < 0) {
-            theme += " error";
-        }
-
-        H2 welcomeText = new H2(welcome);
-        welcomeText.addClassNames(LumoUtility.FontWeight.NORMAL, LumoUtility.Margin.NONE,
-                LumoUtility.TextColor.SECONDARY, LumoUtility.FontSize.MEDIUM);
-
-        Span accountBalanceSpan = new Span("Account Balance");
-        accountBalanceSpan.addClassNames(LumoUtility.FontWeight.SEMIBOLD, LumoUtility.FontSize.LARGE);
-
-        Icon i = icon.create();
-        i.addClassNames(LumoUtility.BoxSizing.BORDER, LumoUtility.Padding.XSMALL);
-
-        String balance = currencyFormat.format(accountBalance);
-        Span badge = new Span(i, new Span(prefix + balance));
-        badge.getElement().getThemeList().add(theme);
-        badge.addClassNames(LumoUtility.FontSize.LARGE);
-
-        VerticalLayout layout = new VerticalLayout(welcomeText, accountBalanceSpan, badge);
-        layout.addClassName(LumoUtility.Padding.LARGE);
-        layout.setPadding(false);
-        layout.setSpacing(false);
-        return layout;
     }
 }
