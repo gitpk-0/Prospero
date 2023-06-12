@@ -1,5 +1,6 @@
 package pk.wgu.capstone.views;
 
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H3;
@@ -27,8 +28,8 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         i18nErrorMessage.setTitle("Invalid credentials");
         i18nErrorMessage.setMessage("Check that you have entered the correct username and password and try again.");
         i18n.setErrorMessage(i18nErrorMessage);
-        i18n.setAdditionalInformation("If you are experiencing issues " +
-                "logging into your account, please contact prospero.support@pm.me");
+        // i18n.setAdditionalInformation("If you are experiencing issues " +
+        //         "logging into your account, please contact prospero.support@pm.me");
 
         loginForm.setI18n(i18n);
 
@@ -49,6 +50,16 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
                 loginForm,
                 new RouterLink("Create an account", RegistrationView.class)
         );
+
+        // forgot password
+        loginForm.addForgotPasswordListener(e -> {
+            ConfirmDialog confirmDialog = new ConfirmDialog();
+            confirmDialog.setHeader("Forgot Password");
+            confirmDialog.setText("If you are experiencing issues " +
+                    "logging into your account, please contact prospero.support@pm.me");
+            confirmDialog.setConfirmText("OK");
+            confirmDialog.open();
+        });
     }
 
     @Override

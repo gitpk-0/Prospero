@@ -3,7 +3,7 @@
 .settings
 .project
 .classpath
-Notes.txt
+notes.txt
 
 *.iml
 .DS_Store
