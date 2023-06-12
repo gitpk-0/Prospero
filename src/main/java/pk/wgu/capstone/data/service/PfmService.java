@@ -190,4 +190,20 @@ public class PfmService { // Personal Finance Management Service
     public Integer getSumTransactionsByMonthAndYearAndType(Long userId, Integer year, Integer month, Type type) {
         return transactionRepository.getSumTransactionsByMonthAndYearAndType(userId, year, month, type);
     }
+
+    public List<Object[]> sumTransactionByCategoryAndYear(Long userId, Type type, Integer year) {
+        return transactionRepository.sumTransactionsByCategoryAndYear(userId, type, year);
+    }
+
+    public BigDecimal getSumIncomeTransactionsByYear(Long userId, Integer year) {
+        return transactionRepository.getSumTransactionsByTypeAndYear(userId, Type.INCOME, year);
+    }
+
+    public BigDecimal getSumExpenseTransactionsByYear(Long userId, Integer year) {
+        return transactionRepository.getSumTransactionsByTypeAndYear(userId, Type.EXPENSE, year);
+    }
+
+    public Integer getTransactionCountByYear(Long userId, Integer year) {
+        return transactionRepository.getTransactionCountByYear(userId, year);
+    }
 }

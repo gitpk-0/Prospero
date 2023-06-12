@@ -33,6 +33,15 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             "GROUP BY c.name")
     List<Object[]> sumTransactionsByCategory(@Param("user_id") Long userId, @Param("type") Type type);
 
+    @Query("select c.name, SUM(t.amount) AS total_amount FROM transactions t " +
+            "JOIN categories c ON t.category.id = c.id " +
+            "where t.userId = :user_id and c.type = :type and year(t.date) = :year " +
+            "GROUP BY c.name")
+    List<Object[]> sumTransactionsByCategoryAndYear(
+            @Param("user_id") Long userId,
+            @Param("type") Type type,
+            @Param("year") Integer year);
+
     @Query("select coalesce(SUM(t.amount), 0.0) from transactions t " +
             "where t.userId = :user_id and t.date >= :start and t.date <= :end " +
             "and t.type = :type")
@@ -52,7 +61,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             @Param("start") Date start,
             @Param("end") Date end);
 
-    @Query("select coalesce(sum(t.amount), 0.0) as income from transactions t where t.userId = :user_id and t.type = :type")
+    @Query("select coalesce(sum(t.amount), 0.0) as income from transactions t " +
+            "where t.userId = :user_id and t.type = :type")
     BigDecimal getSumTransactionsByType(@Param("user_id") Long userId, @Param("type") Type type);
 
     @Query("select coalesce(count(t.id), 0) from transactions t where t.userId = :user_id")
@@ -66,8 +76,19 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             "where t.userId = :userId " +
             "and year(t.date) = :year  " +
             "and month(t.date) = :month and t.type = :type")
-    Integer getSumTransactionsByMonthAndYearAndType(@Param("userId") Long userId,
-                                             @Param("year") Integer year,
-                                             @Param("month") Integer month,
-                                             @Param("type") Type type);
+    Integer getSumTransactionsByMonthAndYearAndType(
+            @Param("userId") Long userId,
+            @Param("year") Integer year,
+            @Param("month") Integer month,
+            @Param("type") Type type);
+
+    @Query("select coalesce(sum(t.amount), 0.0) as income from transactions t " +
+            "where t.userId = :user_id and t.type = :type and year(t.date) = :year")
+    BigDecimal getSumTransactionsByTypeAndYear(
+            @Param("user_id") Long userId, @Param("type") Type type, @Param("year") Integer year);
+
+
+    @Query("select coalesce(count(t.id), 0) from transactions t " +
+            "where t.userId = :user_id and year(t.date) = :year")
+    Integer getTransactionCountByYear(@Param("user_id") Long userId, @Param("year") Integer year);
 }

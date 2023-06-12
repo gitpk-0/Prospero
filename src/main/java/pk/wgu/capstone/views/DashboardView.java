@@ -56,17 +56,19 @@ public class DashboardView extends Main {
     private Select<Integer> yearSelect;
     private Chart yearViewChart;
     private Configuration yearViewChartConfig;
-    private ListSeries incomeSeries;
+    private ListSeries incomeAreaSeries;
     private ListSeries expenseSeries;
     private List<Series> yearViewSeriesList;
 
     // income pie chart
     private Chart incomePieChart;
     private Configuration incomeChartConfig;
+    private DataSeries incomePieSeries;
 
     // expense pie chart
     private Chart expensePieChart;
     private Configuration expenseChartConfig;
+    private DataSeries expensePieSeries;
 
     public DashboardView(SecurityService securityService, PfmService service) {
         this.securityService = securityService;
@@ -76,18 +78,17 @@ public class DashboardView extends Main {
 
         Long userId = securityService.getCurrentUserId(service);
         String firstName = service.findUserById(userId).getFirstName();
-        String currentMonth = LocalDate.now().getMonth().toString();
         Integer currentYear = LocalDate.now().getYear();
 
 
         Board board = new Board();
         highlightsRow = new Row(createWelcomeHighlight("Welcome " + firstName, userId),
-                createHighlight("Income", getIncomeTotal(userId), currentMonth),
-                createHighlight("Expenses", getExpensesTotal(userId), currentMonth),
-                createHighlight("Transactions", getTransactionCount(userId), currentMonth));
+                createHighlight("Income", getIncomeTotal(userId, currentYear), currentYear),
+                createHighlight("Expenses", getExpensesTotal(userId, currentYear), currentYear),
+                createHighlight("Transactions", getTransactionCount(userId, currentYear), currentYear));
 
         areasplieChartRow = new Row(createYearViewLayout(userId, currentYear));
-        pieChartsRow = new Row(createIncomePieChart(userId), createExpensePieChart(userId));
+        pieChartsRow = new Row(createIncomePieChart(userId, currentYear), createExpensePieChart(userId, currentYear));
 
         board.addRow(highlightsRow);
         board.addRow(areasplieChartRow);
@@ -97,16 +98,29 @@ public class DashboardView extends Main {
 
         yearSelect.addValueChangeListener(e -> {
             Integer selectedYear = e.getValue();
-            incomeSeries = updateYearViewChartIncome(userId, selectedYear);
+            incomeAreaSeries = updateYearViewChartIncome(userId, selectedYear);
             expenseSeries = updateYearViewChartExpense(userId, selectedYear);
 
+
             yearViewSeriesList = new ArrayList<>();
-            yearViewSeriesList.add(incomeSeries);
+            yearViewSeriesList.add(incomeAreaSeries);
             yearViewSeriesList.add(expenseSeries);
 
             yearViewChartConfig.setSeries(yearViewSeriesList);
 
             yearViewChart.drawChart();
+
+            incomePieSeries = updateIncomePieChartData(userId, selectedYear);
+            incomeChartConfig.setSeries(incomePieSeries);
+            incomePieChart.drawChart();
+
+            highlightsRow.removeAll();
+            Row newHighlightsRow = new Row(createWelcomeHighlight("Welcome " + firstName, userId),
+                    createHighlight("Income", getIncomeTotal(userId, selectedYear), selectedYear),
+                    createHighlight("Expenses", getExpensesTotal(userId, selectedYear), selectedYear),
+                    createHighlight("Transactions", getTransactionCount(userId, selectedYear), selectedYear));
+            highlightsRow.replace(highlightsRow, newHighlightsRow);
+
         });
     }
 
@@ -152,11 +166,11 @@ public class DashboardView extends Main {
 
             yearViewChartConfig.getyAxis().setTitle("Totals");
 
-            incomeSeries = updateYearViewChartIncome(userId, year);
+            incomeAreaSeries = updateYearViewChartIncome(userId, year);
             expenseSeries = updateYearViewChartExpense(userId, year);
 
             yearViewSeriesList = new ArrayList<>();
-            yearViewSeriesList.add(incomeSeries);
+            yearViewSeriesList.add(incomeAreaSeries);
             yearViewSeriesList.add(expenseSeries);
 
             yearViewChartConfig.setSeries(yearViewSeriesList);
@@ -200,12 +214,41 @@ public class DashboardView extends Main {
         return expenseSeries;
     }
 
+    private DataSeries updateIncomePieChartData(Long userId, Integer year) {
+        PlotOptionsPie incomePlotOptions = new PlotOptionsPie();
+        incomeChartConfig.setPlotOptions(incomePlotOptions);
+
+        DataLabels incomeDataLabels = new DataLabels();
+        incomeDataLabels.setEnabled(false);
+        incomePlotOptions.setDataLabels(incomeDataLabels);
+
+        incomePieSeries = new DataSeries();
+
+        List<Object[]> incomeResults = service.sumTransactionByCategoryAndYear(userId, Type.INCOME, year);
+
+        // convert the result sets into a lists of CategoryTotal objects
+        List<CategoryTotal> incomeData = incomeResults
+                .stream()
+                .map(row -> new CategoryTotal((String) row[0], (BigDecimal) row[1])).toList();
+
+        incomeData.forEach(item -> {
+            incomePieSeries.add(new DataSeriesItem(item.getCategoryName(), item.getTotalAmount()));
+        });
+
+        return incomePieSeries;
+    }
+
+    private DataSeries updateExpensePieChartData(Long userId, Integer year) {
+        return new DataSeries();
+    }
+
     private HorizontalLayout createHeader(String title, String subtitle) {
         H2 h2 = new H2(title);
         h2.addClassNames(LumoUtility.FontSize.XLARGE, LumoUtility.Margin.NONE);
 
         Span span = new Span(subtitle);
         span.addClassNames(LumoUtility.TextColor.SECONDARY, LumoUtility.FontSize.XSMALL);
+        span.getElement().getThemeList().add("badge");
 
         VerticalLayout column = new VerticalLayout(h2, span);
         column.setPadding(false);
@@ -218,53 +261,43 @@ public class DashboardView extends Main {
         return header;
     }
 
-    private Component createIncomePieChart(Long userId) {
-        HorizontalLayout incomeChartHeader = createHeader("Income", "All Time");
+    private Component createIncomePieChart(Long userId, Integer year) {
 
-        incomePieChart = new Chart(ChartType.PIE);
-        incomeChartConfig = incomePieChart.getConfiguration();
-        incomeChartConfig.getChart().setStyledMode(true);
-        incomePieChart.setThemeName("gradient");
-
-        PlotOptionsPie incomePlotOptions = new PlotOptionsPie();
-        incomeChartConfig.setPlotOptions(incomePlotOptions);
-
-        DataLabels incomeDataLabels = new DataLabels();
-        incomeDataLabels.setEnabled(false);
-        incomePlotOptions.setDataLabels(incomeDataLabels);
-
-        DataSeries incomeSeries = new DataSeries();
-
-        List<Object[]> incomeResults = service.sumTransactionByCategory(userId, Type.INCOME);
-
-        // convert the result sets into a lists of CategoryTotal objects
-        List<CategoryTotal> incomeData = incomeResults
-                .stream()
-                .map(row -> new CategoryTotal((String) row[0], (BigDecimal) row[1])).toList();
-
-        incomeData.forEach(item -> {
-            incomeSeries.add(new DataSeriesItem(item.getCategoryName(), item.getTotalAmount()));
-        });
-
-        Tooltip incomeTooltip = new Tooltip();
-        incomeTooltip.setFormatter("function() {" +
-                "    return '<br/><b>' + this.point.name + '</b><br/>' +" +
-                "        'Total: $' + Highcharts.numberFormat(this.point.y, 2, '.', ',') + '<br/><br/>'}");
-        incomeTooltip.setEnabled(true);
-        incomeChartConfig.setTooltip(incomeTooltip);
-
-
-        incomeChartConfig.setSeries(incomeSeries);
-
-        VerticalLayout layout = new VerticalLayout(incomeChartHeader, incomePieChart);
+        VerticalLayout layout = new VerticalLayout();
         layout.addClassName(LumoUtility.Padding.LARGE);
         layout.setPadding(false);
         layout.setSpacing(false);
         layout.getElement().getThemeList().add("spacing-l");
+
+        List<Integer> distinctYears = service.findDistinctYears(userId);
+
+        if (distinctYears.isEmpty()) {
+            layout.add(new H3("To view this chart you need to add some transactions"));
+        } else {
+            HorizontalLayout incomeChartHeader = createHeader("Income", year.toString());
+
+            incomePieChart = new Chart(ChartType.PIE);
+            incomeChartConfig = incomePieChart.getConfiguration();
+            incomeChartConfig.getChart().setStyledMode(true);
+            incomePieChart.setThemeName("gradient");
+
+            incomePieSeries = updateIncomePieChartData(userId, year);
+            incomeChartConfig.setSeries(incomePieSeries);
+
+            Tooltip incomeTooltip = new Tooltip();
+            incomeTooltip.setFormatter("function() {" +
+                    "    return '<br/><b>' + this.point.name + '</b><br/>' +" +
+                    "        'Total: $' + Highcharts.numberFormat(this.point.y, 2, '.', ',') + '<br/><br/>'}");
+            incomeTooltip.setEnabled(true);
+            incomeChartConfig.setTooltip(incomeTooltip);
+            layout.add(incomeChartHeader, incomePieChart);
+        }
+
+
         return layout;
     }
 
-    private Component createExpensePieChart(Long userId) {
+    private Component createExpensePieChart(Long userId, Integer year) {
         HorizontalLayout expenseChartHeader = createHeader("Expense", "All Time");
 
         expensePieChart = new Chart(ChartType.PIE);
@@ -279,7 +312,7 @@ public class DashboardView extends Main {
         expensePlotsOptions.setEnabled(false);
         expensePlotOptions.setDataLabels(expensePlotsOptions);
 
-        DataSeries expenseSeries = new DataSeries();
+        DataSeries expensePieSeries = new DataSeries();
 
         List<Object[]> expenseResults = service.sumTransactionByCategory(userId, Type.EXPENSE);
 
@@ -289,9 +322,9 @@ public class DashboardView extends Main {
                 .map(row -> new CategoryTotal((String) row[0], (BigDecimal) row[1])).toList();
 
         expenseData.forEach(item -> {
-            expenseSeries.add(new DataSeriesItem(item.getCategoryName(), item.getTotalAmount()));
+            expensePieSeries.add(new DataSeriesItem(item.getCategoryName(), item.getTotalAmount()));
         });
-        expenseChartConfig.addSeries(expenseSeries);
+        expenseChartConfig.setSeries(expensePieSeries);
 
         Tooltip expenseTooltip = new Tooltip();
         expenseTooltip.setFormatter("function() {" +
@@ -310,16 +343,16 @@ public class DashboardView extends Main {
     }
 
 
-    private String getTransactionCount(Long userId) {
-        return String.valueOf(service.getTransactionCount(userId));
+    private String getTransactionCount(Long userId, Integer year) {
+        return String.valueOf(service.getTransactionCountByYear(userId, year));
     }
 
-    private String getExpensesTotal(Long userId) {
-        return currencyFormat.format(service.getSumExpenseTransactions(userId));
+    private String getExpensesTotal(Long userId, Integer year) {
+        return currencyFormat.format(service.getSumExpenseTransactionsByYear(userId, year));
     }
 
-    private String getIncomeTotal(Long userId) {
-        return currencyFormat.format(service.getSumIncomeTransactions(userId));
+    private String getIncomeTotal(Long userId, Integer year) {
+        return currencyFormat.format(service.getSumIncomeTransactionsByYear(userId, year));
     }
 
     private Double getAccountBalance(Long userId) {
@@ -329,7 +362,7 @@ public class DashboardView extends Main {
         return amountConverter.convertToPresentation(accountBalanceBd, new ValueContext());
     }
 
-    private Component createHighlight(String title, String value, String month) {
+    private Component createHighlight(String title, String value, Integer year) {
 
         H2 titleText = new H2(title);
         titleText.addClassNames(LumoUtility.FontWeight.NORMAL, LumoUtility.Margin.NONE,
@@ -338,8 +371,8 @@ public class DashboardView extends Main {
         Span valueSpan = new Span(value);
         valueSpan.addClassNames(LumoUtility.FontWeight.SEMIBOLD, LumoUtility.FontSize.XXXLARGE);
 
-        String theme = "badge success";
-        Span badge = new Span("ALL");
+        String theme = "badge";
+        Span badge = new Span(year.toString());
         badge.getElement().getThemeList().add(theme);
 
         VerticalLayout layout = new VerticalLayout(titleText, valueSpan, badge);
