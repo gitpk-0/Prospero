@@ -28,8 +28,6 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         i18nErrorMessage.setTitle("Invalid credentials");
         i18nErrorMessage.setMessage("Check that you have entered the correct username and password and try again.");
         i18n.setErrorMessage(i18nErrorMessage);
-        // i18n.setAdditionalInformation("If you are experiencing issues " +
-        //         "logging into your account, please contact prospero.support@pm.me");
 
         loginForm.setI18n(i18n);
 

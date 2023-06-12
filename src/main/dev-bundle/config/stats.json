@@ -264,7 +264,7 @@
   "Frontend/generated/jar-resources/virtualListConnector.js"
  ],
  "frontendHashes": {
-  "themes/prospero/prospero-charts.css": "c4f8154656d0e4d02c1b92e48109b07d604689e7a89492387a560e44f96e0d19",
+  "themes/prospero/prospero-charts.css": "09f84b4d855037f0fdb3c58c454973f073f9cfab9dd197e3eae1b9b267dd750f",
   "themes/prospero/views/dashboard-view.css": "c4dbb1a46a63a12cdf5a2097bc55be722fe858a604fc42263cc5651c55cff8f2",
   "themes/prospero/views/i-v-e-grids.css": "41fdc168f78bf5b824e53c8c06e24faf4299ac79ba0e62820f82598d6dfc48da",
   "themes/prospero/views/login-form.css": "390084932bf182075c9ef5da786240d8198bd66de08cb582dc0ea699e50c3801",
@@ -296,7 +296,7 @@
   "prospero": "{\n  \"lumoImports\" : [ \"typography\", \"color\", \"spacing\", \"badge\", \"utility\" ],\n  \"include\": [\"styles.css\"]\n}"
  },
  "entryScripts": [
-  "VAADIN/build/indexhtml-8f63abe8.js"
+  "VAADIN/build/indexhtml-b2248544.js"
  ],
  "webComponents": [],
  "packageJsonHash": "b8388d83fbed399c0a168af333606c4c74767b2a33a8ada84efccae4395830c5"

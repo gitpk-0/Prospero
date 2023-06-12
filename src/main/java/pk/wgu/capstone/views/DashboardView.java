@@ -23,6 +23,7 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.PermitAll;
 import pk.wgu.capstone.data.converter.BigDecimalToDoubleConverter;
 import pk.wgu.capstone.data.entity.Type;
+import pk.wgu.capstone.data.entity.report.CategoryTotal;
 import pk.wgu.capstone.data.service.PfmService;
 import pk.wgu.capstone.security.SecurityService;
 
@@ -59,6 +60,14 @@ public class DashboardView extends Main {
     private ListSeries expenseSeries;
     private List<Series> yearViewSeriesList;
 
+    // income pie chart
+    private Chart incomePieChart;
+    private Configuration incomeChartConfig;
+
+    // expense pie chart
+    private Chart expensePieChart;
+    private Configuration expenseChartConfig;
+
     public DashboardView(SecurityService securityService, PfmService service) {
         this.securityService = securityService;
         this.service = service;
@@ -78,7 +87,7 @@ public class DashboardView extends Main {
                 createHighlight("Transactions", getTransactionCount(userId), currentMonth));
 
         areasplieChartRow = new Row(createYearViewLayout(userId, currentYear));
-        pieChartsRow = new Row(createIncomePieChart(), createExpensePieChart());
+        pieChartsRow = new Row(createIncomePieChart(userId), createExpensePieChart(userId));
 
         board.addRow(highlightsRow);
         board.addRow(areasplieChartRow);
@@ -209,24 +218,45 @@ public class DashboardView extends Main {
         return header;
     }
 
-    private Component createIncomePieChart() {
-        HorizontalLayout header = createHeader("Income", "All Time");
+    private Component createIncomePieChart(Long userId) {
+        HorizontalLayout incomeChartHeader = createHeader("Income", "All Time");
 
-        Chart incomePieChart = new Chart(ChartType.PIE);
-        Configuration config = incomePieChart.getConfiguration();
-        config.getChart().setStyledMode(true);
+        incomePieChart = new Chart(ChartType.PIE);
+        incomeChartConfig = incomePieChart.getConfiguration();
+        incomeChartConfig.getChart().setStyledMode(true);
         incomePieChart.setThemeName("gradient");
 
-        DataSeries incomeSeries = new DataSeries();
-        incomeSeries.add(new DataSeriesItem("Salary", 12.5));
-        incomeSeries.add(new DataSeriesItem("Bonus", 12.5));
-        incomeSeries.add(new DataSeriesItem("Commission", 12.5));
-        incomeSeries.add(new DataSeriesItem("Gift", 12.5));
-        incomeSeries.add(new DataSeriesItem("Other", 12.5));
-        incomeSeries.add(new DataSeriesItem("Investment", 12.5));
-        config.addSeries(incomeSeries);
+        PlotOptionsPie incomePlotOptions = new PlotOptionsPie();
+        incomeChartConfig.setPlotOptions(incomePlotOptions);
 
-        VerticalLayout layout = new VerticalLayout(header, incomePieChart);
+        DataLabels incomeDataLabels = new DataLabels();
+        incomeDataLabels.setEnabled(false);
+        incomePlotOptions.setDataLabels(incomeDataLabels);
+
+        DataSeries incomeSeries = new DataSeries();
+
+        List<Object[]> incomeResults = service.sumTransactionByCategory(userId, Type.INCOME);
+
+        // convert the result sets into a lists of CategoryTotal objects
+        List<CategoryTotal> incomeData = incomeResults
+                .stream()
+                .map(row -> new CategoryTotal((String) row[0], (BigDecimal) row[1])).toList();
+
+        incomeData.forEach(item -> {
+            incomeSeries.add(new DataSeriesItem(item.getCategoryName(), item.getTotalAmount()));
+        });
+
+        Tooltip incomeTooltip = new Tooltip();
+        incomeTooltip.setFormatter("function() {" +
+                "    return '<br/><b>' + this.point.name + '</b><br/>' +" +
+                "        'Total: $' + Highcharts.numberFormat(this.point.y, 2, '.', ',') + '<br/><br/>'}");
+        incomeTooltip.setEnabled(true);
+        incomeChartConfig.setTooltip(incomeTooltip);
+
+
+        incomeChartConfig.setSeries(incomeSeries);
+
+        VerticalLayout layout = new VerticalLayout(incomeChartHeader, incomePieChart);
         layout.addClassName(LumoUtility.Padding.LARGE);
         layout.setPadding(false);
         layout.setSpacing(false);
@@ -234,30 +264,51 @@ public class DashboardView extends Main {
         return layout;
     }
 
-    private Component createExpensePieChart() {
-        HorizontalLayout header = createHeader("Expense", "All Time");
+    private Component createExpensePieChart(Long userId) {
+        HorizontalLayout expenseChartHeader = createHeader("Expense", "All Time");
 
-        Chart expensePieChart = new Chart(ChartType.PIE);
-        Configuration config = expensePieChart.getConfiguration();
-        config.getChart().setStyledMode(true);
+        expensePieChart = new Chart(ChartType.PIE);
+        expenseChartConfig = expensePieChart.getConfiguration();
+        expenseChartConfig.getChart().setStyledMode(true);
         expensePieChart.setThemeName("classic");
 
-        DataSeries expenseSeries = new DataSeries();
-        expenseSeries.add(new DataSeriesItem("Salary", 12.5));
-        expenseSeries.add(new DataSeriesItem("Bonus", 12.5));
-        expenseSeries.add(new DataSeriesItem("Commission", 12.5));
-        expenseSeries.add(new DataSeriesItem("Gift", 12.5));
-        expenseSeries.add(new DataSeriesItem("Other", 12.5));
-        expenseSeries.add(new DataSeriesItem("Investment", 12.5));
-        config.addSeries(expenseSeries);
+        PlotOptionsPie expensePlotOptions = new PlotOptionsPie();
+        expenseChartConfig.setPlotOptions(expensePlotOptions);
 
-        VerticalLayout layout = new VerticalLayout(header, expensePieChart);
+        DataLabels expensePlotsOptions = new DataLabels();
+        expensePlotsOptions.setEnabled(false);
+        expensePlotOptions.setDataLabels(expensePlotsOptions);
+
+        DataSeries expenseSeries = new DataSeries();
+
+        List<Object[]> expenseResults = service.sumTransactionByCategory(userId, Type.EXPENSE);
+
+        // convert the result sets into a lists of CategoryTotal objects
+        List<CategoryTotal> expenseData = expenseResults
+                .stream()
+                .map(row -> new CategoryTotal((String) row[0], (BigDecimal) row[1])).toList();
+
+        expenseData.forEach(item -> {
+            expenseSeries.add(new DataSeriesItem(item.getCategoryName(), item.getTotalAmount()));
+        });
+        expenseChartConfig.addSeries(expenseSeries);
+
+        Tooltip expenseTooltip = new Tooltip();
+        expenseTooltip.setFormatter("function() {" +
+                "    return '<br/><b>' + this.point.name + '</b><br/>' +" +
+                "        'Total: $' + Highcharts.numberFormat(this.point.y, 2, '.', ',') + '<br/><br/>'}");
+        expenseTooltip.setEnabled(true);
+        expenseChartConfig.setTooltip(expenseTooltip);
+
+        VerticalLayout layout = new VerticalLayout(expenseChartHeader, expensePieChart);
         layout.addClassName(LumoUtility.Padding.LARGE);
         layout.setPadding(false);
         layout.setSpacing(false);
         layout.getElement().getThemeList().add("spacing-l");
+
         return layout;
     }
+
 
     private String getTransactionCount(Long userId) {
         return String.valueOf(service.getTransactionCount(userId));

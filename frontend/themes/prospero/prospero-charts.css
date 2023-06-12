@@ -1,5 +1,5 @@
 :where([styled-mode]) .highcharts-data-label text {
-    font-size: x-large !important;
+    font-size: large !important;
 }
 
 :host(.totals-chart) .highcharts-axis-title text {

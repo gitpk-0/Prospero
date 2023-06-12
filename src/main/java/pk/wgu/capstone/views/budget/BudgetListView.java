@@ -211,7 +211,6 @@ public class BudgetListView extends Main implements HasComponents, HasStyle {
     }
 
     public void updateBudgetList() {
-        System.out.println("called updateBudgetList");
         configureBudgetCards();
         closeBudgetEditor();
     }
@@ -223,7 +222,6 @@ public class BudgetListView extends Main implements HasComponents, HasStyle {
     }
 
     private void closeBudgetEditor() {
-        System.out.println("close budget editor called");
         if (budgetForm != null) {
             budgetForm.setBudget(null);
             dialogLayout = null;
