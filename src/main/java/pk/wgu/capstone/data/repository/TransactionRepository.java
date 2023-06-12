@@ -71,12 +71,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     @Query("select distinct year(t.date) from transactions t where t.userId = :user_id")
     List<Integer> findDistinctYears(@Param("user_id") Long userId);
 
-    @Query("select cast(coalesce(sum(t.amount), 0) as INTEGER) as income " +
+    @Query("select coalesce(sum(t.amount), 0.0) as income " +
             "from transactions t " +
             "where t.userId = :userId " +
             "and year(t.date) = :year  " +
             "and month(t.date) = :month and t.type = :type")
-    Integer getSumTransactionsByMonthAndYearAndType(
+    BigDecimal getSumTransactionsByMonthAndYearAndType(
             @Param("userId") Long userId,
             @Param("year") Integer year,
             @Param("month") Integer month,

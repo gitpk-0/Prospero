@@ -115,8 +115,8 @@ public class DashboardView extends Main {
         highlightsRow.replace(highlightsRow, newHighlightsRow);
 
         // Year view chart
-        incomeAreaSeries = updateYearViewChartIncome(userId, selectedYear);
-        expenseSeries = updateYearViewChartExpense(userId, selectedYear);
+        incomeAreaSeries = generateIncomeYearChartData(userId, selectedYear);
+        expenseSeries = generateExpenseYearChartData(userId, selectedYear);
 
         yearViewSeriesList = new ArrayList<>();
         yearViewSeriesList.add(incomeAreaSeries);
@@ -167,14 +167,20 @@ public class DashboardView extends Main {
             yearViewChartConfig = yearViewChart.getConfiguration();
             yearViewChartConfig.getChart().setStyledMode(true);
 
+            Tooltip yearViewTooltip = new Tooltip();
+            yearViewTooltip.setFormatter("function() {" +
+                    "    return '<br/><b>' + '$' + Highcharts.numberFormat(this.point.y, 2, '.', ',') + '</b><br/>'}");
+            yearViewTooltip.setEnabled(true);
+            yearViewChartConfig.setTooltip(yearViewTooltip);
+
             XAxis xAxis = new XAxis();
             xAxis.setCategories("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
             yearViewChartConfig.addxAxis(xAxis);
 
             yearViewChartConfig.getyAxis().setTitle("Totals");
 
-            incomeAreaSeries = updateYearViewChartIncome(userId, year);
-            expenseSeries = updateYearViewChartExpense(userId, year);
+            incomeAreaSeries = generateIncomeYearChartData(userId, year);
+            expenseSeries = generateExpenseYearChartData(userId, year);
 
             yearViewSeriesList = new ArrayList<>();
             yearViewSeriesList.add(incomeAreaSeries);
@@ -187,14 +193,14 @@ public class DashboardView extends Main {
         return layout;
     }
 
-    private ListSeries updateYearViewChartIncome(Long userId, Integer year) {
+    private ListSeries generateIncomeYearChartData(Long userId, Integer year) {
         PlotOptionsAreaspline plotOptionsIncome = new PlotOptionsAreaspline();
         plotOptionsIncome.setColorIndex(4);  //#90ed7d
         plotOptionsIncome.setPointPlacement(PointPlacement.ON);
         plotOptionsIncome.setMarker(new Marker(false));
 
         ListSeries incomeSeries = new ListSeries("Income");
-        List<Integer> incomeData = new ArrayList<>();
+        List<BigDecimal> incomeData = new ArrayList<>();
         for (int month = 1; month <= 12; month++) {
             incomeData.add(service.getSumTransactionsByMonthAndYearAndType(
                     userId, year, month, Type.INCOME));
@@ -204,14 +210,14 @@ public class DashboardView extends Main {
         return incomeSeries;
     }
 
-    private ListSeries updateYearViewChartExpense(Long userId, Integer year) {
+    private ListSeries generateExpenseYearChartData(Long userId, Integer year) {
         PlotOptionsAreaspline plotOptionsExpense = new PlotOptionsAreaspline();
         plotOptionsExpense.setColorIndex(2);
         plotOptionsExpense.setPointPlacement(PointPlacement.ON);
         plotOptionsExpense.setMarker(new Marker(false));
 
         ListSeries expenseSeries = new ListSeries("Expense");
-        List<Integer> expenseData = new ArrayList<>();
+        List<BigDecimal> expenseData = new ArrayList<>();
         for (int month = 1; month <= 12; month++) {
             expenseData.add(service.getSumTransactionsByMonthAndYearAndType(
                     userId, year, month, Type.EXPENSE));

@@ -1,7 +1,6 @@
 
 
 schedule:
-dashboard -> tool tips, pie charts data, connect highlights to year select
 user settings -> edit user info, theme, edit/delete custom categories
 reports accordion -> tabs (inc v exp, income, expenses)
 anchor link main logo
@@ -49,3 +48,5 @@ change createdDate to LocalDateTime- budget
 export transaction data as csv
 filter transactions page
 forgot password dialog
+dashboard -> tool tips, pie charts data, connect highlights to year select
+dashboard -> area spline chart tool tips
