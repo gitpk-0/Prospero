@@ -164,6 +164,7 @@
   "Frontend/themes/prospero/views/dashboard-view.css",
   "Frontend/themes/prospero/views/i-v-e-grids.css",
   "Frontend/themes/prospero/views/login-form.css",
+  "Frontend/themes/prospero/views/transaction-view.css",
   "Frontend/themes/prospero/views/budget-list-view.css",
   "Frontend/themes/prospero/views/budget-card.css",
   "Frontend/themes/prospero/views/registration-form.css",
@@ -268,6 +269,7 @@
   "themes/prospero/views/dashboard-view.css": "c4dbb1a46a63a12cdf5a2097bc55be722fe858a604fc42263cc5651c55cff8f2",
   "themes/prospero/views/i-v-e-grids.css": "41fdc168f78bf5b824e53c8c06e24faf4299ac79ba0e62820f82598d6dfc48da",
   "themes/prospero/views/login-form.css": "390084932bf182075c9ef5da786240d8198bd66de08cb582dc0ea699e50c3801",
+  "themes/prospero/views/transaction-view.css": "6dd762987f8d653e370cfbd3d92b51a5204c7815b87eb8a69f12a0dcd33e2915",
   "themes/prospero/views/budget-list-view.css": "7cec680e74dc1a1c88c44a14e9a188ca84dad34ac6f6e83be7f83ffd3711503b",
   "themes/prospero/views/budget-card.css": "9b50bf2c5d5d8c9def7e9867e96a730bc4e576d0976eb883dda976b3d881687c",
   "themes/prospero/views/registration-form.css": "15839839fb479acd42f0e81c0faa4bfeccd99561917318e3c7d040b942676971",
@@ -296,7 +298,7 @@
   "prospero": "{\n  \"lumoImports\" : [ \"typography\", \"color\", \"spacing\", \"badge\", \"utility\" ],\n  \"include\": [\"styles.css\"]\n}"
  },
  "entryScripts": [
-  "VAADIN/build/indexhtml-b2248544.js"
+  "VAADIN/build/indexhtml-e6603a85.js"
  ],
  "webComponents": [],
  "packageJsonHash": "b8388d83fbed399c0a168af333606c4c74767b2a33a8ada84efccae4395830c5"

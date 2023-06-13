@@ -52,6 +52,7 @@ public class MainLayout extends AppLayout {
         Anchor prosperoHomeLink = new Anchor("https://prospero-app.herokuapp.com/");
         prosperoHomeLink.add(logoAppname);
         prosperoHomeLink.setTarget("_blank"); // open in new window
+        // prosperoHomeLink.addClassNames("text-l", "m-m");
 
         // light/dark mode toggle button
         Button themeBtn = new Button(VaadinIcon.MOON.create());
@@ -75,6 +76,7 @@ public class MainLayout extends AppLayout {
 
         pageHeader.addClassNames("page-header");
         pageHeader.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        // pageHeader.expand(prosperoHomeLink);
         pageHeader.setWidthFull();
         pageHeader.addClassName("px-m");
 

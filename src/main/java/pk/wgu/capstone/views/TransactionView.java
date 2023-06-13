@@ -6,7 +6,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.datepicker.DatePicker;
-import com.vaadin.flow.component.dependency.StyleSheet;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
@@ -54,7 +54,7 @@ import java.util.Objects;
 @PermitAll // all logged-in users can access this page
 @Route(value = "transactions", layout = MainLayout.class)
 @PageTitle("Transactions | Prospero")
-@StyleSheet(value = "./themes/prospero/views/transaction-view.css")
+@CssImport(value = "./themes/prospero/views/transaction-view.css")
 public class TransactionView extends Div {
 
     private SecurityService securityService;
