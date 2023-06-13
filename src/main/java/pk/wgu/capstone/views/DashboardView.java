@@ -193,7 +193,7 @@ public class DashboardView extends Main {
         if (distinctYears.isEmpty()) {
             yearSelect.setEnabled(false); // no transactions exist yet
 
-            layout.add(new H3("No transaction data - To view dashboard charts you need to add transactions"));
+            layout.add(new H3("No transaction data - Add transactions to view dashboard charts"));
         } else {
             List<Integer> sortedYears = distinctYears.stream()
                     .sorted(Collections.reverseOrder()).toList();

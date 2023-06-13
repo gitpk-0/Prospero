@@ -81,7 +81,7 @@ public class RegistrationFormBinder {
     private void generateSampleBudget(User newUser) {
         Budget sampleBudget = new Budget(
                 "Example Budget",
-                Date.valueOf(LocalDate.now().minusDays(10)),
+                Date.valueOf(LocalDate.now().minusMonths(3)),
                 Date.valueOf(LocalDate.now().plusDays(3)),
                 BigDecimal.valueOf(350.00),
                 "See how Prospero budgets work with this example. " +
@@ -94,7 +94,7 @@ public class RegistrationFormBinder {
 
     private void generateSampleTransactions(User newUser) {
         Transaction income = new Transaction(
-                Date.valueOf(LocalDate.now().minusDays(1)),
+                Date.valueOf(LocalDate.now().minusMonths(2).minusDays(1)),
                 BigDecimal.valueOf(1000.00),
                 "Sample Income Transaction",
                 service.findCategoryByName("Bonus"),
@@ -103,7 +103,7 @@ public class RegistrationFormBinder {
         service.saveTransaction(income);
 
         Transaction expense1 = new Transaction(
-                Date.valueOf(LocalDate.now().minusDays(2)),
+                Date.valueOf(LocalDate.now().minusMonths(2).minusDays(2)),
                 BigDecimal.valueOf(95.00),
                 "Sample Expense Transaction",
                 service.findCategoryByName("Food"),
@@ -112,7 +112,7 @@ public class RegistrationFormBinder {
         service.saveTransaction(expense1);
 
         Transaction expense2 = new Transaction(
-                Date.valueOf(LocalDate.now().minusDays(3)),
+                Date.valueOf(LocalDate.now().minusMonths(1).minusDays(3)),
                 BigDecimal.valueOf(75.00),
                 "Sample Expense Transaction",
                 service.findCategoryByName("Utilities"),

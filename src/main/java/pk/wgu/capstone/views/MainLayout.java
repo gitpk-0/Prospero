@@ -49,10 +49,9 @@ public class MainLayout extends AppLayout {
         HorizontalLayout logoAppname = new HorizontalLayout(logo, appname);
         logoAppname.addClassName("logo-app-name");
 
-        Anchor listViewLink = new Anchor("https://patrick-kell.com/");
-        listViewLink.add(logoAppname);
-        listViewLink.setTarget("_blank"); // open in new window
-        listViewLink.addClassNames("text-l", "m-m");
+        Anchor prosperoHomeLink = new Anchor("https://prospero-app.herokuapp.com/");
+        prosperoHomeLink.add(logoAppname);
+        prosperoHomeLink.setTarget("_blank"); // open in new window
 
         // light/dark mode toggle button
         Button themeBtn = new Button(VaadinIcon.MOON.create());
@@ -72,11 +71,10 @@ public class MainLayout extends AppLayout {
         DrawerToggle menuButton = new DrawerToggle();
         menuButton.addClassName("drawer-toggle");
 
-        HorizontalLayout pageHeader = new HorizontalLayout(menuButton, logoAppname, themeBtn);
+        HorizontalLayout pageHeader = new HorizontalLayout(menuButton, prosperoHomeLink, themeBtn);
 
         pageHeader.addClassNames("page-header");
         pageHeader.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
-        pageHeader.expand(listViewLink);
         pageHeader.setWidthFull();
         pageHeader.addClassName("px-m");
 
