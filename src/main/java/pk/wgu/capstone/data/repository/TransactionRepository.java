@@ -1,6 +1,7 @@
 package pk.wgu.capstone.data.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -91,4 +92,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     @Query("select coalesce(count(t.id), 0) from transactions t " +
             "where t.userId = :user_id and year(t.date) = :year")
     Integer getTransactionCountByYear(@Param("user_id") Long userId, @Param("year") Integer year);
+
+    @Modifying
+    @Query("delete from transactions t where t.userId = :user_id")
+    void deleteAllTransactionsByUserId(@Param("user_id") Long userId);
 }

@@ -117,4 +117,17 @@ public class User extends AbstractEntity implements UserDetails {
     public void setRole(Role role) {
         this.role = role;
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", allowsMarketingEmails=" + allowsMarketingEmails +
+                ", enabled=" + enabled +
+                ", role=" + role +
+                ", password='" + password + '\'' +
+                '}';
+    }
 }

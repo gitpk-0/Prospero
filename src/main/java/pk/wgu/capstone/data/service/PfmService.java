@@ -206,4 +206,13 @@ public class PfmService { // Personal Finance Management Service
     public Integer getTransactionCountByYear(Long userId, Integer year) {
         return transactionRepository.getTransactionCountByYear(userId, year);
     }
+
+    public void updateExistingUserInfo(User user) {
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteAllTransactionsForUser(Long userId) {
+        transactionRepository.deleteAllTransactionsByUserId(userId);
+    }
 }
