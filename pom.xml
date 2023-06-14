@@ -117,6 +117,18 @@
             <version>3.1.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.6.0</version>
+        </dependency>
+
+
 
     </dependencies>
 
@@ -155,6 +167,25 @@
                 <configuration>
                     <skipTests>true</skipTests>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>9.8.1</version>
+                <configuration>
+<!--                    <url>${env.PGURL}</url>-->
+<!--                    <user>${env.PGUSER}</user>-->
+<!--                    <password>${env.PGPASSWORD}</password>-->
+<!--                    <baselineOnMigrate>true</baselineOnMigrate>-->
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.postgresql</groupId>
+                        <artifactId>postgresql</artifactId>
+                        <version>9.4-1204-jdbc41</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>
@@ -224,23 +255,23 @@
                         </executions>
                     </plugin>
 
-<!--                                        &lt;!&ndash; Runs the integration tests (*IT) after the server is started &ndash;&gt;-->
-<!--                                        <plugin>-->
-<!--                                            <groupId>org.apache.maven.plugins</groupId>-->
-<!--                                            <artifactId>maven-failsafe-plugin</artifactId>-->
-<!--                                            <executions>-->
-<!--                                                <execution>-->
-<!--                                                    <goals>-->
-<!--                                                        <goal>integration-test</goal>-->
-<!--                                                        <goal>verify</goal>-->
-<!--                                                    </goals>-->
-<!--                                                </execution>-->
-<!--                                            </executions>-->
-<!--                                            <configuration>-->
-<!--                                                <trimStackTrace>false</trimStackTrace>-->
-<!--                                                <enableAssertions>true</enableAssertions>-->
-<!--                                            </configuration>-->
-<!--                                        </plugin>-->
+                    <!--                                        &lt;!&ndash; Runs the integration tests (*IT) after the server is started &ndash;&gt;-->
+                    <!--                                        <plugin>-->
+                    <!--                                            <groupId>org.apache.maven.plugins</groupId>-->
+                    <!--                                            <artifactId>maven-failsafe-plugin</artifactId>-->
+                    <!--                                            <executions>-->
+                    <!--                                                <execution>-->
+                    <!--                                                    <goals>-->
+                    <!--                                                        <goal>integration-test</goal>-->
+                    <!--                                                        <goal>verify</goal>-->
+                    <!--                                                    </goals>-->
+                    <!--                                                </execution>-->
+                    <!--                                            </executions>-->
+                    <!--                                            <configuration>-->
+                    <!--                                                <trimStackTrace>false</trimStackTrace>-->
+                    <!--                                                <enableAssertions>true</enableAssertions>-->
+                    <!--                                            </configuration>-->
+                    <!--                                        </plugin>-->
                 </plugins>
             </build>
         </profile>
