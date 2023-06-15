@@ -34,7 +34,6 @@
 
 
 /* MOBILE DEVICES */
-
 @media all and (max-width: 800px) {
     :where([styled-mode]) .highcharts-data-label text {
         font-size: small !important;

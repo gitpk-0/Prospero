@@ -1,9 +1,6 @@
 :host {
     --progress-color: #d00fee;
 }
-/*:host [part="value"] {*/
-/*    background-color: var(--progress-color);*/
-/*}*/
 
 vaadin-progress-bar::part(value) {  /* for dynamic progress bar color updates */
     background-color: var(--progress-color);

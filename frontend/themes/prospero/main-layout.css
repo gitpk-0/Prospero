@@ -63,11 +63,6 @@ a[highlight] {
     font-size: 1.5rem;
 }
 
-
-/*.vaadin-app-layout::part(drawer) {*/
-/*    width: 18rem;*/
-/*}*/
-
 .app-name {
     font-family: system-ui;
 }
