@@ -31,6 +31,7 @@ public class BudgetForm extends FormLayout {
 
     private SecurityService securityService;
     private PfmService service;
+
     private BudgetListView budgetListView;
 
     Binder<Budget> budgetBinder = new BeanValidationBinder<>(Budget.class);
@@ -46,7 +47,6 @@ public class BudgetForm extends FormLayout {
     TextField description = new TextField("Description");
     NumberField spendingGoal = new NumberField("Spending Goal");
     Div dollarPrefix = new Div();
-
 
     // buttons
     Button save = new Button("Save");
@@ -113,7 +113,6 @@ public class BudgetForm extends FormLayout {
                 endDatePick,
                 description,
                 spendingGoal
-                // createButtonLayout()
         );
     }
 

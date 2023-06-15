@@ -34,7 +34,6 @@ public class RegistrationForm extends FormLayout implements RouterLayout {
     private Button submit;
 
     public RegistrationForm() {
-
         logo = new Image("icons/icon.png", "Icon");
         logo.addClassName("logo-image-login");
         appname = new H1("Sign up");
@@ -49,7 +48,6 @@ public class RegistrationForm extends FormLayout implements RouterLayout {
         firstName = new TextField("First name");
         lastName = new TextField("Last name");
         email = new EmailField("Email");
-
 
         allowMarketing = new Checkbox("Subscribe to marketing emails?");
         allowMarketing.getStyle().set("margin-top", "12px").set("margin-bottom", "12px");
@@ -85,7 +83,6 @@ public class RegistrationForm extends FormLayout implements RouterLayout {
                 new ResponsiveStep("490px", 2, ResponsiveStep.LabelsPosition.TOP)
         );
 
-
         // components below will use the full width of the form
         setColspan(formHeader,2);
         setColspan(email, 2);
@@ -93,7 +90,6 @@ public class RegistrationForm extends FormLayout implements RouterLayout {
         setColspan(errorMessage, 2);
         setColspan(submit, 2);
         setColspan(toLogin, 2);
-
     }
 
     public PasswordField getPassword() {
