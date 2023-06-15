@@ -16,8 +16,8 @@ import java.text.SimpleDateFormat;
 @CssImport(value = "./themes/prospero/views/budget-card.css")
 public class BudgetListViewCard extends ListItem {
 
-    SimpleDateFormat dateFormatter = new SimpleDateFormat("E, MMM d, yyyy");
-    NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
+    private SimpleDateFormat dateFormatter = new SimpleDateFormat("E, MMM d, yyyy");
+    private NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
 
     public Budget budget;
 
