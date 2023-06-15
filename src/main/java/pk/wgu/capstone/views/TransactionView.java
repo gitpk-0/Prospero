@@ -71,7 +71,7 @@ public class TransactionView extends Div {
     private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("E, MMM d, yyyy");
 
     // Filters
-    private final TextField description = new TextField("Name");
+    private final TextField description = new TextField("Description");
     private final DatePicker startDate = new DatePicker("Transaction Date");
     private final DatePicker endDate = new DatePicker();
     private final Select<String> categorySelect = new Select<>();
@@ -81,6 +81,8 @@ public class TransactionView extends Div {
         addClassNames("transaction-view");
         this.securityService = securityService;
         this.service = service;
+
+        categorySelect.setHelperText("Category");
 
         setSizeFull(); // makes this view the same size as the entire browser window
         checkForMessage();
@@ -424,7 +426,6 @@ public class TransactionView extends Div {
     }
 
     private Component createFilterLayout() {
-
         startDate.addValueChangeListener(e -> {
             if (startDate.getValue() != null) {
                 endDate.setMin(startDate.getValue().plusDays(1));
@@ -436,8 +437,6 @@ public class TransactionView extends Div {
         filterDiv.addClassName("filter-layout");
         filterDiv.addClassNames(LumoUtility.Padding.Horizontal.LARGE, LumoUtility.Padding.Vertical.MEDIUM,
                 LumoUtility.BoxSizing.BORDER);
-        description.setPlaceholder("Description");
-
 
         categorySelect.setItems(getCategoryNames(null));
 
