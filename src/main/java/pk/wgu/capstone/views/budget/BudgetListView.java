@@ -43,15 +43,15 @@ import java.util.List;
 @CssImport(value = "./themes/prospero/views/budget-list-view.css")
 public class BudgetListView extends Main implements HasComponents, HasStyle {
 
-    private List<BudgetListViewCard> budgetListViewCards;
-    private OrderedList budgetContainer;
     private SecurityService securityService;
     private PfmService service;
+
+    private List<BudgetListViewCard> budgetListViewCards;
+    private OrderedList budgetContainer;
     private VerticalLayout dialogLayout;
     private Dialog dialog;
     private Select<String> sortBy;
-
-    BudgetForm budgetForm;
+    private BudgetForm budgetForm;
 
     public BudgetListView(SecurityService securityService, PfmService service) {
         addClassName("budget-list-view");
@@ -60,11 +60,9 @@ public class BudgetListView extends Main implements HasComponents, HasStyle {
 
         generateUI();
         configureBudgetCards();
-
     }
 
     private void generateUI() {
-
         addClassName("budget-list-view");
         addClassNames(LumoUtility.MaxWidth.SCREEN_LARGE,
                 LumoUtility.Margin.Horizontal.AUTO,
@@ -94,7 +92,7 @@ public class BudgetListView extends Main implements HasComponents, HasStyle {
         sortBy.setValue("Newest to oldest");
 
         sortBy.addValueChangeListener(e -> {
-            sortBudgets(sortBy);
+            sortBudgetsByOption(sortBy);
         });
 
         Button createBudgetBtn = new Button("Create Budget");
@@ -115,32 +113,6 @@ public class BudgetListView extends Main implements HasComponents, HasStyle {
                 optionsContainer,
                 budgetContainer
         );
-    }
-
-    private void sortBudgets(List<BudgetListViewCard> budgetListViewCards, String sortOption) {
-        if (sortOption.equals("Newest to oldest")) {
-            budgetListViewCards.sort(Comparator.comparing(card -> card.getBudget().getDateCreated()));
-            Collections.reverse(budgetListViewCards);
-        } else if (sortOption.equals("Oldest to newest")) {
-            budgetListViewCards.sort(Comparator.comparing(card -> card.getBudget().getDateCreated()));
-        } else if (sortOption.equals("Start Date →")) {
-            budgetListViewCards.sort(Comparator.comparing(card -> card.getBudget().getStart()));
-        } else if (sortOption.equals("← Start Date")) {
-            budgetListViewCards.sort(Comparator.comparing(card -> card.getBudget().getStart()));
-            Collections.reverse(budgetListViewCards);
-        } else if (sortOption.equals("End Date →")) {
-            budgetListViewCards.sort(Comparator.comparing(card -> card.getBudget().getEnd()));
-        } else if (sortOption.equals("← End Date")) {
-            budgetListViewCards.sort(Comparator.comparing(card -> card.getBudget().getEnd()));
-            Collections.reverse(budgetListViewCards);
-        }
-    }
-
-    private void sortBudgets(Select<String> sortBy) {
-        String sortOption = sortBy.getValue();
-        sortBudgets(budgetListViewCards, sortOption);
-        budgetContainer.removeAll();
-        budgetListViewCards.forEach(budgetContainer::add);
     }
 
     private void configureBudgetCards() {
@@ -172,6 +144,31 @@ public class BudgetListView extends Main implements HasComponents, HasStyle {
         }
     }
 
+    private void sortBudgetsByOption(Select<String> sortBy) {
+        String sortOption = sortBy.getValue();
+        applySortingToBudgets(budgetListViewCards, sortOption);
+        budgetContainer.removeAll();
+        budgetListViewCards.forEach(budgetContainer::add);
+    }
+
+    private void applySortingToBudgets(List<BudgetListViewCard> budgetListViewCards, String sortOption) {
+        if (sortOption.equals("Newest to oldest")) {
+            budgetListViewCards.sort(Comparator.comparing(card -> card.getBudget().getDateCreated()));
+            Collections.reverse(budgetListViewCards);
+        } else if (sortOption.equals("Oldest to newest")) {
+            budgetListViewCards.sort(Comparator.comparing(card -> card.getBudget().getDateCreated()));
+        } else if (sortOption.equals("Start Date →")) {
+            budgetListViewCards.sort(Comparator.comparing(card -> card.getBudget().getStart()));
+        } else if (sortOption.equals("← Start Date")) {
+            budgetListViewCards.sort(Comparator.comparing(card -> card.getBudget().getStart()));
+            Collections.reverse(budgetListViewCards);
+        } else if (sortOption.equals("End Date →")) {
+            budgetListViewCards.sort(Comparator.comparing(card -> card.getBudget().getEnd()));
+        } else if (sortOption.equals("← End Date")) {
+            budgetListViewCards.sort(Comparator.comparing(card -> card.getBudget().getEnd()));
+            Collections.reverse(budgetListViewCards);
+        }
+    }
 
     private String calcBudgetStatus(Budget budget) {
         Date start = budget.getStart();
@@ -198,16 +195,39 @@ public class BudgetListView extends Main implements HasComponents, HasStyle {
     }
 
     // Budget Form
-    private void configureForm() {
-        budgetForm = new BudgetForm(securityService, service);
-        budgetForm.getStyle()
-                .set("padding-left", "1rem")
-                .set("padding-right", "1rem")
-                .set("padding-bottom", "1rem");
-        budgetForm.setWidth("25em");
-        budgetForm.addClassName("budget-form");
-        budgetForm.setBudgetListView(this);
-        budgetForm.setDatePickerValues();
+    public void editBudget(Budget budget, Dialog dialog) {
+        if (budget == null) {
+            dialog.close();
+            closeBudgetEditor();
+        } else {
+            configureForm();
+            if (dialog != null) {
+                dialog.close();
+            }
+            Dialog editBudgetDialog = new Dialog();
+            H1 header;
+            if (budget.getName() == null) { // create new budget
+                header = new H1("Create Budget");
+                budgetForm.addClassName("create-budget-form");
+                budgetForm.setBudget(budget);
+                budgetForm.setDatePickerValues();
+            } else {
+                header = new H1("Edit Budget");
+                budgetForm.setBudget(budget);
+            }
+            header.getStyle().set("font-size", "xx-large").set("padding-left", "1rem").set("padding-top", "0.5rem");
+            editBudgetDialog.add(header);
+            editBudgetDialog.add(budgetForm);
+
+            if (header.getText().equals("Create Budget")) {
+                editBudgetDialog.getFooter().add(budgetForm.createNewBudgetButtonLayout(editBudgetDialog));
+            } else {
+                editBudgetDialog.getFooter().add(budgetForm.editBudgetButtonLayout(editBudgetDialog));
+            }
+
+            editBudgetDialog.open();
+        }
+
     }
 
     public void updateBudgetList() {
@@ -221,6 +241,22 @@ public class BudgetListView extends Main implements HasComponents, HasStyle {
         }
     }
 
+    private void configureForm() {
+        budgetForm = new BudgetForm(securityService, service);
+        budgetForm.getStyle()
+                .set("padding-left", "1rem")
+                .set("padding-right", "1rem")
+                .set("padding-bottom", "1rem");
+        budgetForm.setWidth("25em");
+        budgetForm.addClassName("budget-form");
+        budgetForm.setBudgetListView(this);
+        budgetForm.setDatePickerValues();
+    }
+
+    private void addBudget() {
+        editBudget(new Budget(), new Dialog());
+    }
+
     private void closeBudgetEditor() {
         if (budgetForm != null) {
             budgetForm.setBudget(null);
@@ -228,12 +264,7 @@ public class BudgetListView extends Main implements HasComponents, HasStyle {
         }
     }
 
-    private void addBudget() {
-        editBudget(new Budget(), new Dialog());
-    }
-
     private void viewBudgetChart(Budget budget) {
-
         NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
 
         if (budget == null) {
@@ -276,41 +307,6 @@ public class BudgetListView extends Main implements HasComponents, HasStyle {
             dialog.getFooter().add(cancelButton, editButton);
             dialog.open();
         }
-    }
-
-    public void editBudget(Budget budget, Dialog dialog) {
-        if (budget == null) {
-            dialog.close();
-            closeBudgetEditor();
-        } else {
-            configureForm();
-            if (dialog != null) {
-                dialog.close();
-            }
-            Dialog editBudgetDialog = new Dialog();
-            H1 header;
-            if (budget.getName() == null) { // create new budget
-                header = new H1("Create Budget");
-                budgetForm.addClassName("create-budget-form");
-                budgetForm.setBudget(budget);
-                budgetForm.setDatePickerValues();
-            } else {
-                header = new H1("Edit Budget");
-                budgetForm.setBudget(budget);
-            }
-            header.getStyle().set("font-size", "xx-large").set("padding-left", "1rem").set("padding-top", "0.5rem");
-            editBudgetDialog.add(header);
-            editBudgetDialog.add(budgetForm);
-
-            if (header.getText().equals("Create Budget")) {
-                editBudgetDialog.getFooter().add(budgetForm.createNewBudgetButtonLayout(editBudgetDialog));
-            } else {
-                editBudgetDialog.getFooter().add(budgetForm.editBudgetButtonLayout(editBudgetDialog));
-            }
-
-            editBudgetDialog.open();
-        }
-
     }
 
     private Component getBudgetChart(Budget budget) {
