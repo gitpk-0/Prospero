@@ -15,8 +15,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @ViewPackages(classes = {MainLayout.class, UserSettingsView.class})
 public class UserSettingsViewTest extends UIUnitTest {
 
-
-
     @Test
     public void testCreateChangeAppThemeButton() {
         final UserSettingsView userSettingsView = navigate(UserSettingsView.class);
