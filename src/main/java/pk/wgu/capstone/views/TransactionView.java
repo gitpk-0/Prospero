@@ -82,7 +82,7 @@ public class TransactionView extends Div {
         this.securityService = securityService;
         this.service = service;
 
-        categorySelect.setHelperText("Category");
+        categorySelect.setLabel("Category");
 
         setSizeFull(); // makes this view the same size as the entire browser window
         checkForMessage();

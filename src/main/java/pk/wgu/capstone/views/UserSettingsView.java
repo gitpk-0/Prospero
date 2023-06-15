@@ -26,7 +26,6 @@ import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.theme.lumo.Lumo;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.PermitAll;
@@ -36,7 +35,6 @@ import pk.wgu.capstone.security.SecurityService;
 
 import java.util.Objects;
 
-@SpringComponent
 @Route(value = "settings", layout = MainLayout.class)
 @PageTitle("Settings | Prospero")
 @PermitAll // all logged-in users can access this page
@@ -62,10 +60,9 @@ public class UserSettingsView extends Div {
 
     private Long userId;
 
-
-    public UserSettingsView() {
-        // no arg constructor for unit testing
-    }
+    // public UserSettingsView() {
+    //     // no arg constructor for unit testing
+    // }
 
     public UserSettingsView(SecurityService securityService, PfmService service) {
         this.securityService = securityService;

@@ -29,11 +29,9 @@ public class MainLayout extends AppLayout {
     private PfmService service;
 
     boolean isDarkTheme = true;
-
-    public MainLayout() {
-        // no arg constructor for unit testing
-    }
-
+    // public MainLayout() {
+    //     // no arg constructor for unit testing
+    // }
     public MainLayout(SecurityService securityService, PfmService service) {
         this.securityService = securityService;
         this.service = service;

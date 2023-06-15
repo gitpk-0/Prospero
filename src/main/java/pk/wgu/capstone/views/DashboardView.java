@@ -72,9 +72,9 @@ public class DashboardView extends Main {
     private DataSeries expensePieSeries;
     private HorizontalLayout expenseChartHeader;
 
-    public DashboardView() {
-        // no arg constructor for unit testing
-    }
+    // public DashboardView() {
+    //     // no arg constructor for unit testing
+    // }
 
     public DashboardView(SecurityService securityService, PfmService service) {
         this.securityService = securityService;

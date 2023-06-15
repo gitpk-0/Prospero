@@ -31,9 +31,9 @@ public class ExportDataView extends VerticalLayout {
 
     private Button downloadBtn = new Button("Export Transaction Data");
 
-    public ExportDataView() {
-        // no arg constructor for unit testing
-    }
+    // public ExportDataView() {
+    //     // no arg constructor for unit testing
+    // }
 
     public ExportDataView(SecurityService securityService, PfmService service) {
         this.securityService = securityService;
