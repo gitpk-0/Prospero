@@ -59,6 +59,7 @@ public class TransactionView extends Div {
 
     private SecurityService securityService;
     private PfmService service;
+
     TransactionForm transactionForm;
     Dialog dialog;
 
@@ -67,9 +68,7 @@ public class TransactionView extends Div {
 
     Component filterDiv;
 
-    TextField filterText = new TextField();
-
-    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("E, MMM d, yyyy");
+    private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("E, MMM d, yyyy");
 
     // Filters
     private final TextField description = new TextField("Name");
@@ -83,7 +82,6 @@ public class TransactionView extends Div {
         this.securityService = securityService;
         this.service = service;
 
-
         setSizeFull(); // makes this view the same size as the entire browser window
         checkForMessage();
 
@@ -94,7 +92,6 @@ public class TransactionView extends Div {
         filterDiv = createFilterLayout();
 
         add(
-                // getSearchbar(),
                 createMobileFilters(),
                 filterDiv,
                 getContent()
@@ -152,7 +149,6 @@ public class TransactionView extends Div {
     private void updateList(boolean filterList) {
         Long userId = securityService.getCurrentUserId(service);
 
-
         if (filterList) {
             // filter transactions grid based on the provided filter values
             List<Transaction> filteredTransactions = service.getFilteredTransactions(
@@ -169,8 +165,6 @@ public class TransactionView extends Div {
             grid.setItems(service.findAllTransactions(userId));
             resetFilterFields();
         }
-
-
     }
 
     private void sortGrid() {
@@ -429,7 +423,6 @@ public class TransactionView extends Div {
         }
     }
 
-
     private Component createFilterLayout() {
 
         startDate.addValueChangeListener(e -> {
@@ -503,7 +496,6 @@ public class TransactionView extends Div {
         types.clear();
         categorySelect.setItems(getCategoryNames(null));
     }
-
 
     private Component createDateRangeFilter() {
         startDate.setPlaceholder("From");

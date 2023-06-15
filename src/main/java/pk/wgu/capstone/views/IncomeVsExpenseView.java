@@ -32,6 +32,7 @@ public class IncomeVsExpenseView extends VerticalLayout {
 
     private SecurityService securityService;
     private PfmService service;
+
     private Long userId;
 
     Grid<CategoryTotal> incomeGrid = new Grid<>(CategoryTotal.class);

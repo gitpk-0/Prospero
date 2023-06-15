@@ -35,7 +35,6 @@ import pk.wgu.capstone.security.SecurityService;
 
 import java.util.Objects;
 
-
 @Route(value = "settings", layout = MainLayout.class)
 @PageTitle("Settings | Prospero")
 @PermitAll // all logged-in users can access this page
@@ -99,12 +98,12 @@ public class UserSettingsView extends Div {
 
         cancelBtn.addClickListener(e -> accordion.close());
         updateBtn.addClickListener(e -> {
-            // System.out.println(getUser());
             if (validateAndSaveUserInfo()) {
                 Notification.show("Information Updated.").addThemeVariants(NotificationVariant.LUMO_SUCCESS);
                 accordion.close();
+            } else {
+                Notification.show("Error updating information.").addThemeVariants(NotificationVariant.LUMO_ERROR);
             }
-            // service.updateUserInfo(userBinder.getBean());
         });
     }
 
