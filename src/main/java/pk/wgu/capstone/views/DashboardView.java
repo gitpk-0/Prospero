@@ -41,8 +41,8 @@ import java.util.List;
 @CssImport(value = "./themes/prospero/views/dashboard-view.css")
 public class DashboardView extends Main {
 
-    private final SecurityService securityService;
-    private final PfmService service;
+    private SecurityService securityService;
+    private PfmService service;
 
     private BigDecimalToDoubleConverter amountConverter = new BigDecimalToDoubleConverter();
     private NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
@@ -71,6 +71,10 @@ public class DashboardView extends Main {
     private Configuration expenseChartConfig;
     private DataSeries expensePieSeries;
     private HorizontalLayout expenseChartHeader;
+
+    public DashboardView() {
+        // no arg constructor for unit testing
+    }
 
     public DashboardView(SecurityService securityService, PfmService service) {
         this.securityService = securityService;
@@ -292,7 +296,7 @@ public class DashboardView extends Main {
             expenseChartConfig.getChart().setStyledMode(true);
             expensePieChart.setThemeName("classic");
 
-            expensePieSeries = generateExpensePieChartData(userId,year);
+            expensePieSeries = generateExpensePieChartData(userId, year);
             expenseChartConfig.setSeries(expensePieSeries);
 
             Tooltip expenseTooltip = new Tooltip();

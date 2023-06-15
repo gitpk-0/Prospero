@@ -26,6 +26,7 @@ import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.theme.lumo.Lumo;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.PermitAll;
@@ -35,6 +36,7 @@ import pk.wgu.capstone.security.SecurityService;
 
 import java.util.Objects;
 
+@SpringComponent
 @Route(value = "settings", layout = MainLayout.class)
 @PageTitle("Settings | Prospero")
 @PermitAll // all logged-in users can access this page
@@ -59,6 +61,11 @@ public class UserSettingsView extends Div {
     boolean isDarkTheme = true;
 
     private Long userId;
+
+
+    public UserSettingsView() {
+        // no arg constructor for unit testing
+    }
 
     public UserSettingsView(SecurityService securityService, PfmService service) {
         this.securityService = securityService;
@@ -112,8 +119,6 @@ public class UserSettingsView extends Div {
     }
 
     private User getUser() {
-        System.out.println("get user called");
-        System.out.println("Is valid userbean: " + userBinder.isValid());
         return userBinder.getBean();
     }
 
@@ -215,6 +220,11 @@ public class UserSettingsView extends Div {
         return changeThemeBtn;
     }
 
+    // for unit testing
+    public Button getcreateChangeAppThemeButton() {
+        return (Button) createChangeAppThemeButton();
+    }
+
     private Component createAdvSettingsAccordion() {
         Accordion advSettingsAccordion = new Accordion();
 
@@ -284,6 +294,10 @@ public class UserSettingsView extends Div {
         buttonLayout.addClassNames(LumoUtility.Margin.Vertical.SMALL);
         return buttonLayout;
     }
+
+    public HorizontalLayout getCreateButtonLayout() {
+        return (HorizontalLayout) createButtonLayout();
+    };
 
     private void setTheme(boolean dark) {
         var js = "document.documentElement.setAttribute('theme', $0)";
