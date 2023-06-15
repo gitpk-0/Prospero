@@ -37,7 +37,6 @@ public class User extends AbstractEntity implements UserDetails {
     @Enumerated
     private Role role;
 
-    // Need to encrypt in production
     @Size(min = 8, max = 128, message = "Password must be at least 8 characters, no more than 128 characters")
     private String password;
 

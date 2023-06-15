@@ -34,9 +34,7 @@ public class RegistrationFormBinder {
         this.passwordEncoder = passwordEncoder;
     }
 
-    /**
-     * Add the data binding and validation logic to the registration form
-     */
+    // Add the data binding and validation logic to the registration form
     public void addBindingAndValidation() {
         BeanValidationBinder<User> binder = new BeanValidationBinder<>(User.class);
         binder.bindInstanceFields(registrationForm);
@@ -76,6 +74,61 @@ public class RegistrationFormBinder {
                 exception.getValidationErrors().forEach(System.out::println);
             }
         });
+    }
+
+    private ValidationResult emailValidator(String email, ValueContext valueContext) {
+        if (service.userExists(email)) {
+            return ValidationResult.error("An account with this email already exists");
+        }
+        return ValidationResult.ok();
+    }
+
+    // Validates that the password is at least 8 characters in length and both values match
+    private ValidationResult passwordValidator(String password1, ValueContext valueContext) {
+
+
+        // password length checks
+        if (password1 == null || password1.length() < 8) {
+            return ValidationResult.error("Password should be at least 8 characters long");
+        }
+
+        if (password1 == null || password1.length() > 128) {
+            return ValidationResult.error("Password should be less than 129 characters in length");
+        }
+
+        // password complexity check (at least one uppercase letter, one lowercase letter, and one digit)
+        if (!password1.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$")) {
+            return ValidationResult.error("Password should contain at least one uppercase letter, " +
+                    "one lowercase letter, and one digit");
+        }
+
+        if (!enablePasswordValidation) {
+            enablePasswordValidation = true;
+            return ValidationResult.ok();
+        }
+
+        String password2 = registrationForm.getPasswordConfirmation().getValue();
+
+
+        if (password1 != null && password1.equals(password2)) {
+            return ValidationResult.ok();
+        }
+
+        return ValidationResult.error("Passwords do not match");
+
+
+    }
+
+    // Called when form has been submitted successfully
+    private void showSuccess(User userBean) {
+        Notification notification =
+                Notification.show("User " + userBean.getEmail() + " successfully created. Welcome "
+                        + userBean.getFirstName());
+
+        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+
+        // Redirect the new user to the Login page
+        UI.getCurrent().navigate(LoginView.class);
     }
 
     private void generateSampleBudget(User newUser) {
@@ -128,70 +181,5 @@ public class RegistrationFormBinder {
                 Type.EXPENSE,
                 newUser.getId());
         service.saveTransaction(expense3);
-    }
-
-    private ValidationResult emailValidator(String email, ValueContext valueContext) {
-        if (service.userExists(email)) {
-            return ValidationResult.error("An account with this email already exists");
-        }
-        return ValidationResult.ok();
-    }
-
-    /**
-     * Validates that the password is at least 8 characters in length and both values match
-     *
-     * @param password1    The password entered into the first password field
-     * @param valueContext The value context
-     * @return The validation result
-     */
-    private ValidationResult passwordValidator(String password1, ValueContext valueContext) {
-
-
-        // password length checks
-        if (password1 == null || password1.length() < 8) {
-            return ValidationResult.error("Password should be at least 8 characters long");
-        }
-
-        if (password1 == null || password1.length() > 128) {
-            return ValidationResult.error("Password should be less than 129 characters in length");
-        }
-
-        // password complexity check (at least one uppercase letter, one lowercase letter, and one digit)
-        if (!password1.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$")) {
-            return ValidationResult.error("Password should contain at least one uppercase letter, " +
-                    "one lowercase letter, and one digit");
-        }
-
-        if (!enablePasswordValidation) {
-            enablePasswordValidation = true;
-            return ValidationResult.ok();
-        }
-
-        String password2 = registrationForm.getPasswordConfirmation().getValue();
-
-
-        if (password1 != null && password1.equals(password2)) {
-            return ValidationResult.ok();
-        }
-
-        return ValidationResult.error("Passwords do not match");
-
-
-    }
-
-    /**
-     * Called when form has been submitted successfully
-     *
-     * @param userBean The new user
-     */
-    private void showSuccess(User userBean) {
-        Notification notification =
-                Notification.show("User " + userBean.getEmail() + " successfully created. Welcome "
-                        + userBean.getFirstName());
-
-        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-
-        // Redirect the new user to the Login page
-        UI.getCurrent().navigate(LoginView.class);
     }
 }
