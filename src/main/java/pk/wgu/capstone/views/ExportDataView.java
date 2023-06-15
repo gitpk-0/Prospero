@@ -26,9 +26,9 @@ import java.util.List;
 @PermitAll
 public class ExportDataView extends VerticalLayout {
 
-
     private SecurityService securityService;
     private PfmService service;
+
     private Button downloadBtn;
 
     public ExportDataView(SecurityService securityService, PfmService service) {

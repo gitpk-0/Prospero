@@ -44,8 +44,8 @@ public class DashboardView extends Main {
     private final SecurityService securityService;
     private final PfmService service;
 
-    BigDecimalToDoubleConverter amountConverter = new BigDecimalToDoubleConverter();
-    NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
+    private BigDecimalToDoubleConverter amountConverter = new BigDecimalToDoubleConverter();
+    private NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
 
     // board rows
     private Row highlightsRow;
