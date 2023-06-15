@@ -67,7 +67,6 @@ public class DataGenerator {
             categories.forEach(category -> category.setDefault(true));
             categories.forEach(category -> category.setUserIdsCsv("default"));
 
-
             List<Type> types = Arrays.asList(Type.values());
             logger.info("Types: ");
             types.forEach(type -> logger.info(type.toString()));
@@ -138,7 +137,6 @@ public class DataGenerator {
                     LocalDateTime.now()
             ));
 
-
             budgets.add(new Budget(
                     "July Budget - mid",
                     Date.valueOf(LocalDate.now().plusMonths(1)),
@@ -161,15 +159,6 @@ public class DataGenerator {
 
             logger.info("budgets created");
 
-            // int i = 0;
-            // for (Budget b : budgets) {
-            //     b.setDateCreated(LocalDateTime.now().minusDays(50).plusDays(i));
-            //     i++;
-            //     i++;
-            // }
-
-
-
             categoryRepository.saveAll(categories);
             logger.info("categoryRepository saved");
             transactionRepository.saveAll(transactions);
@@ -179,11 +168,14 @@ public class DataGenerator {
             budgetRepository.saveAll(budgets);
             logger.info("budgetRepository saved");
 
-
             logger.info("Generated demo data");
         };
     }
 
+
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     static Date generateRandomDate() {
         LocalDate minDay = LocalDate.now().minusYears(5);
@@ -222,9 +214,5 @@ public class DataGenerator {
         Random random = new Random();
         int randomIndex = random.nextInt(incomeDescriptions.length);
         return incomeDescriptions[randomIndex];
-    }
-
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }
