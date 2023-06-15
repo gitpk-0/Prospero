@@ -29,7 +29,11 @@ public class ExportDataView extends VerticalLayout {
     private SecurityService securityService;
     private PfmService service;
 
-    private Button downloadBtn;
+    private Button downloadBtn = new Button("Export Transaction Data");
+
+    public ExportDataView() {
+        // no arg constructor for unit testing
+    }
 
     public ExportDataView(SecurityService securityService, PfmService service) {
         this.securityService = securityService;
@@ -41,9 +45,9 @@ public class ExportDataView extends VerticalLayout {
         H5 contact = new H5();
         contact.setText("If you are having issues downloading your data, please contact prospero.support@pm.me");
 
-        downloadBtn = new Button("Export Transaction Data");
         downloadBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         downloadBtn.getStyle().set("--lumo-primary-color", "green");
+        downloadBtn.getElement().setAttribute("title", "Download Your Transaction Data");
 
         Long userId = securityService.getCurrentUserId(service);
 
@@ -77,5 +81,10 @@ public class ExportDataView extends VerticalLayout {
                 link,
                 contact
         );
+    }
+
+    // used for unit testing
+    public Button getDownloadBtn() {
+        return downloadBtn;
     }
 }
