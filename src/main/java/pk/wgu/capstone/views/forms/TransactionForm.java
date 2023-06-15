@@ -62,6 +62,10 @@ public class TransactionForm extends FormLayout {
         this.securityService = securityService;
         this.service = service;
 
+        // show numerical keyboard when amount field is focused on mobile devices
+        amount.getElement().getNode().runWhenAttached(ui ->
+                ui.getPage().executeJs("$0.focusElement().type=$1", amount, "number"));
+
         typeSelect.setHelperText("Type");
         typeSelect.getElement().getThemeList().add(SelectVariant.LUMO_HELPER_ABOVE_FIELD.getVariantName());
 
