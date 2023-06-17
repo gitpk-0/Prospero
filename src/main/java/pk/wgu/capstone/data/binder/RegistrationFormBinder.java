@@ -83,7 +83,7 @@ public class RegistrationFormBinder {
         return ValidationResult.ok();
     }
 
-    // Validates that the password is at least 8 characters in length and both values match
+    // Validates that the password is at least 8 characters in length, matches complexity reqs and both values match
     private ValidationResult passwordValidator(String password1, ValueContext valueContext) {
 
 

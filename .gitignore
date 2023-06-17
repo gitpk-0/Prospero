@@ -24,3 +24,5 @@ webpack.generated.js
 /src/main/resources/flyway.conf
 /.env
 /db.migration/
+/ClassDiagram.png
+/DesignDiagram.pdf

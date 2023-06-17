@@ -29,6 +29,7 @@ public class MainLayout extends AppLayout {
     private PfmService service;
 
     boolean isDarkTheme = true;
+
     // public MainLayout() {
     //     // no arg constructor for unit testing
     // }
@@ -54,7 +55,6 @@ public class MainLayout extends AppLayout {
         Anchor prosperoHomeLink = new Anchor("https://prospero-app.herokuapp.com/");
         prosperoHomeLink.add(logoAppname);
         prosperoHomeLink.setTarget("_blank"); // open in new window
-        // prosperoHomeLink.addClassNames("text-l", "m-m");
 
         // light/dark mode toggle button
         Button themeBtn = new Button(VaadinIcon.MOON.create());
