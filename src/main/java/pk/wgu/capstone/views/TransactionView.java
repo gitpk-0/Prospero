@@ -44,6 +44,7 @@ import pk.wgu.capstone.views.forms.TransactionForm;
 
 import java.sql.Date;
 import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
@@ -218,7 +219,9 @@ public class TransactionView extends Div {
 
     private void addTransaction() {
         grid.asSingleSelect().clear(); // unselect transaction if one is selected
-        editTransaction(new Transaction());
+        Transaction newTransaction = new Transaction();
+        newTransaction.setDate(Date.valueOf(LocalDate.now())); // set default date to user's current date
+        editTransaction(newTransaction);
     }
 
     public void editTransaction(Transaction transaction) {
@@ -359,10 +362,10 @@ public class TransactionView extends Div {
         UI.getCurrent().getPage().reload();
     }
 
-    public static abstract class ListViewEvent extends ComponentEvent<TransactionView> {
+    public static abstract class TransactionViewEvent extends ComponentEvent<TransactionView> {
         private Category category;
 
-        protected ListViewEvent(TransactionView source, Category category) {
+        protected TransactionViewEvent(TransactionView source, Category category) {
             super(source, false);
             this.category = category;
         }
@@ -372,13 +375,13 @@ public class TransactionView extends Div {
         }
     }
 
-    public static class SaveEvent extends TransactionView.ListViewEvent {
+    public static class SaveEvent extends TransactionViewEvent {
         SaveEvent(TransactionView source, Category category) {
             super(source, category);
         }
     }
 
-    public static class CloseEvent extends TransactionView.ListViewEvent {
+    public static class CloseEvent extends TransactionViewEvent {
         CloseEvent(TransactionView source) {
             super(source, null);
         }
