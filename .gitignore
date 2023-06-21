@@ -3,7 +3,7 @@
 .settings
 .project
 .classpath
-notes.txt
+records/notes.txt
 
 *.iml
 .DS_Store
@@ -27,3 +27,4 @@ webpack.generated.js
 /ClassDiagram.png
 /DesignDiagram.pdf
 /screenshots/
+/records/tasks/to_do
