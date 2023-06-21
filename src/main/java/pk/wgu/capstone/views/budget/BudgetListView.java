@@ -286,7 +286,14 @@ public class BudgetListView extends Main implements HasComponents, HasStyle {
             totalExpenses.getStyle().set("font-size", "large");
             totalExpenses.addClassName("total-expenses-text");
 
-            dialogLayout.add(title, subtitle, getBudgetChart(budget), spendingGoal, totalExpenses);
+            H3 remainingAmount = new H3("Available Balance: " +
+                    currencyFormat.format(
+                            budget.getSpendingGoal().subtract(service.getSumExpensesInDateRange(
+                                    budget.getStart(), budget.getEnd(), Type.EXPENSE, budget.getUserId()))));
+            remainingAmount.getStyle().set("font-size", "large");
+            remainingAmount.addClassName("remaining-allowance-text");
+
+            dialogLayout.add(title, subtitle, getBudgetChart(budget), spendingGoal, totalExpenses, remainingAmount);
             dialogLayout.addClassName("budget-dialog-vl");
 
             dialog = new Dialog(dialogLayout);
