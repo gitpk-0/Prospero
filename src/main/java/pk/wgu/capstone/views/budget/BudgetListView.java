@@ -126,11 +126,7 @@ public class BudgetListView extends Main implements HasComponents, HasStyle {
                     budget,
                     calcBudgetProgress(budget, userId),
                     calcBudgetStatus(budget),
-                    service.getSumExpensesInDateRange(
-                            budget.getStart(),
-                            budget.getEnd(),
-                            Type.EXPENSE,
-                            userId)
+                    service.getSumExpensesInDateRange(budget.getStart(), budget.getEnd(), Type.EXPENSE, userId)
             );
             card.addClickListener(e -> {
                 viewBudgetChart(budget);

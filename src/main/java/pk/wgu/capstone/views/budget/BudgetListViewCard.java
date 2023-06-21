@@ -61,6 +61,15 @@ public class BudgetListViewCard extends ListItem {
         HorizontalLayout expenseDiv = new HorizontalLayout(totalExpenses, expenseValue);
         expenseDiv.addClassName("progress-bar-label");
 
+        // Amount Remaining Total
+        Div amountRemaining = new Div();
+        amountRemaining.setText("Balance: ");
+        Div remainingValue = new Div();
+        String remainingStr = currencyFormat.format(budget.getSpendingGoal().subtract(expenses));
+        remainingValue.setText(remainingStr);
+        HorizontalLayout remainingDiv = new HorizontalLayout(amountRemaining, remainingValue);
+        remainingDiv.addClassName("progress-bar-label");
+
         ProgressBar progressBar = new ProgressBar();
         progressBar.addClassName("progress-bar");
         String progressStr = (int) (progress * 100) + "%";
@@ -76,18 +85,18 @@ public class BudgetListViewCard extends ListItem {
             progressBar.getStyle().set("--progress-color", "#158443"); // green
             progressBar.addThemeVariants(ProgressBarVariant.LUMO_SUCCESS);
             progressValue.addClassName("green");
-            expenseValue.addClassName("green");
+            remainingValue.addClassName("green");
         } else if (progress > 0.75 && progress <= 0.9) {
             progressBar.getStyle().set("--progress-color", "#ffbd07"); // yellow
             progressValue.addClassName("yellow");
-            expenseValue.addClassName("yellow");
+            remainingValue.addClassName("yellow");
         } else {
             progressBar.addThemeVariants(ProgressBarVariant.LUMO_ERROR);
             progressBar.getStyle().set("--progress-color", "#E21D12"); // red
             progressValue.addClassName("red");
-            expenseValue.addClassName("red");
+            remainingValue.addClassName("red");
         }
-        
+
         String[] goalStatusList = {"Within Budget", "At Budget Capacity", "Over Budget"};
         String goalStatus = "";
         double progressBarValue = 0.0;
@@ -124,7 +133,8 @@ public class BudgetListViewCard extends ListItem {
         budgetInfo.getStyle().set("gap", "var(--lumo-space-xs");
 
         // Expense, Budget Utilization, Progress Bar Layout, Badges
-        VerticalLayout progressLayout = new VerticalLayout(expenseDiv, budgetUtilDiv, progressBar, badges);
+        VerticalLayout progressLayout = new VerticalLayout(
+                expenseDiv, remainingDiv, budgetUtilDiv, progressBar, badges);
         card.add(progressLayout);
 
         // Card
