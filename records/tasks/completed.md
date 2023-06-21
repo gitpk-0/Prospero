@@ -27,6 +27,5 @@
 26. User settings -> edit user info, theme
 27. Anchor link main logo
 28. Fix transactions filters styling -- did not translate in Heroku deploy -> `@Stylesheet` annotation needed to be `@CssImport`
-29. Number field keyboard type -> [link](https://stackoverflow.com/questions/55818083/vaadin-textfield-that-will-only-default-to-numeric-keyboard-on-ios)
-30. Unit testing
-31. Code review - clean up code, refactor, add comments, improve readability
+29. Unit testing
+30. Code review - clean up code, refactor, add comments, improve readability
