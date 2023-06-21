@@ -44,7 +44,7 @@ import pk.wgu.capstone.views.forms.TransactionForm;
 
 import java.sql.Date;
 import java.text.NumberFormat;
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
@@ -220,7 +220,7 @@ public class TransactionView extends Div {
     private void addTransaction() {
         grid.asSingleSelect().clear(); // unselect transaction if one is selected
         Transaction newTransaction = new Transaction();
-        newTransaction.setDate(Date.valueOf(LocalDate.now())); // set default date to user's current date
+        newTransaction.setDate(Date.valueOf(ZonedDateTime.now().toLocalDate())); // set default date to user's current date
         editTransaction(newTransaction);
     }
 
