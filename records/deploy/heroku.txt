@@ -3,8 +3,6 @@
 # reset stack (if previous deploy was docker)
 heroku stack:set heroku-22 -a prospero-app
 
-# configure application.properties settings to use Postgres
-
 # build production jar
 mvn clean package -Pproduction
 

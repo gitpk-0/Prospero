@@ -265,8 +265,8 @@
     "construct-style-sheets-polyfill": "$construct-style-sheets-polyfill",
     "date-fns": "$date-fns",
     "express": "$express",
-    "line-awesome": "$line-awesome",
     "lit": "$lit",
-    "proj4": "$proj4"
+    "proj4": "$proj4",
+    "line-awesome": "$line-awesome"
   }
 }
