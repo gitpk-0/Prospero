@@ -26,7 +26,8 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
         LoginI18n.ErrorMessage i18nErrorMessage = i18n.getErrorMessage();
         i18nErrorMessage.setTitle("Invalid credentials");
-        i18nErrorMessage.setMessage("Check that you have entered the correct username and password and try again.");
+        i18nErrorMessage.setMessage("Check that you have entered the correct username and password and try again. " +
+                "Please note that the username is case-sensitive.");
         i18n.setErrorMessage(i18nErrorMessage);
 
         loginForm.setI18n(i18n);
@@ -63,7 +64,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
         // inform the user about an authentication error
-        if(beforeEnterEvent.getLocation()
+        if (beforeEnterEvent.getLocation()
                 .getQueryParameters()
                 .getParameters()
                 .containsKey("error")) {
