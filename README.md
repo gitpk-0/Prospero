@@ -42,8 +42,9 @@ To run the Prospero application locally, follow these steps:
 
 1. Clone the repository: `git clone https://github.com/gitpk-0/Prospero`
 2. Navigate to the project directory: `cd Prospero-master`
-3. Install dependencies: `npm install`
-4. Open the project in your IDE and run the `Application.java` file.
+3. Node.js: Ensure you have Node.js installed by running node -v in your terminal. If you don't have Node.js, you can download and install it from the official Node.js website (https://nodejs.org).
+4. Install dependencies: `npm install`
+5. Open the project in Intellij IDEA and run the `Application.java` file.
 6. Open your web browser and visit `http://localhost:8080` to access the app.
 
 ## Contributing

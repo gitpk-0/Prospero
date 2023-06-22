@@ -29,3 +29,4 @@
 28. Fix transactions filters styling -- did not translate in Heroku deploy -> `@Stylesheet` annotation needed to be `@CssImport`
 29. Unit testing
 30. Code review - clean up code, refactor, add comments, improve readability
+31. remaining budget allowance - budget view -> budget card
