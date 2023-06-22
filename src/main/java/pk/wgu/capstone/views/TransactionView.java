@@ -477,17 +477,7 @@ public class TransactionView extends Div {
         addTransactionBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         addTransactionBtn.getStyle().set("--lumo-primary-color", "green");
         addTransactionBtn.addClickListener(e -> {
-            UI.getCurrent()
-                    .getPage()
-                    .executeJs("var userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone; return userTimeZone;")
-                    .then(result -> {
-                        String userTimeZone = result.asString();
-                        if (userTimeZone == null || userTimeZone.isEmpty()) {
-                            userTimeZone = "America/New_York";
-                        }
-                        System.out.println("User time zone: " + userTimeZone);
-                        addTransaction(userTimeZone);
-                    });
+            resolveUserTimeZoneAndAddTransaction();
         });
 
         Div actions = new Div(resetBtn, searchBtn, addTransactionBtn);
@@ -496,6 +486,21 @@ public class TransactionView extends Div {
 
         filterDiv.add(description, createDateRangeFilter(), categorySelect, types, actions);
         return filterDiv;
+    }
+
+    private void resolveUserTimeZoneAndAddTransaction() {
+        UI.getCurrent()
+                .getPage()
+                .executeJs("var userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone; return userTimeZone;")
+                .then(result -> {
+                    String userTimeZone = result.asString();
+                    if (userTimeZone == null || userTimeZone.isEmpty()) {
+                        System.out.println("Defaulting to America/New_York");
+                        userTimeZone = "America/New_York";
+                    }
+                    System.out.println("User time zone: " + userTimeZone);
+                    addTransaction(userTimeZone);
+                });
     }
 
     private List<String> getCategoryNames(String filterByType) {
