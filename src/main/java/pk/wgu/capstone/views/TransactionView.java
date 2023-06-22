@@ -44,6 +44,8 @@ import pk.wgu.capstone.views.forms.TransactionForm;
 
 import java.sql.Date;
 import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
@@ -217,10 +219,15 @@ public class TransactionView extends Div {
         transactionForm.setVisible(false);
     }
 
-    private void addTransaction() {
+    private void addTransaction(String userTimeZone) {
         grid.asSingleSelect().clear(); // unselect transaction if one is selected
         Transaction newTransaction = new Transaction();
-        newTransaction.setDate(Date.valueOf(ZonedDateTime.now().toLocalDate())); // set default date to user's current date
+
+        // Adjust default date based on user's time zone
+        ZonedDateTime userDateTime = ZonedDateTime.now(ZoneId.of(userTimeZone));
+        LocalDate userLocalDate = userDateTime.toLocalDate();
+        newTransaction.setDate(Date.valueOf(userLocalDate));
+
         editTransaction(newTransaction);
     }
 
@@ -469,7 +476,19 @@ public class TransactionView extends Div {
         Button addTransactionBtn = new Button("Add Transaction");
         addTransactionBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         addTransactionBtn.getStyle().set("--lumo-primary-color", "green");
-        addTransactionBtn.addClickListener(e -> addTransaction());
+        addTransactionBtn.addClickListener(e -> {
+            UI.getCurrent()
+                    .getPage()
+                    .executeJs("var userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone; return userTimeZone;")
+                    .then(result -> {
+                        String userTimeZone = result.asString();
+                        if (userTimeZone == null || userTimeZone.isEmpty()) {
+                            userTimeZone = "America/New_York";
+                        }
+                        System.out.println("User time zone: " + userTimeZone);
+                        addTransaction(userTimeZone);
+                    });
+        });
 
         Div actions = new Div(resetBtn, searchBtn, addTransactionBtn);
         actions.addClassName(LumoUtility.Gap.SMALL);

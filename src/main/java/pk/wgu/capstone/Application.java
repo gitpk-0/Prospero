@@ -8,9 +8,6 @@ import com.vaadin.flow.theme.lumo.Lumo;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.time.ZoneId;
-import java.util.TimeZone;
-
 @SpringBootApplication
 @Theme(value = "prospero", variant = Lumo.DARK)
 // @Theme(value = "prospero", variant = Lumo.LIGHT)
@@ -24,7 +21,6 @@ import java.util.TimeZone;
 public class Application implements AppShellConfigurator {
 
     public static void main(String[] args) {
-        TimeZone.setDefault(TimeZone.getTimeZone(ZoneId.systemDefault()));
         SpringApplication.run(Application.class, args);
     }
 
