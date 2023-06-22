@@ -57,11 +57,14 @@ public class RegistrationFormBinder {
         registrationForm.getSubmit().addClickListener(e -> {
             try {
                 User userBean = new User(); // new bean to store user info into
-                userBean.setRole(Role.USER);
-
                 binder.writeBean(userBean); // run validation and write the values to the bean
+
+                userBean.setEmail(userBean.getEmail().toLowerCase());
                 userBean.setPassword(passwordEncoder.encode(userBean.getPassword()));
+                userBean.setRole(Role.USER);
                 userBean.setAllowsMarketingEmails(registrationForm.getAllowMarketing().getValue());
+
+                System.out.println("Adding new user: " + userBean);
 
                 service.addNewUser(userBean);// add the new user to the database
 
