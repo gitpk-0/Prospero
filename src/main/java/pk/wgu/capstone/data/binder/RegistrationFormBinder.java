@@ -59,6 +59,7 @@ public class RegistrationFormBinder {
                 User userBean = new User(); // new bean to store user info into
                 binder.writeBean(userBean); // run validation and write the values to the bean
 
+                registrationForm.setEmail(userBean.getEmail().toLowerCase());
                 userBean.setEmail(userBean.getEmail().toLowerCase());
                 userBean.setPassword(passwordEncoder.encode(userBean.getPassword()));
                 userBean.setRole(Role.USER);

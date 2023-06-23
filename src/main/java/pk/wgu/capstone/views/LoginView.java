@@ -59,6 +59,14 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
             confirmDialog.setConfirmText("OK");
             confirmDialog.open();
         });
+
+
+        // convert the username text to lower case
+        loginForm.addLoginListener(e -> {
+            System.out.println("login listener fired");
+            String username = e.getUsername().toLowerCase();
+            i18nForm.setUsername(username);
+        });
     }
 
     @Override

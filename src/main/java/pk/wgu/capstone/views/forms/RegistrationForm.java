@@ -84,7 +84,7 @@ public class RegistrationForm extends FormLayout implements RouterLayout {
         );
 
         // components below will use the full width of the form
-        setColspan(formHeader,2);
+        setColspan(formHeader, 2);
         setColspan(email, 2);
         setColspan(allowMarketing, 2);
         setColspan(errorMessage, 2);
@@ -106,6 +106,10 @@ public class RegistrationForm extends FormLayout implements RouterLayout {
 
     public EmailField getEmail() {
         return email;
+    }
+
+    public void setEmail(String email) {
+        this.email.setValue(email);
     }
 
     public Button getSubmit() {
