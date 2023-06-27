@@ -81,12 +81,12 @@ public class BudgetListViewCard extends ListItem {
         HorizontalLayout budgetUtilDiv = new HorizontalLayout(budgetUtilization, progressValue);
         budgetUtilDiv.addClassName("progress-bar-label");
 
-        if (progress <= 0.75) {
+        if (progress <= 0.84) {
             progressBar.getStyle().set("--progress-color", "#158443"); // green
             progressBar.addThemeVariants(ProgressBarVariant.LUMO_SUCCESS);
             progressValue.addClassName("green");
             remainingValue.addClassName("green");
-        } else if (progress > 0.75 && progress <= 0.9) {
+        } else if (progress > 0.85 && progress <= 0.94) {
             progressBar.getStyle().set("--progress-color", "#ffbd07"); // yellow
             progressValue.addClassName("yellow");
             remainingValue.addClassName("yellow");
