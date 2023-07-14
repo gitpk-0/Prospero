@@ -432,8 +432,8 @@ public class DashboardView extends Main {
     }
 
     private Double getAccountBalance(Long userId) {
-        BigDecimal income = service.getSumIncomeTransactions(userId);
-        BigDecimal expenses = service.getSumExpenseTransactions(userId);
+        BigDecimal income = service.getSumIncomeTransactionsUpToCurrentDate(userId);
+        BigDecimal expenses = service.getSumExpenseTransactionsUpToCurrentDate(userId);
         BigDecimal accountBalanceBd = income.subtract(expenses);
         return amountConverter.convertToPresentation(accountBalanceBd, new ValueContext());
     }

@@ -171,12 +171,20 @@ public class PfmService { // Personal Finance Management Service
         return filteredTransactions;
     }
 
-    public BigDecimal getSumIncomeTransactions(Long userId) {
+    public BigDecimal getSumIncomeTransactionsAll(Long userId) {
         return transactionRepository.getSumTransactionsByType(userId, Type.INCOME);
     }
 
-    public BigDecimal getSumExpenseTransactions(Long userId) {
+    public BigDecimal getSumExpenseTransactionsAll(Long userId) {
         return transactionRepository.getSumTransactionsByType(userId, Type.EXPENSE);
+    }
+
+    public BigDecimal getSumIncomeTransactionsUpToCurrentDate(Long userId) {
+        return transactionRepository.getSumTransactionsByTypeUpToCurrentDate(userId, Type.INCOME);
+    }
+
+    public BigDecimal getSumExpenseTransactionsUpToCurrentDate(Long userId) {
+        return transactionRepository.getSumTransactionsByTypeUpToCurrentDate(userId, Type.EXPENSE);
     }
 
     public Integer getTransactionCount(Long userId) {

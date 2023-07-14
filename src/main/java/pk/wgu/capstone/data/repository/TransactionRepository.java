@@ -66,6 +66,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             "where t.userId = :user_id and t.type = :type")
     BigDecimal getSumTransactionsByType(@Param("user_id") Long userId, @Param("type") Type type);
 
+    @Query("select coalesce(sum(t.amount), 0.0) as income from transactions t " +
+            "where t.userId = :user_id " +
+            "and t.type = :type " +
+            "and t.date <= CURRENT_DATE()")
+    BigDecimal getSumTransactionsByTypeUpToCurrentDate(@Param("user_id") Long userId, @Param("type") Type type);
+
     @Query("select coalesce(count(t.id), 0) from transactions t where t.userId = :user_id")
     Integer getTransactionCount(@Param("user_id") Long userId);
 

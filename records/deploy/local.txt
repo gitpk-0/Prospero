@@ -1,0 +1,1 @@
+copy/paste application-dev.properties to application.properties

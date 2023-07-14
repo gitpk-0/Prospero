@@ -16,3 +16,11 @@ heroku deploy:jar target/prospero-1.0-SNAPSHOT.jar -a prospero-app
 # comment out all of application.properties (for development)
 
 ::::::::::::::::::::::::::::::::::::::::::::::::
+
+HEROKU DATABASE CREDENTIALS UPDATE
+
+login to heroku
+select prospero_app
+select resources
+select settings
+view credentials
