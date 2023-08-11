@@ -2,16 +2,23 @@ package pk.wgu.capstone.views;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
+import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.charts.Chart;
 import com.vaadin.flow.component.charts.model.*;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.PermitAll;
 import pk.wgu.capstone.data.entity.Type;
 import pk.wgu.capstone.data.entity.report.CategoryTotal;
@@ -27,7 +34,7 @@ import java.util.List;
 @PageTitle("I & E | Prospero")
 @PermitAll
 @CssImport(value = "./themes/prospero/prospero-charts.css", themeFor = "vaadin-chart")
-@CssImport(value = "./themes/prospero/views/i-v-e-grids.css")
+@CssImport(value = "./themes/prospero/views/i-v-e.css")
 public class IncomeVsExpenseView extends VerticalLayout {
 
     private SecurityService securityService;
@@ -37,6 +44,12 @@ public class IncomeVsExpenseView extends VerticalLayout {
 
     Grid<CategoryTotal> incomeGrid = new Grid<>(CategoryTotal.class);
     Grid<CategoryTotal> expenseGrid = new Grid<>(CategoryTotal.class);
+
+    Component filterDiv;
+
+    // private final DatePicker startDate = new DatePicker("Transaction Date");
+    private final DatePicker startDate = new DatePicker("Filter Range");
+    private final DatePicker endDate = new DatePicker();
 
     public IncomeVsExpenseView(SecurityService securityService, PfmService service) {
         this.securityService = securityService;
@@ -52,7 +65,10 @@ public class IncomeVsExpenseView extends VerticalLayout {
 
         configureGrids();
 
+        filterDiv = createFilterLayout();
+
         add(
+                filterDiv,
                 getTransactionsChart(),
                 getIncomeAndExpenseGridContent()
         );
@@ -177,5 +193,56 @@ public class IncomeVsExpenseView extends VerticalLayout {
         columnChart.addClassName("totals-chart");
 
         return columnChart;
+    }
+
+    private Component createFilterLayout() {
+        startDate.addValueChangeListener(e -> {
+            if (startDate.getValue() != null) {
+                endDate.setMin(startDate.getValue().plusDays(1));
+            }
+        });
+
+        Div filterDiv = new Div();
+        filterDiv.setWidthFull();
+        filterDiv.addClassName("filter-layout");
+        filterDiv.addClassNames(LumoUtility.Padding.Horizontal.LARGE, LumoUtility.Padding.Vertical.MEDIUM,
+                LumoUtility.BoxSizing.BORDER);
+
+        // Action buttons
+        Button resetBtn = new Button("Reset");
+        resetBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        resetBtn.addClickListener(e -> resetFilterFields());
+
+        Button filterBtn = new Button("Filter");
+        filterBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        filterBtn.addClickListener(e -> updateGrids());
+
+        HorizontalLayout actions = new HorizontalLayout(filterBtn, resetBtn);
+        actions.addClassName(LumoUtility.Gap.SMALL);
+        actions.addClassName("actions");
+
+        HorizontalLayout div = new HorizontalLayout(createDateRangeFilter(), actions);
+        div.setAlignItems(FlexComponent.Alignment.BASELINE);
+        div.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+
+        // filterDiv.add(div);
+        filterDiv.add(createDateRangeFilter(), actions);
+        return filterDiv;
+    }
+
+    private void resetFilterFields() {
+        startDate.clear();
+        endDate.clear();
+    }
+
+    private Component createDateRangeFilter() {
+        startDate.setPlaceholder("From");
+        endDate.setPlaceholder("To");
+
+        FlexLayout dateRangeComponent = new FlexLayout(startDate, new Text(" - "), endDate);
+        dateRangeComponent.setAlignItems(FlexComponent.Alignment.BASELINE);
+        dateRangeComponent.addClassName(LumoUtility.Gap.XSMALL);
+
+        return dateRangeComponent;
     }
 }

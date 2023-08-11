@@ -4,7 +4,7 @@
 heroku stack:set heroku-22 -a prospero-app
 
 
-# uncomment application.properties
+# copy/paste application-prod.properties to application.properties
 
 # build production jar
 mvn clean package -Pproduction
@@ -12,8 +12,6 @@ mvn clean package -Pproduction
 # open heroku console to view logs of deployment
 # deploy to heroku
 heroku deploy:jar target/prospero-1.0-SNAPSHOT.jar -a prospero-app
-
-# comment out all of application.properties (for development)
 
 ::::::::::::::::::::::::::::::::::::::::::::::::
 

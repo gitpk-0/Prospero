@@ -1,0 +1,42 @@
+@media all and (max-width: 920px) {
+    .grids-layout {
+        display: none;
+    }
+}
+
+.income-grid {
+    margin-left: 8rem;
+}
+
+.expense-grid {
+    margin-right: 2rem;
+}
+
+.grid-header {
+    font-size: 1.2rem;
+    font-weight: 900;
+}
+
+.grids-layout {
+    margin-top: -1.5rem;
+    grid-gap: 3rem;
+}
+
+/* Add styles for the button layout */
+.income-vs-expense-view .button-layout {
+    display: flex;
+    gap: var(--lumo-space-m);
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: var(--lumo-space-m);
+}
+
+/* Adjust button width if necessary */
+.income-vs-expense-view .button-layout button {
+    min-width: 80px; /* You can adjust this width as needed */
+}
+
+/* Adjust the width of the date picker fields */
+.income-vs-expense-view vaadin-date-picker {
+    width: 8em; /* Adjust the width as needed */
+}
