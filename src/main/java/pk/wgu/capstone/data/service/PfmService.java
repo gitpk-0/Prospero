@@ -83,6 +83,10 @@ public class PfmService { // Personal Finance Management Service
         return transactionRepository.sumAllTransactionsByType(userId, type);
     }
 
+    public BigDecimal sumAllTransactionsByTypeInDateRange(Long userId, Type type, Date start, Date end) {
+        return transactionRepository.sumAllTransactionsByTypeInDateRange(userId, type, start, end);
+    }
+
     public List<Object[]> sumTransactionByCategory(Long userId, Type type) {
         return transactionRepository.sumTransactionsByCategory(userId, type);
     }

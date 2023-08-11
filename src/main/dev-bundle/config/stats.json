@@ -267,7 +267,7 @@
  "frontendHashes": {
   "themes/prospero/prospero-charts.css": "aafa75507fabb35279972b3a4f599b9ec4310318530d1780e2c8a4415451ef44",
   "themes/prospero/views/dashboard-view.css": "c4dbb1a46a63a12cdf5a2097bc55be722fe858a604fc42263cc5651c55cff8f2",
-  "themes/prospero/views/i-v-e.css": "e102cffb7d0edfb095fa7c578514434131b7981c80efeb2bbaee1517dcceb0c6",
+  "themes/prospero/views/i-v-e.css": "19d18df9f3f6e00adcd0f03e0b8aa1b148fd460b5d0b98a95612cedfe3d34be5",
   "themes/prospero/views/login-form.css": "390084932bf182075c9ef5da786240d8198bd66de08cb582dc0ea699e50c3801",
   "themes/prospero/views/transaction-view.css": "6dd762987f8d653e370cfbd3d92b51a5204c7815b87eb8a69f12a0dcd33e2915",
   "themes/prospero/views/budget-list-view.css": "7cec680e74dc1a1c88c44a14e9a188ca84dad34ac6f6e83be7f83ffd3711503b",
@@ -298,7 +298,7 @@
   "prospero": "{\n  \"lumoImports\" : [ \"typography\", \"color\", \"spacing\", \"badge\", \"utility\" ],\n  \"include\": [\"styles.css\"]\n}"
  },
  "entryScripts": [
-  "VAADIN/build/indexhtml-9545963a.js"
+  "VAADIN/build/indexhtml-55bd1cb4.js"
  ],
  "webComponents": [],
  "packageJsonHash": "b8388d83fbed399c0a168af333606c4c74767b2a33a8ada84efccae4395830c5"

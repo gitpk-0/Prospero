@@ -26,6 +26,7 @@ import pk.wgu.capstone.data.service.PfmService;
 import pk.wgu.capstone.security.SecurityService;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.text.NumberFormat;
 import java.util.Comparator;
 import java.util.List;
@@ -51,6 +52,11 @@ public class IncomeVsExpenseView extends VerticalLayout {
     private final DatePicker startDate = new DatePicker("Filter Range");
     private final DatePicker endDate = new DatePicker();
 
+    // column chart
+    private Chart columnChart;
+    private Configuration columnChartConfig;
+    private DataSeries columnChartData;
+
     public IncomeVsExpenseView(SecurityService securityService, PfmService service) {
         this.securityService = securityService;
         this.service = service;
@@ -73,7 +79,7 @@ public class IncomeVsExpenseView extends VerticalLayout {
                 getIncomeAndExpenseGridContent()
         );
 
-        updateGrids();
+        updateGridData();
     }
 
     private void configureGrids() {
@@ -116,9 +122,24 @@ public class IncomeVsExpenseView extends VerticalLayout {
     }
 
 
-    private void updateGrids() {
-        List<Object[]> incomeResults = service.sumTransactionByCategory(userId, Type.INCOME);
-        List<Object[]> expenseResults = service.sumTransactionByCategory(userId, Type.EXPENSE);
+    private void updateGridData() {
+        Date start = startDate.getValue() != null ? Date.valueOf(startDate.getValue()) : null;
+        Date end = endDate.getValue() != null ? Date.valueOf(endDate.getValue()) : null;
+
+        List<Object[]> incomeResults = null;
+        List<Object[]> expenseResults = null;
+
+        if (start == null || end == null) {
+            System.out.println("if called");
+            incomeResults = service.sumTransactionByCategory(userId, Type.INCOME);
+            System.out.println("incomeResults: " + incomeResults.size());
+            expenseResults = service.sumTransactionByCategory(userId, Type.EXPENSE);
+            System.out.println("expenseResults: " + expenseResults.size());
+        } else {
+            System.out.println("else called");
+            incomeResults = service.sumTransactionsInDateRangeByCategory(userId, Type.INCOME, start, end);
+            expenseResults = service.sumTransactionsInDateRangeByCategory(userId, Type.EXPENSE, start, end);
+        }
 
         // convert the result sets into a lists of CategoryTotal objects
         List<CategoryTotal> incomeData = incomeResults
@@ -133,29 +154,32 @@ public class IncomeVsExpenseView extends VerticalLayout {
         expenseGrid.setItems(expenseData);
     }
 
-    private Component getIncomeAndExpenseGridContent() {
-        HorizontalLayout content = new HorizontalLayout(incomeGrid, expenseGrid);
-        content.setClassName("grids-layout");
-        content.setWidthFull();
-        return content;
-    }
-
-    private Component getTransactionsChart() {
+    private void updateChartData() {
         Long userId = service.findUserByEmail(securityService.getAuthenticatedUser().getUsername()).getId();
 
-        Chart columnChart = new Chart(ChartType.COLUMN);
-        Configuration config = columnChart.getConfiguration();
-        DataSeries dataSeries = new DataSeries();
-        dataSeries.setName("Transactions");
+        columnChartConfig = columnChart.getConfiguration();
+        columnChartData = new DataSeries();
+        columnChartData.setName("Transactions");
 
-        DataSeriesItem incomeItem = new DataSeriesItem("Income", service.sumAllTransactionsByType(userId, Type.INCOME));
+        Date start = startDate.getValue() != null ? Date.valueOf(startDate.getValue()) : null;
+        Date end = endDate.getValue() != null ? Date.valueOf(endDate.getValue()) : null;
+
+        DataSeriesItem incomeItem = null;
+        DataSeriesItem expenseItem = null;
+
+        if (start == null || end == null){
+            incomeItem = new DataSeriesItem("Income", service.sumAllTransactionsByType(userId, Type.INCOME));
+            expenseItem = new DataSeriesItem("Expenses", service.sumAllTransactionsByType(userId, Type.EXPENSE));
+        } else {
+            incomeItem = new DataSeriesItem("Income", service.sumAllTransactionsByTypeInDateRange(userId, Type.INCOME, start, end));
+            expenseItem = new DataSeriesItem("Expenses", service.sumAllTransactionsByTypeInDateRange(userId, Type.EXPENSE, start, end));
+        }
+
         incomeItem.setClassName("income-column-bar");
-
-        DataSeriesItem expenseItem = new DataSeriesItem("Expenses", service.sumAllTransactionsByType(userId, Type.EXPENSE));
         expenseItem.setClassName("expense-column-bar");
 
-        dataSeries.add(incomeItem);
-        dataSeries.add(expenseItem);
+        columnChartData.add(incomeItem);
+        columnChartData.add(expenseItem);
 
         DataLabels totalLabel = new DataLabels(true);
         totalLabel.setShape(Shape.CALLOUT);
@@ -177,17 +201,90 @@ public class IncomeVsExpenseView extends VerticalLayout {
         //         "        'Color: ' + this.point.color;\n" +
         //         "    }");
         tooltip.setEnabled(true);
-        config.setTooltip(tooltip);
+        columnChartConfig.setTooltip(tooltip);
 
-        config.getChart().setStyledMode(true);
-        config.getLegend().setEnabled(false);
-        config.setSeries(dataSeries);
-        config.getxAxis().setClassName("huge-axis");
+        columnChartConfig.getChart().setStyledMode(true);
+        columnChartConfig.getLegend().setEnabled(false);
+        columnChartConfig.setSeries(columnChartData);
+        columnChartConfig.getxAxis().setClassName("huge-axis");
 
-        XAxis xAxis = config.getxAxis();
+        XAxis xAxis = columnChartConfig.getxAxis();
         xAxis.setType(AxisType.CATEGORY);
 
-        YAxis yAxis = config.getyAxis();
+        YAxis yAxis = columnChartConfig.getyAxis();
+        yAxis.setTitle("Amount");
+
+        columnChart.addClassName("totals-chart");
+        columnChart.drawChart();
+        System.out.println("reached end of updateChartData()");
+    }
+
+    private Component getIncomeAndExpenseGridContent() {
+        HorizontalLayout content = new HorizontalLayout(incomeGrid, expenseGrid);
+        content.setClassName("grids-layout");
+        content.setWidthFull();
+        return content;
+    }
+
+    private Component getTransactionsChart() {
+        Long userId = service.findUserByEmail(securityService.getAuthenticatedUser().getUsername()).getId();
+
+        columnChart = new Chart(ChartType.COLUMN);
+        columnChartConfig = columnChart.getConfiguration();
+        columnChartData = new DataSeries();
+        columnChartData.setName("Transactions");
+
+        Date start = startDate.getValue() != null ? Date.valueOf(startDate.getValue()) : null;
+        Date end = endDate.getValue() != null ? Date.valueOf(endDate.getValue()) : null;
+
+        DataSeriesItem incomeItem = null;
+        DataSeriesItem expenseItem = null;
+
+        if (start == null || end == null){
+            incomeItem = new DataSeriesItem("Income", service.sumAllTransactionsByType(userId, Type.INCOME));
+            expenseItem = new DataSeriesItem("Expenses", service.sumAllTransactionsByType(userId, Type.EXPENSE));
+        } else {
+            incomeItem = new DataSeriesItem("Income", service.sumAllTransactionsByTypeInDateRange(userId, Type.INCOME, start, end));
+            expenseItem = new DataSeriesItem("Expenses", service.sumAllTransactionsByTypeInDateRange(userId, Type.EXPENSE, start, end));
+        }
+
+        incomeItem.setClassName("income-column-bar");
+        expenseItem.setClassName("expense-column-bar");
+
+        columnChartData.add(incomeItem);
+        columnChartData.add(expenseItem);
+
+        DataLabels totalLabel = new DataLabels(true);
+        totalLabel.setShape(Shape.CALLOUT);
+        totalLabel.setY(-10);
+        totalLabel.setFormatter("function() { return '$' + Highcharts.numberFormat(this.point.y, 0, '.', ',') }");
+        totalLabel.setInside(true);
+        incomeItem.setDataLabels(totalLabel);
+        expenseItem.setDataLabels(totalLabel);
+
+
+        Tooltip tooltip = new Tooltip();
+        tooltip.setFormatter("function() {" +
+                "    return '<br/><b>' + this.point.name + '</b><br/>' +" +
+                "        'Total: $' + Highcharts.numberFormat(this.point.y, 2, '.', ',') + '<br/><br/>'}");
+
+        // tooltip.setFormatter("function() {\n" +
+        //         "      return '<b>' + this.point.name + '</b><br/>' +\n" +
+        //         "        this.point.series.name + ': ' + this.point.y + '<br/>' +\n" +
+        //         "        'Color: ' + this.point.color;\n" +
+        //         "    }");
+        tooltip.setEnabled(true);
+        columnChartConfig.setTooltip(tooltip);
+
+        columnChartConfig.getChart().setStyledMode(true);
+        columnChartConfig.getLegend().setEnabled(false);
+        columnChartConfig.setSeries(columnChartData);
+        columnChartConfig.getxAxis().setClassName("huge-axis");
+
+        XAxis xAxis = columnChartConfig.getxAxis();
+        xAxis.setType(AxisType.CATEGORY);
+
+        YAxis yAxis = columnChartConfig.getyAxis();
         yAxis.setTitle("Amount");
 
         columnChart.addClassName("totals-chart");
@@ -215,19 +312,21 @@ public class IncomeVsExpenseView extends VerticalLayout {
 
         Button filterBtn = new Button("Filter");
         filterBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        filterBtn.addClickListener(e -> updateGrids());
+        filterBtn.addClickListener(e -> updateGridAndChart());
 
         HorizontalLayout actions = new HorizontalLayout(filterBtn, resetBtn);
         actions.addClassName(LumoUtility.Gap.SMALL);
         actions.addClassName("actions");
 
-        HorizontalLayout div = new HorizontalLayout(createDateRangeFilter(), actions);
-        div.setAlignItems(FlexComponent.Alignment.BASELINE);
-        div.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-
-        // filterDiv.add(div);
         filterDiv.add(createDateRangeFilter(), actions);
         return filterDiv;
+    }
+
+    private void updateGridAndChart() {
+        updateGridData();
+        updateChartData();
+
+
     }
 
     private void resetFilterFields() {
