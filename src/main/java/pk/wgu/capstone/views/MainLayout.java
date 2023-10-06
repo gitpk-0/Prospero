@@ -140,6 +140,7 @@ public class MainLayout extends AppLayout {
                 createTab(VaadinIcon.BAR_CHART, "Income vs. Expenses", IncomeVsExpenseView.class),
                 createTab(VaadinIcon.DOWNLOAD, "Export Data", ExportDataView.class),
                 createTab(VaadinIcon.COG, "Settings", UserSettingsView.class)
+                // createTab(VaadinIcon.EXCLAMATION, "Test", TestView.class)
         );
         tabs.setOrientation(Tabs.Orientation.VERTICAL);
 
