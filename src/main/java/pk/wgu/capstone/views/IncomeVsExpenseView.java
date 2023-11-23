@@ -164,8 +164,8 @@ public class IncomeVsExpenseView extends VerticalLayout {
         Date start = startDate.getValue() != null ? Date.valueOf(startDate.getValue()) : null;
         Date end = endDate.getValue() != null ? Date.valueOf(endDate.getValue()) : null;
 
-        DataSeriesItem incomeItem = null;
-        DataSeriesItem expenseItem = null;
+        DataSeriesItem incomeItem;
+        DataSeriesItem expenseItem;
 
         if (start == null || end == null){
             incomeItem = new DataSeriesItem("Income", service.sumAllTransactionsByType(userId, Type.INCOME));
@@ -173,6 +173,14 @@ public class IncomeVsExpenseView extends VerticalLayout {
         } else {
             incomeItem = new DataSeriesItem("Income", service.sumAllTransactionsByTypeInDateRange(userId, Type.INCOME, start, end));
             expenseItem = new DataSeriesItem("Expenses", service.sumAllTransactionsByTypeInDateRange(userId, Type.EXPENSE, start, end));
+        }
+
+        // Set default value if the item's value is null
+        if (incomeItem.getY() == null) {
+            incomeItem = new DataSeriesItem("Income", 0);
+        }
+        if (expenseItem.getY() == null) {
+            expenseItem = new DataSeriesItem("Expenses", 0);
         }
 
         incomeItem.setClassName("income-column-bar");
@@ -325,8 +333,6 @@ public class IncomeVsExpenseView extends VerticalLayout {
     private void updateGridAndChart() {
         updateGridData();
         updateChartData();
-
-
     }
 
     private void resetFilterFields() {
