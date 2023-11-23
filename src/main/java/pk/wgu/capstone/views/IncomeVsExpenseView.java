@@ -74,9 +74,9 @@ public class IncomeVsExpenseView extends VerticalLayout {
         filterDiv = createFilterLayout();
 
         add(
-                filterDiv,
-                getTransactionsChart(),
-                getIncomeAndExpenseGridContent()
+                new VerticalLayout(createFilterLayout(), getTransactionsChart(), getIncomeAndExpenseGridContent())
+                // getTransactionsChart(),
+                // getIncomeAndExpenseGridContent()
         );
 
         updateGridData();
@@ -310,8 +310,8 @@ public class IncomeVsExpenseView extends VerticalLayout {
         Div filterDiv = new Div();
         filterDiv.setWidthFull();
         filterDiv.addClassName("filter-layout");
-        filterDiv.addClassNames(LumoUtility.Padding.Horizontal.LARGE, LumoUtility.Padding.Vertical.MEDIUM,
-                LumoUtility.BoxSizing.BORDER);
+        filterDiv.addClassNames(LumoUtility.Padding.Horizontal.LARGE, LumoUtility.Padding.Vertical.XLARGE,
+                LumoUtility.BoxSizing.BORDER, LumoUtility.Margin.Top.XLARGE, LumoUtility.Margin.Bottom.XLARGE);
 
         // Action buttons
         Button resetBtn = new Button("Reset");
@@ -325,8 +325,10 @@ public class IncomeVsExpenseView extends VerticalLayout {
         HorizontalLayout actions = new HorizontalLayout(filterBtn, resetBtn);
         actions.addClassName(LumoUtility.Gap.SMALL);
         actions.addClassName("actions");
+        actions.setAlignItems(FlexComponent.Alignment.END);
 
-        filterDiv.add(createDateRangeFilter(), actions);
+        // filterDiv.add(createDateRangeFilter(), actions);
+        filterDiv.add(new HorizontalLayout(createDateRangeFilter(), actions));
         return filterDiv;
     }
 

@@ -40,3 +40,7 @@
 .income-vs-expense-view vaadin-date-picker {
     width: 8em; /* Adjust the width as needed */
 }
+
+/*.filter-layout {*/
+/*    margin-top: 60px !important;*/
+/*}*/
