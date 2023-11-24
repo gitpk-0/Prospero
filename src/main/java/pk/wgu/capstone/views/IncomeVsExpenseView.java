@@ -14,7 +14,6 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -36,7 +35,7 @@ import java.util.List;
 @PermitAll
 @CssImport(value = "./themes/prospero/prospero-charts.css", themeFor = "vaadin-chart")
 @CssImport(value = "./themes/prospero/views/i-v-e.css")
-public class IncomeVsExpenseView extends VerticalLayout {
+public class IncomeVsExpenseView extends Div {
 
     private SecurityService securityService;
     private PfmService service;
@@ -63,20 +62,16 @@ public class IncomeVsExpenseView extends VerticalLayout {
         this.userId = securityService.getCurrentUserId(service);
 
         addClassName("income-vs-expense-view");
-        setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.CENTER);
 
         setSizeFull();
-        setAlignItems(Alignment.CENTER);
-        setJustifyContentMode(JustifyContentMode.CENTER);
-
         configureGrids();
 
         filterDiv = createFilterLayout();
 
         add(
-                new VerticalLayout(createFilterLayout(), getTransactionsChart(), getIncomeAndExpenseGridContent())
-                // getTransactionsChart(),
-                // getIncomeAndExpenseGridContent()
+                createFilterLayout(),
+                getTransactionsChart(),
+                getIncomeAndExpenseGridContent()
         );
 
         updateGridData();
@@ -310,8 +305,8 @@ public class IncomeVsExpenseView extends VerticalLayout {
         Div filterDiv = new Div();
         filterDiv.setWidthFull();
         filterDiv.addClassName("filter-layout");
-        filterDiv.addClassNames(LumoUtility.Padding.Horizontal.LARGE, LumoUtility.Padding.Vertical.XLARGE,
-                LumoUtility.BoxSizing.BORDER, LumoUtility.Margin.Top.XLARGE, LumoUtility.Margin.Bottom.XLARGE);
+        filterDiv.addClassNames(LumoUtility.Padding.Horizontal.LARGE, LumoUtility.Padding.Vertical.MEDIUM,
+                LumoUtility.BoxSizing.BORDER, LumoUtility.Margin.Top.SMALL, LumoUtility.Margin.Bottom.SMALL);
 
         // Action buttons
         Button resetBtn = new Button("Reset");
@@ -327,8 +322,10 @@ public class IncomeVsExpenseView extends VerticalLayout {
         actions.addClassName("actions");
         actions.setAlignItems(FlexComponent.Alignment.END);
 
-        // filterDiv.add(createDateRangeFilter(), actions);
-        filterDiv.add(new HorizontalLayout(createDateRangeFilter(), actions));
+        HorizontalLayout dateRangesAndActions = new HorizontalLayout(createDateRangeFilter(), actions);
+        dateRangesAndActions.addClassName("date-ranges-and-actions");
+
+        filterDiv.add(dateRangesAndActions);
         return filterDiv;
     }
 

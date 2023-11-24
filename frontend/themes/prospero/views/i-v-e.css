@@ -18,7 +18,6 @@
 }
 
 .grids-layout {
-    margin-top: -1.5rem;
     grid-gap: 3rem;
 }
 
@@ -41,6 +40,10 @@
     width: 8em; /* Adjust the width as needed */
 }
 
-/*.filter-layout {*/
-/*    margin-top: 60px !important;*/
-/*}*/
+/* Stack the action buttons under the date pickers on mobile */
+@media (max-width: 600px) {
+    .date-ranges-and-actions {
+        display: flex;
+        flex-direction: column;
+    }
+}
