@@ -31,7 +31,6 @@ public class SecurityConfig extends VaadinWebSecurity {
         super.configure(http);
 
         setLoginView(http, LoginView.class); // Set the custom login view for the application
-        http.csrf().disable();
         http
                 .formLogin()
                 .loginPage("/login")
